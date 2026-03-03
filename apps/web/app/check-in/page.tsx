@@ -1,6 +1,5 @@
 "use client";
 // apps/web/app/check-in/page.tsx
-// UI stub — Phase 2 wires real data
 
 import { useState } from "react";
 
@@ -42,8 +41,7 @@ export default function CheckInPage() {
       await fetch("/api/logs", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "x-user-id": "demo-user" },
-        body: JSON.stringify({ day_key: today, energy_1_5: energy,
-                               mood_1_5: mood, stress_1_5: stress, notes }),
+        body: JSON.stringify({ day_key: today, energy, mood, stress, notes }),
       });
       await fetchBrief();
     } catch {
