@@ -62,7 +62,7 @@ function findSignal(records: DayRecord[], signal: string): number | null {
     (a, b) => priority.indexOf(a.record_type) - priority.indexOf(b.record_type),
   );
   for (const rec of sorted) {
-    const val = (rec as Record<string, unknown>)[signal];
+    const val = (rec as unknown as Record<string, unknown>)[signal];
     if (typeof val === "number") return val;
   }
   return null;
