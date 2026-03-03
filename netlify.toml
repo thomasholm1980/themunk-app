@@ -1,0 +1,22 @@
+[build]
+  base    = "apps/web"
+  command = "npm run build"
+  publish = ".next"
+
+[dev]
+  command   = "npm run dev"
+  port      = 3000
+  targetPort = 3000
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Redirect API calls to Netlify Functions
+[[redirects]]
+  from   = "/api/*"
+  to     = "/.netlify/functions/:splat"
+  status = 200
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

@@ -1,0 +1,9 @@
+{
+  "name": "themunk",
+  "private": true,
+  "workspaces": ["apps/web", "packages/*"],
+  "scripts": {
+    "dev": "cd apps/web && npm run dev",
+    "build": "cd apps/web && npm run build"
+  }
+}
