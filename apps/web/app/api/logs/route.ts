@@ -1,46 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthContext, isAuthError } from "../../../lib/auth";
-import { ManualLog } from "../../../../../packages/core";
+import { supabase } from "../../../lib/supabase";
 
-export async function POST(req: NextRequest) {
-  const auth = getAuthContext(req);
-  if (isAuthError(auth)) return auth;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-
-  const parsed = parseManualLog(body, auth.userId);
-  if ("error" in parsed) {
-    return NextResponse.json({ error: parsed.error }, { status: 422 });
-  }
-
-  return NextResponse.json(
-    { ok: true, data: parsed, message: "Log received (stub)" },
-    { status: 201 }
-  );
+function getUserId(req: NextRequest): string {
+  return req.headers.get("x-user-id") ?? "anonymous";
 }
 
-function parseManualLog(body: unknown, userId: string): ManualLog | { error: string } {
-  if (typeof body !== "object" || body === null) return { error: "Body must be an object" };
+interface LogInput {
+  day_key: string;
+  energy: number;
+  mood: number;
+  stress: number;
+  notes?: string;
+}
+
+function validate(body: unknown): LogInput | { error: string } {
+  if (typeof body !== "object" || body === null)
+    return { error: "Body must be an object" };
   const b = body as Record<string, unknown>;
-  const day_key = b["day_key"];
-  if (typeof day_key !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(day_key))
+  if (typeof b.day_key !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(b.day_key))
     return { error: "day_key must be YYYY-MM-DD" };
-  for (const field of ["energy_1_5", "mood_1_5", "stress_1_5"]) {
+  for (const field of ["energy", "mood", "stress"]) {
     const v = b[field];
-    if (typeof v !== "number" || v < 1 || v > 5)
-      return { error: `${field} must be a number 1–5` };
+    if (typeof v !== "number" || !Number.isInteger(v) || v < 1 || v > 5)
+      return { error: `${field} must be an integer 1-5` };
   }
   return {
-    user_id: userId, day_key,
-    energy_1_5: b["energy_1_5"] as number,
-    mood_1_5: b["mood_1_5"] as number,
-    stress_1_5: b["stress_1_5"] as number,
-    notes: typeof b["notes"] === "string" ? b["notes"] : null,
-    created_at: new Date().toISOString(),
+    day_key: b.day_key as string,
+    energy: b.energy as number,
+    mood: b.mood as number,
+    stress: b.stress as number,
+    notes: typeof b.notes === "string" ? b.notes : undefined,
   };
+}
+
+export async function POST(req: NextRequest) {
+  let body: unknown;
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+
+  const input = validate(body);
+  if ("error" in input)
+    return NextResponse.json({ error: input.error }, { status: 422 });
+
+  const { error } = await supabase.from("manual_logs").insert({
+    user_id: getUserId(req),
+    day_key: input.day_key,
+    energy: input.energy,
+    mood: input.mood,
+    stress: input.stress,
+    notes: input.notes ?? null,
+  });
+
+  if (error) {
+    console.error("Supabase insert error:", error);
+    return NextResponse.json({ error: "Database error" }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
