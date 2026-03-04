@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
   const requestId = getRequestId(req);
   const today = getTodayOslo();
 
-  // --- Check existing state ---
   const { data: existing } = await supabase
     .from("daily_state")
     .select("state, confidence, reasons, state_trace, created_at")
@@ -27,7 +26,6 @@ export async function GET(req: NextRequest) {
     .eq("day_key", today)
     .single();
 
-  // --- Check latest log for today ---
   const { data: latestLog } = await supabase
     .from("manual_logs")
     .select("created_at")
@@ -37,7 +35,6 @@ export async function GET(req: NextRequest) {
     .limit(1)
     .single();
 
-  // --- Input-change gating ---
   const hasNewInput = !existing
     || !latestLog
     || new Date(latestLog.created_at) > new Date(existing.created_at);
@@ -64,30 +61,35 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // --- Fetch logs (7 days) ---
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const fromDate = sevenDaysAgo.toISOString().slice(0, 10);
 
   const { data: logs, error } = await supabase
     .from("manual_logs")
-    .select("day_key, energy, mood, stress")
+    .select("day_key, energy, mood, stress, created_at")
     .eq("user_id", userId)
     .gte("day_key", fromDate)
     .lte("day_key", today)
-    .order("day_key", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 
-  const byDay = new Map<string, (typeof logs)[0]>();
+  const byDay = new Map<string, { day_key: string; energy: number; mood: number; stress: number }>();
   for (const log of logs ?? []) {
-    if (!byDay.has(log.day_key)) byDay.set(log.day_key, log);
+    if (!byDay.has(log.day_key)) {
+      byDay.set(log.day_key, {
+        day_key: log.day_key,
+        energy: log.energy,
+        mood: log.mood,
+        stress: log.stress,
+      });
+    }
   }
   const deduped = Array.from(byDay.values());
 
-  // --- Compute state ---
   const result = computeState(deduped);
 
   const gating = {
@@ -103,7 +105,6 @@ export async function GET(req: NextRequest) {
     gating,
   };
 
-  // --- Upsert to daily_state ---
   const { error: upsertError } = await supabase.from("daily_state").upsert(
     {
       user_id: userId,
