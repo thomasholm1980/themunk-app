@@ -1,5 +1,4 @@
 "use client";
-// apps/web/app/check-in/page.tsx
 
 import { useEffect, useState } from "react";
 
@@ -9,50 +8,74 @@ const STATE_COLOR: Record<string, string> = {
   RED: "text-red-400 border-red-400",
 };
 
+type Intensity = "high" | "medium" | "low";
+
 interface Intervention {
-  intensity: "high" | "medium" | "low";
+  intensity: Intensity;
   action: string;
   secondary: string;
   duration?: number;
 }
 
 interface UIState {
-  state: string;
-  confidence: number;
+  state: "GREEN" | "YELLOW" | "RED";
+  confidence: number; // 0..1
   reasons: string[];
   intervention: Intervention;
   days_with_data: number;
 }
 
+function fallbackState(): UIState {
+  return {
+    state: "YELLOW",
+    confidence: 0,
+    reasons: ["Ingen data ennå"],
+    intervention: {
+      intensity: "low",
+      action: "Logg dagens tilstand",
+      secondary: "Dette hjelper modellen lære",
+    },
+    days_with_data: 0,
+  };
+}
+
 function mapStateToUI(res: any): UIState {
-  // Hvis API returnerer { state: null } eller mangler felt
-  if (!res || !res.state) {
-    return {
-      state: "YELLOW",
-      confidence: 0,
-      reasons: ["Ingen data ennå"],
-      intervention: {
-        intensity: "low",
-        action: "Logg dagens tilstand",
-        secondary: "Dette hjelper modellen lære",
-      },
-      days_with_data: 0,
-    };
-  }
+  if (!res || !res.state) return fallbackState();
+
+  const state = (res.state as string).toUpperCase();
+  const safeState: UIState["state"] =
+    state === "GREEN" || state === "YELLOW" || state === "RED" ? state : "YELLOW";
+
+  const reasons: string[] =
+    Array.isArray(res.reasons) && res.reasons.length > 0 ? res.reasons : ["Ingen forklaring tilgjengelig"];
+
+  const intervention: Intervention =
+    res.intervention && typeof res.intervention === "object"
+      ? {
+          intensity: (res.intervention.intensity ?? "low") as Intensity,
+          action: String(res.intervention.action ?? "Ingen anbefaling tilgjengelig"),
+          secondary: String(res.intervention.secondary ?? ""),
+          duration:
+            res.intervention.duration !== undefined ? Number(res.intervention.duration) : undefined,
+        }
+      : {
+          intensity: "low",
+          action: "Ingen anbefaling tilgjengelig",
+          secondary: "",
+        };
+
+  const confidence =
+    typeof res.confidence === "number" && isFinite(res.confidence) ? res.confidence : 0;
+
+  const days_with_data =
+    typeof res.meta?.days_with_data === "number" ? res.meta.days_with_data : 0;
 
   return {
-    state: res.state,
-    confidence: typeof res.confidence === "number" ? res.confidence : 0,
-    reasons: Array.isArray(res.reasons) ? res.reasons : [],
-    intervention:
-      res.intervention && typeof res.intervention === "object"
-        ? res.intervention
-        : {
-            intensity: "low",
-            action: "Ingen anbefaling tilgjengelig",
-            secondary: "",
-          },
-    days_with_data: res.meta?.days_with_data ?? 0,
+    state: safeState,
+    confidence,
+    reasons,
+    intervention,
+    days_with_data,
   };
 }
 
@@ -62,24 +85,8 @@ export default function CheckInPage() {
   const [stress, setStress] = useState(3);
   const [notes, setNotes] = useState("");
 
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
-    "idle"
-  );
-
-  const [uiState, setUiState] = useState<UIState | null>(null);
-
-  // Hydration-safe dato (unngår mismatch mellom server/client)
-  const [dateLabel, setDateLabel] = useState<string>("");
-
-  useEffect(() => {
-    setDateLabel(
-      new Date().toLocaleDateString("no-NO", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      })
-    );
-  }, []);
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [uiState, setUiState] = useState<UIState>(fallbackState());
 
   async function fetchState() {
     const res = await fetch("/api/state/today", {
@@ -87,22 +94,15 @@ export default function CheckInPage() {
       cache: "no-store",
     });
 
-    if (!res.ok) throw new Error("State fetch failed");
+    // hvis API feiler, behold fallback (ikke crash)
+    if (!res.ok) {
+      setUiState(fallbackState());
+      return;
+    }
 
     const json = await res.json();
     setUiState(mapStateToUI(json));
   }
-
-  // Hent state automatisk når siden åpnes
-  useEffect(() => {
-    fetchState().catch(() => {
-      // Ikke sett global error på initial load – vi viser fallback
-      setUiState(
-        mapStateToUI(null)
-      );
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function submitLog() {
     setStatus("loading");
@@ -135,17 +135,28 @@ export default function CheckInPage() {
     }
   }
 
+  // Hent state når siden lastes (hydration-safe)
+  useEffect(() => {
+    fetchState().catch(() => setUiState(fallbackState()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const dateLabel =
+    typeof window === "undefined"
+      ? ""
+      : new Date().toLocaleDateString("no-NO", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        });
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-md space-y-10">
         {/* Header */}
         <div className="text-center space-y-2">
-          <p className="text-xs tracking-[0.3em] uppercase text-gray-500">
-            The Munk
-          </p>
-
+          <p className="text-xs tracking-[0.3em] uppercase text-gray-500">The Munk</p>
           <h1 className="text-3xl font-light">Dagens innsjekk</h1>
-
           <p className="text-sm text-gray-500">{dateLabel}</p>
         </div>
 
@@ -184,8 +195,8 @@ export default function CheckInPage() {
               rows={2}
               placeholder="Noe som påvirket dagen?"
               className="w-full bg-[#1a1a1a] border border-gray-700 rounded px-3 py-2
-              text-sm text-gray-200 placeholder-gray-600 resize-none
-              focus:outline-none focus:border-gray-500"
+                         text-sm text-gray-200 placeholder-gray-600 resize-none
+                         focus:outline-none focus:border-gray-500"
             />
           </div>
         </div>
@@ -195,57 +206,49 @@ export default function CheckInPage() {
           onClick={submitLog}
           disabled={status === "loading"}
           className="w-full py-3 border border-gray-600 text-sm tracking-widest uppercase
-          hover:border-gray-400 transition-colors disabled:opacity-40"
+                     hover:border-gray-400 transition-colors disabled:opacity-40"
         >
           {status === "loading" ? "Laster…" : "Send inn"}
         </button>
 
         {/* Result */}
-        {uiState && (
-          <div
-            className={`border rounded p-6 space-y-4 ${
-              STATE_COLOR[uiState.state] ?? "border-gray-600 text-gray-200"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs tracking-widest uppercase">Tilstand</span>
-              <span className="text-2xl font-light">{uiState.state}</span>
-            </div>
-
-            <ul className="space-y-1">
-              {uiState.reasons.map((r, i) => (
-                <li key={i} className="text-sm text-gray-300">
-                  {r}
-                </li>
-              ))}
-            </ul>
-
-            {/* Intervention */}
-            <div className="border-t border-gray-700 pt-4 space-y-2">
-              <p className="text-xs tracking-widest uppercase text-gray-500">
-                Anbefalt handling
-              </p>
-
-              <p className="text-sm font-medium">{uiState.intervention.action}</p>
-              <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
-
-              {uiState.intervention.duration && (
-                <p className="text-xs text-gray-600">
-                  {uiState.intervention.duration} min
-                </p>
-              )}
-            </div>
-
-            <p className="text-xs text-gray-600">
-              Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med data:{" "}
-              {uiState.days_with_data}
-            </p>
+        <div
+          className={`border rounded p-6 space-y-4 ${
+            STATE_COLOR[uiState.state] ?? "border-gray-600"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs tracking-widest uppercase">Tilstand</span>
+            <span className="text-2xl font-light">{uiState.state}</span>
           </div>
-        )}
+
+          <ul className="space-y-1">
+            {uiState.reasons.map((r, i) => (
+              <li key={i} className="text-sm text-gray-300">
+                {r}
+              </li>
+            ))}
+          </ul>
+
+          {/* Intervention */}
+          <div className="border-t border-gray-700 pt-4 space-y-2">
+            <p className="text-xs tracking-widest uppercase text-gray-500">Anbefalt handling</p>
+            <p className="text-sm font-medium">{uiState.intervention.action}</p>
+            <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
+            {uiState.intervention.duration !== undefined && (
+              <p className="text-xs text-gray-600">{uiState.intervention.duration} min</p>
+            )}
+          </div>
+
+          <p className="text-xs text-gray-600">
+            Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med data:{" "}
+            {uiState.days_with_data}
+          </p>
+        </div>
 
         {status === "error" && (
           <p className="text-center text-sm text-red-400">
-            Kunne ikke hente state. Prøv igjen.
+            Kunne ikke lagre eller hente state. Prøv igjen.
           </p>
         )}
       </div>
