@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { computeState } from '@themunk/core/state/pipeline';
-import { computeIntervention } from '@themunk/core/state/intervention';
+import { computeState, computeIntervention } from '@themunk/core';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -39,11 +38,12 @@ export async function GET(request: Request) {
   }
 
   // Always compute — never gate on persistence
-  const { state, confidence, reasons, trace } = computeState({
+  const { state, confidence, reasons, trace } = computeState([{
+    day_key: dayKey,
     energy: latest.energy,
     mood: latest.mood,
     stress: latest.stress,
-  });
+  }]);
 
   const intervention = computeIntervention(state);
 
