@@ -1,159 +1,80 @@
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
+import { computeState } from '@packages/core/state/pipeline';
+import { computeIntervention } from '@packages/core/state/intervention';
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "../../../../lib/supabase";
-import { computeState } from "../../../../../../packages/core/state/pipeline";
+const OSLO_TZ = 'Europe/Oslo';
 
-function getUserId(req: NextRequest): string {
-  return req.headers.get("x-user-id") ?? "anonymous";
+function getOsloDateKey(): string {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: OSLO_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
 }
 
-function getRequestId(req: NextRequest): string {
-  return req.headers.get("x-request-id") ?? crypto.randomUUID();
-}
+export async function GET(request: Request) {
+  const userId = request.headers.get('x-user-id') ?? 'demo-user';
+  const dayKey = getOsloDateKey();
 
-function getTodayOslo(): string {
-  return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Oslo" });
-}
+  const { data: logs } = await supabase
+    .from('manual_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-const NO_CACHE_HEADERS = {
-  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-  "Pragma": "no-cache",
-  "Expires": "0",
-};
+  const latest = logs?.[0];
 
-export async function GET(req: NextRequest) {
-  const userId = getUserId(req);
-  const requestId = getRequestId(req);
-  const today = getTodayOslo();
+  if (!latest) {
+    return NextResponse.json(
+      { state: null, message: 'No log for today' },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
+
+  const { state, confidence, reasons, trace } = computeState({
+    energy: latest.energy,
+    mood: latest.mood,
+    stress: latest.stress,
+  });
+
+  const intervention = computeIntervention(state);
 
   const { data: existing } = await supabase
-    .from("daily_state")
-    .select("state, confidence, reasons, state_trace, created_at")
-    .eq("user_id", userId)
-    .eq("day_key", today)
+    .from('daily_state')
+    .select('created_at')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
     .single();
 
-  const { data: latestLog } = await supabase
-    .from("manual_logs")
-    .select("created_at")
-    .eq("user_id", userId)
-    .eq("day_key", today)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
+  const shouldWrite = !existing || 
+    (Date.now() - new Date(existing.created_at).getTime()) > 6 * 60 * 60 * 1000;
 
-  const hasNewInput = !existing
-    || !latestLog
-    || new Date(latestLog.created_at) > new Date(existing.created_at);
-
-  if (existing && !hasNewInput) {
-    console.log(JSON.stringify({
-      event: "state_request_cached",
-      request_id: requestId,
+  if (shouldWrite) {
+    await supabase.from('daily_state').upsert({
       user_id: userId,
-      day_key: today,
-      state: existing.state,
-      confidence: existing.confidence,
-      reason: "no_new_inputs",
-    }));
+      day_key: dayKey,
+      state,
+      confidence,
+      reasons,
+      state_trace: trace,
+    });
 
-    return NextResponse.json({
-      state: existing.state,
-      confidence: existing.confidence,
-      reasons: existing.reasons,
-      meta: {
-        ...(existing.state_trace?.inputs ?? {}),
-        cached: true,
-      },
-    }, { headers: NO_CACHE_HEADERS });
-  }
-
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const fromDate = sevenDaysAgo.toISOString().slice(0, 10);
-
-  const { data: logs, error } = await supabase
-    .from("manual_logs")
-    .select("day_key, energy, mood, stress, created_at")
-    .eq("user_id", userId)
-    .gte("day_key", fromDate)
-    .lte("day_key", today)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return NextResponse.json({ error: "Database error" }, { status: 500, headers: NO_CACHE_HEADERS });
-  }
-
-  const byDay = new Map<string, { day_key: string; energy: number; mood: number; stress: number }>();
-  for (const log of logs ?? []) {
-    if (!byDay.has(log.day_key)) {
-      byDay.set(log.day_key, {
-        day_key: log.day_key,
-        energy: log.energy,
-        mood: log.mood,
-        stress: log.stress,
-      });
-    }
-  }
-  const deduped = Array.from(byDay.values());
-
-  const result = computeState(deduped);
-
-  const gating = {
-    had_existing_state: !!existing,
-    recomputed: true,
-    reason: existing
-      ? "New input detected since last computation"
-      : "No existing state for today",
-  };
-
-  const stateTrace = {
-    ...result.trace,
-    gating,
-  };
-
-  const { error: upsertError } = await supabase.from("daily_state").upsert(
-    {
+    await supabase.from('daily_intervention').upsert({
       user_id: userId,
-      day_key: today,
-      state: result.state,
-      confidence: result.confidence,
-      reasons: result.reasons,
-      state_trace: stateTrace,
-      created_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,day_key" }
+      day_key: dayKey,
+      intervention,
+    });
+  }
+
+  return NextResponse.json(
+    { state, confidence, reasons, intervention },
+    { headers: { 'Cache-Control': 'no-store' } }
   );
-
-  if (upsertError) {
-    console.error("Supabase upsert error:", upsertError);
-  }
-
-  console.log(JSON.stringify({
-    event: "state_computed",
-    request_id: requestId,
-    user_id: userId,
-    day_key: today,
-    state: result.state,
-    confidence: result.confidence,
-    days_of_data: result.days_with_data,
-    avg_energy_7d: result.avg_energy_7d,
-    avg_stress_7d: result.avg_stress_7d,
-    avg_mood_7d: result.avg_mood_7d,
-  }));
-
-  return NextResponse.json({
-    state: result.state,
-    confidence: result.confidence,
-    reasons: result.reasons,
-    meta: {
-      avg_energy_7d: result.avg_energy_7d,
-      avg_stress_7d: result.avg_stress_7d,
-      avg_mood_7d: result.avg_mood_7d,
-      days_with_data: result.days_with_data,
-      cached: false,
-    },
-  }, { headers: NO_CACHE_HEADERS });
 }
