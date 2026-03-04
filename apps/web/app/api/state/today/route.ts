@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../../lib/supabase";
 import { computeState } from "../../../../../../packages/core/state/pipeline";
@@ -13,6 +16,12 @@ function getRequestId(req: NextRequest): string {
 function getTodayOslo(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Oslo" });
 }
+
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  "Pragma": "no-cache",
+  "Expires": "0",
+};
 
 export async function GET(req: NextRequest) {
   const userId = getUserId(req);
@@ -58,7 +67,7 @@ export async function GET(req: NextRequest) {
         ...(existing.state_trace?.inputs ?? {}),
         cached: true,
       },
-    });
+    }, { headers: NO_CACHE_HEADERS });
   }
 
   const sevenDaysAgo = new Date();
@@ -74,7 +83,7 @@ export async function GET(req: NextRequest) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: "Database error" }, { status: 500 });
+    return NextResponse.json({ error: "Database error" }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 
   const byDay = new Map<string, { day_key: string; energy: number; mood: number; stress: number }>();
@@ -146,5 +155,5 @@ export async function GET(req: NextRequest) {
       days_with_data: result.days_with_data,
       cached: false,
     },
-  });
+  }, { headers: NO_CACHE_HEADERS });
 }
