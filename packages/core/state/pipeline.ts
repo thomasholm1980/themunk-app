@@ -1,119 +1,84 @@
-// packages/core/state/pipeline.ts
-// Deterministic state pipeline — no LLM, no medical logic
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
+import { computeState } from '@themunk/core/state/pipeline';
+import { computeIntervention } from '@themunk/core/state/intervention';
 
-export type GYRState = "GREEN" | "YELLOW" | "RED";
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export interface LogRow {
-  day_key: string;
-  energy: number;
-  mood: number;
-  stress: number;
+const OSLO_TZ = 'Europe/Oslo';
+
+function getOsloDateKey(): string {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: OSLO_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
 }
 
-// Thresholds — single source of truth
-const THRESHOLDS = {
-  GREEN_ENERGY_MIN: 3.8,
-  GREEN_STRESS_MAX: 2.5,
-  RED_ENERGY_MAX: 2.5,
-  RED_STRESS_MIN: 4.0,
-  CONFIDENCE_HIGH: 5,   // days needed for confidence 1.0
-  CONFIDENCE_MED: 3,    // days needed for confidence 0.6
-} as const;
+export async function GET(request: Request) {
+  const userId = request.headers.get('x-user-id') ?? 'demo-user';
+  const dayKey = getOsloDateKey();
 
-export interface StateTrace {
-  inputs: {
-    days_of_data: number;
-    avg_energy_7d: number;
-    avg_stress_7d: number;
-    avg_mood_7d: number;
-  };
-  rules: {
-    thresholds: typeof THRESHOLDS;
-    triggered_rule: string;
-    reasons: string[];
-  };
-  decision: {
-    state: GYRState;
-    confidence: number;
-  };
-}
+  const { data: logs } = await supabase
+    .from('manual_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-export interface StateResult {
-  state: GYRState;
-  confidence: number;
-  reasons: string[];
-  avg_energy_7d: number;
-  avg_stress_7d: number;
-  avg_mood_7d: number;
-  days_with_data: number;
-  trace: StateTrace;
-}
+  const latest = logs?.[0];
 
-export function computeState(logs: LogRow[]): StateResult {
-  const days = logs.length;
-
-  if (days === 0) {
-    const trace: StateTrace = {
-      inputs: { days_of_data: 0, avg_energy_7d: 0, avg_stress_7d: 0, avg_mood_7d: 0 },
-      rules: { thresholds: THRESHOLDS, triggered_rule: "NO_DATA_DEFAULT", reasons: ["No data available"] },
-      decision: { state: "YELLOW", confidence: 0.0 },
-    };
-    return {
-      state: "YELLOW",
-      confidence: 0.0,
-      reasons: ["No data available"],
-      avg_energy_7d: 0,
-      avg_stress_7d: 0,
-      avg_mood_7d: 0,
-      days_with_data: 0,
-      trace,
-    };
+  if (!latest) {
+    return NextResponse.json(
+      { state: null, message: 'No log for today' },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   }
 
-  const avg_energy_7d = Math.round((logs.reduce((s, l) => s + l.energy, 0) / days) * 100) / 100;
-  const avg_stress_7d = Math.round((logs.reduce((s, l) => s + l.stress, 0) / days) * 100) / 100;
-  const avg_mood_7d   = Math.round((logs.reduce((s, l) => s + l.mood, 0) / days) * 100) / 100;
+  // Always compute — never gate on persistence
+  const { state, confidence, reasons, trace } = computeState([{
+    day_key: dayKey,
+    energy: latest.energy,
+    mood: latest.mood,
+    stress: latest.stress,
+  }]);
 
-  let confidence: number;
-  if (days >= THRESHOLDS.CONFIDENCE_HIGH) confidence = 1.0;
-  else if (days >= THRESHOLDS.CONFIDENCE_MED) confidence = 0.6;
-  else confidence = 0.3;
+  const intervention = computeIntervention(state);
 
-  const reasons: string[] = [];
-  let state: GYRState;
-  let triggered_rule: string;
+  // Persistence gating — DB only, never affects return value
+  const { data: existing } = await supabase
+    .from('daily_state')
+    .select('created_at')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
+    .single();
 
-  if (avg_energy_7d >= THRESHOLDS.GREEN_ENERGY_MIN && avg_stress_7d <= THRESHOLDS.GREEN_STRESS_MAX) {
-    state = "GREEN";
-    triggered_rule = "GREEN_RULE";
-    reasons.push("Energy sustained above baseline");
-    reasons.push("Stress well within range");
-  } else if (avg_energy_7d <= THRESHOLDS.RED_ENERGY_MAX || avg_stress_7d >= THRESHOLDS.RED_STRESS_MIN) {
-    state = "RED";
-    triggered_rule = "RED_RULE";
-    if (avg_energy_7d <= THRESHOLDS.RED_ENERGY_MAX) reasons.push("Energy critically low");
-    if (avg_stress_7d >= THRESHOLDS.RED_STRESS_MIN) reasons.push("Stress critically elevated");
-  } else {
-    state = "YELLOW";
-    triggered_rule = "YELLOW_DEFAULT";
-    if (avg_energy_7d < THRESHOLDS.GREEN_ENERGY_MIN) reasons.push("Energy moderate");
-    if (avg_stress_7d > THRESHOLDS.GREEN_STRESS_MAX) reasons.push("Stress trend elevated");
+  const shouldWrite = !existing ||
+    (Date.now() - new Date(existing.created_at).getTime()) > 6 * 60 * 60 * 1000;
+
+  if (shouldWrite) {
+    await supabase.from('daily_state').upsert({
+      user_id: userId,
+      day_key: dayKey,
+      state,
+      confidence,
+      reasons,
+      state_trace: trace,
+    });
+
+    await supabase.from('daily_intervention').upsert({
+      user_id: userId,
+      day_key: dayKey,
+      intervention,
+    });
   }
 
-  const trace: StateTrace = {
-    inputs: { days_of_data: days, avg_energy_7d, avg_stress_7d, avg_mood_7d },
-    rules: { thresholds: THRESHOLDS, triggered_rule, reasons: [...reasons] },
-    decision: { state, confidence },
-  };
-
-  return {
-    state,
-    confidence,
-    reasons,
-    avg_energy_7d,
-    avg_stress_7d,
-    avg_mood_7d,
-    days_with_data: days,
-    trace,
-  };
+  // Always return — intervention is a pure function of state
+  return NextResponse.json(
+    { state, confidence, reasons, intervention },
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
 }
