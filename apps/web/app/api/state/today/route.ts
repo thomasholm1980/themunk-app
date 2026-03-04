@@ -38,6 +38,7 @@ export async function GET(request: Request) {
     );
   }
 
+  // Always compute — never gate on persistence
   const { state, confidence, reasons, trace } = computeState({
     energy: latest.energy,
     mood: latest.mood,
@@ -46,6 +47,7 @@ export async function GET(request: Request) {
 
   const intervention = computeIntervention(state);
 
+  // Persistence gating — DB only, never affects return value
   const { data: existing } = await supabase
     .from('daily_state')
     .select('created_at')
@@ -53,7 +55,7 @@ export async function GET(request: Request) {
     .eq('day_key', dayKey)
     .single();
 
-  const shouldWrite = !existing || 
+  const shouldWrite = !existing ||
     (Date.now() - new Date(existing.created_at).getTime()) > 6 * 60 * 60 * 1000;
 
   if (shouldWrite) {
@@ -73,6 +75,7 @@ export async function GET(request: Request) {
     });
   }
 
+  // Always return — intervention is a pure function of state
   return NextResponse.json(
     { state, confidence, reasons, intervention },
     { headers: { 'Cache-Control': 'no-store' } }
