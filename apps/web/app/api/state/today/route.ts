@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { computeState } from '@packages/core/state/pipeline';
-import { computeIntervention } from '@packages/core/state/intervention';
+import { computeState } from '../../../../packages/core/state/pipeline';
+import { computeIntervention } from '../../../../packages/core/state/intervention';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
