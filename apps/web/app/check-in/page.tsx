@@ -1,7 +1,7 @@
 "use client";
 // apps/web/app/check-in/page.tsx
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const STATE_COLOR: Record<string, string> = {
   GREEN: "text-green-400 border-green-400",
@@ -25,6 +25,7 @@ interface UIState {
 }
 
 function mapStateToUI(res: any): UIState {
+  // Hvis API returnerer { state: null } eller mangler felt
   if (!res || !res.state) {
     return {
       state: "YELLOW",
@@ -41,13 +42,16 @@ function mapStateToUI(res: any): UIState {
 
   return {
     state: res.state,
-    confidence: res.confidence ?? 0,
-    reasons: res.reasons ?? [],
-    intervention: res.intervention ?? {
-      intensity: "low",
-      action: "Ingen anbefaling tilgjengelig",
-      secondary: "",
-    },
+    confidence: typeof res.confidence === "number" ? res.confidence : 0,
+    reasons: Array.isArray(res.reasons) ? res.reasons : [],
+    intervention:
+      res.intervention && typeof res.intervention === "object"
+        ? res.intervention
+        : {
+            intensity: "low",
+            action: "Ingen anbefaling tilgjengelig",
+            secondary: "",
+          },
     days_with_data: res.meta?.days_with_data ?? 0,
   };
 }
@@ -64,9 +68,23 @@ export default function CheckInPage() {
 
   const [uiState, setUiState] = useState<UIState | null>(null);
 
+  // Hydration-safe dato (unngår mismatch mellom server/client)
+  const [dateLabel, setDateLabel] = useState<string>("");
+
+  useEffect(() => {
+    setDateLabel(
+      new Date().toLocaleDateString("no-NO", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      })
+    );
+  }, []);
+
   async function fetchState() {
     const res = await fetch("/api/state/today", {
       headers: { "x-user-id": "demo-user" },
+      cache: "no-store",
     });
 
     if (!res.ok) throw new Error("State fetch failed");
@@ -74,6 +92,17 @@ export default function CheckInPage() {
     const json = await res.json();
     setUiState(mapStateToUI(json));
   }
+
+  // Hent state automatisk når siden åpnes
+  useEffect(() => {
+    fetchState().catch(() => {
+      // Ikke sett global error på initial load – vi viser fallback
+      setUiState(
+        mapStateToUI(null)
+      );
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function submitLog() {
     setStatus("loading");
@@ -99,7 +128,6 @@ export default function CheckInPage() {
       if (!logRes.ok) throw new Error("Log save failed");
 
       await fetchState();
-
       setStatus("done");
     } catch (err) {
       console.error(err);
@@ -118,13 +146,7 @@ export default function CheckInPage() {
 
           <h1 className="text-3xl font-light">Dagens innsjekk</h1>
 
-          <p className="text-sm text-gray-500">
-            {new Date().toLocaleDateString("no-NO", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })}
-          </p>
+          <p className="text-sm text-gray-500">{dateLabel}</p>
         </div>
 
         {/* Sliders */}
@@ -154,9 +176,7 @@ export default function CheckInPage() {
 
           {/* Notes */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">
-              Notater (valgfritt)
-            </label>
+            <label className="text-sm text-gray-400">Notater (valgfritt)</label>
 
             <textarea
               value={notes}
@@ -184,14 +204,11 @@ export default function CheckInPage() {
         {uiState && (
           <div
             className={`border rounded p-6 space-y-4 ${
-              STATE_COLOR[uiState.state] ?? "border-gray-600"
+              STATE_COLOR[uiState.state] ?? "border-gray-600 text-gray-200"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs tracking-widest uppercase">
-                Tilstand
-              </span>
-
+              <span className="text-xs tracking-widest uppercase">Tilstand</span>
               <span className="text-2xl font-light">{uiState.state}</span>
             </div>
 
@@ -209,13 +226,8 @@ export default function CheckInPage() {
                 Anbefalt handling
               </p>
 
-              <p className="text-sm font-medium">
-                {uiState.intervention.action}
-              </p>
-
-              <p className="text-sm text-gray-400">
-                {uiState.intervention.secondary}
-              </p>
+              <p className="text-sm font-medium">{uiState.intervention.action}</p>
+              <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
 
               {uiState.intervention.duration && (
                 <p className="text-xs text-gray-600">
@@ -225,8 +237,8 @@ export default function CheckInPage() {
             </div>
 
             <p className="text-xs text-gray-600">
-              Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med
-              data: {uiState.days_with_data}
+              Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med data:{" "}
+              {uiState.days_with_data}
             </p>
           </div>
         )}
