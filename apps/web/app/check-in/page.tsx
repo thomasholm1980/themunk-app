@@ -9,41 +9,65 @@ const STATE_COLOR: Record<string, string> = {
   RED:    "text-red-400 border-red-400",
 };
 
+// Thin mapper: /api/state/today response → UI format
+interface StateResponse {
+  state: string;
+  confidence: number;
+  reasons: string[];
+  meta: {
+    avg_energy_7d: number;
+    avg_stress_7d: number;
+    avg_mood_7d: number;
+    days_with_data: number;
+    cached: boolean;
+  };
+}
+
+interface UIState {
+  state: string;
+  confidence: number;
+  reasons: string[];
+  days_with_data: number;
+}
+
+function mapStateToUI(res: StateResponse): UIState {
+  return {
+    state: res.state,
+    confidence: res.confidence,
+    reasons: res.reasons,
+    days_with_data: res.meta.days_with_data,
+  };
+}
+
 export default function CheckInPage() {
   const [energy,  setEnergy]  = useState(3);
   const [mood,    setMood]    = useState(3);
   const [stress,  setStress]  = useState(3);
   const [notes,   setNotes]   = useState("");
   const [status,  setStatus]  = useState<"idle"|"loading"|"done"|"error">("idle");
-  const [brief,   setBrief]   = useState<null | {
-    state: string; one_action: { instruction: string; category: string };
-    state_confidence: number;
-  }>(null);
+  const [uiState, setUiState] = useState<UIState | null>(null);
 
-  async function fetchBrief() {
-    setStatus("loading");
-    try {
-      const res = await fetch("/api/brief/today", {
-        headers: { "x-user-id": "demo-user" },
-      });
-      const json = await res.json();
-      setBrief(json.data);
-      setStatus("done");
-    } catch {
-      setStatus("error");
-    }
+  async function fetchState() {
+    const res = await fetch("/api/state/today", {
+      headers: { "x-user-id": "demo-user" },
+    });
+    if (!res.ok) throw new Error("State fetch failed");
+    const json: StateResponse = await res.json();
+    setUiState(mapStateToUI(json));
   }
 
   async function submitLog() {
     setStatus("loading");
     const today = new Date().toISOString().slice(0, 10);
     try {
-      await fetch("/api/logs", {
+      const logRes = await fetch("/api/logs", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "x-user-id": "demo-user" },
         body: JSON.stringify({ day_key: today, energy, mood, stress, notes }),
       });
-      await fetchBrief();
+      if (!logRes.ok) throw new Error("Log save failed");
+      await fetchState();
+      setStatus("done");
     } catch {
       setStatus("error");
     }
@@ -97,25 +121,29 @@ export default function CheckInPage() {
           {status === "loading" ? "Laster…" : "Send inn"}
         </button>
 
-        {/* Brief result */}
-        {brief && (
-          <div className={`border rounded p-6 space-y-4 ${STATE_COLOR[brief.state]}`}>
+        {/* State result */}
+        {uiState && (
+          <div className={`border rounded p-6 space-y-4 ${STATE_COLOR[uiState.state]}`}>
             <div className="flex items-center justify-between">
               <span className="text-xs tracking-widest uppercase">Tilstand</span>
-              <span className="text-2xl font-light">{brief.state}</span>
+              <span className="text-2xl font-light">{uiState.state}</span>
             </div>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              {brief.one_action.instruction}
-            </p>
+            <ul className="space-y-1">
+              {uiState.reasons.map((r, i) => (
+                <li key={i} className="text-sm text-gray-300">{r}</li>
+              ))}
+            </ul>
             <p className="text-xs text-gray-600">
-              Konfidans: {Math.round(brief.state_confidence * 100)}% ·{" "}
-              Kategori: {brief.one_action.category}
+              Konfidans: {Math.round(uiState.confidence * 100)}% ·{" "}
+              Dager med data: {uiState.days_with_data}
             </p>
           </div>
         )}
 
         {status === "error" && (
-          <p className="text-center text-sm text-red-400">Noe gikk galt. Prøv igjen.</p>
+          <p className="text-center text-sm text-red-400">
+            Kunne ikke hente state. Prøv igjen.
+          </p>
         )}
       </div>
     </main>
