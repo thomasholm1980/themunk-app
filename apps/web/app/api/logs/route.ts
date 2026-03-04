@@ -1,147 +1,60 @@
-// apps/web/app/api/state/today/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "../../../../lib/supabase";
-import { computeState } from "../../../../../../packages/core/state/pipeline";
-
-const DUPLICATE_WINDOW_MS = 6 * 60 * 60 * 1000; // 6 hours
+import { supabase } from "../../../lib/supabase";
 
 function getUserId(req: NextRequest): string {
   return req.headers.get("x-user-id") ?? "anonymous";
 }
 
-function getRequestId(req: NextRequest): string {
-  return req.headers.get("x-request-id") ?? crypto.randomUUID();
+interface LogInput {
+  day_key: string;
+  energy: number;
+  mood: number;
+  stress: number;
+  notes?: string;
 }
 
-// Timezone-safe day_key: always Europe/Oslo
-function getTodayOslo(): string {
-  return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Oslo" });
-  // "sv-SE" returns YYYY-MM-DD format
-}
-
-export async function GET(req: NextRequest) {
-  const userId = getUserId(req);
-  const requestId = getRequestId(req);
-  const today = getTodayOslo();
-
-  // --- Duplicate protection ---
-  const { data: existing } = await supabase
-    .from("daily_state")
-    .select("state, confidence, reasons, state_trace, created_at")
-    .eq("user_id", userId)
-    .eq("day_key", today)
-    .single();
-
-  if (existing) {
-    const createdAt = new Date(existing.created_at).getTime();
-    const age = Date.now() - createdAt;
-
-    if (age < DUPLICATE_WINDOW_MS) {
-      console.log(JSON.stringify({
-        event: "state_request_cached",
-        request_id: requestId,
-        user_id: userId,
-        day_key: today,
-        state: existing.state,
-        confidence: existing.confidence,
-        age_minutes: Math.round(age / 60000),
-      }));
-
-      return NextResponse.json({
-        state: existing.state,
-        confidence: existing.confidence,
-        reasons: existing.reasons,
-        meta: {
-          ...(existing.state_trace?.inputs ?? {}),
-          cached: true,
-          age_minutes: Math.round(age / 60000),
-        },
-      });
-    }
+function validate(body: unknown): LogInput | { error: string } {
+  if (typeof body !== "object" || body === null)
+    return { error: "Body must be an object" };
+  const b = body as Record<string, unknown>;
+  if (typeof b.day_key !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(b.day_key))
+    return { error: "day_key must be YYYY-MM-DD" };
+  for (const field of ["energy", "mood", "stress"]) {
+    const v = b[field];
+    if (typeof v !== "number" || !Number.isInteger(v) || v < 1 || v > 5)
+      return { error: `${field} must be an integer 1-5` };
   }
+  return {
+    day_key: b.day_key as string,
+    energy: b.energy as number,
+    mood: b.mood as number,
+    stress: b.stress as number,
+    notes: typeof b.notes === "string" ? b.notes : undefined,
+  };
+}
 
-  // --- Fetch logs (7 days) ---
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const fromDate = sevenDaysAgo.toISOString().slice(0, 10);
+export async function POST(req: NextRequest) {
+  let body: unknown;
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
-  const { data: logs, error } = await supabase
-    .from("manual_logs")
-    .select("day_key, energy, mood, stress")
-    .eq("user_id", userId)
-    .gte("day_key", fromDate)
-    .lte("day_key", today)
-    .order("day_key", { ascending: false });
+  const input = validate(body);
+  if ("error" in input)
+    return NextResponse.json({ error: input.error }, { status: 422 });
+
+  const { error } = await supabase.from("manual_logs").insert({
+    user_id: getUserId(req),
+    day_key: input.day_key,
+    energy: input.energy,
+    mood: input.mood,
+    stress: input.stress,
+    notes: input.notes ?? null,
+  });
 
   if (error) {
+    console.error("Supabase insert error:", error);
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 
-  // Deduplicate: one entry per day
-  const byDay = new Map<string, (typeof logs)[0]>();
-  for (const log of logs ?? []) {
-    if (!byDay.has(log.day_key)) byDay.set(log.day_key, log);
-  }
-  const deduped = Array.from(byDay.values());
-
-  // --- Compute state ---
-  const result = computeState(deduped);
-
-  // Build gating trace
-  const gating = {
-    duplicate_found: !!existing,
-    recomputed: true,
-    reason: existing
-      ? "Existing state older than 6h — recomputed"
-      : "No existing state for today",
-  };
-
-  const stateTrace = {
-    ...result.trace,
-    gating,
-  };
-
-  // --- Upsert to daily_state ---
-  const { error: upsertError } = await supabase.from("daily_state").upsert(
-    {
-      user_id: userId,
-      day_key: today,
-      state: result.state,
-      confidence: result.confidence,
-      reasons: result.reasons,
-      state_trace: stateTrace,
-    },
-    { onConflict: "user_id,day_key" }
-  );
-
-  if (upsertError) {
-    console.error("Supabase upsert error:", upsertError);
-  }
-
-  // --- Structured log (metadata only, no notes) ---
-  console.log(JSON.stringify({
-    event: "state_computed",
-    request_id: requestId,
-    user_id: userId,
-    day_key: today,
-    state: result.state,
-    confidence: result.confidence,
-    days_of_data: result.days_with_data,
-    avg_energy_7d: result.avg_energy_7d,
-    avg_stress_7d: result.avg_stress_7d,
-    avg_mood_7d: result.avg_mood_7d,
-  }));
-
-  return NextResponse.json({
-    state: result.state,
-    confidence: result.confidence,
-    reasons: result.reasons,
-    meta: {
-      avg_energy_7d: result.avg_energy_7d,
-      avg_stress_7d: result.avg_stress_7d,
-      avg_mood_7d: result.avg_mood_7d,
-      days_with_data: result.days_with_data,
-      cached: false,
-    },
-  });
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
