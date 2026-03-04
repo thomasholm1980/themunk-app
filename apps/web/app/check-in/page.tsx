@@ -9,12 +9,19 @@ const STATE_COLOR: Record<string, string> = {
   RED:    "text-red-400 border-red-400",
 };
 
-// Thin mapper: /api/state/today response → UI format
+interface Intervention {
+  intensity: 'high' | 'medium' | 'low';
+  action: string;
+  secondary: string;
+  duration?: number;
+}
+
 interface StateResponse {
   state: string;
   confidence: number;
   reasons: string[];
-  meta: {
+  intervention: Intervention;
+  meta?: {
     avg_energy_7d: number;
     avg_stress_7d: number;
     avg_mood_7d: number;
@@ -27,6 +34,7 @@ interface UIState {
   state: string;
   confidence: number;
   reasons: string[];
+  intervention: Intervention;
   days_with_data: number;
 }
 
@@ -35,7 +43,8 @@ function mapStateToUI(res: StateResponse): UIState {
     state: res.state,
     confidence: res.confidence,
     reasons: res.reasons,
-    days_with_data: res.meta.days_with_data,
+    intervention: res.intervention,
+    days_with_data: res.meta?.days_with_data ?? 0,
   };
 }
 
@@ -133,6 +142,17 @@ export default function CheckInPage() {
                 <li key={i} className="text-sm text-gray-300">{r}</li>
               ))}
             </ul>
+
+            {/* Intervention */}
+            <div className="border-t border-gray-700 pt-4 space-y-2">
+              <p className="text-xs tracking-widest uppercase text-gray-500">Anbefalt handling</p>
+              <p className="text-sm font-medium">{uiState.intervention.action}</p>
+              <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
+              {uiState.intervention.duration && (
+                <p className="text-xs text-gray-600">{uiState.intervention.duration} min</p>
+              )}
+            </div>
+
             <p className="text-xs text-gray-600">
               Konfidans: {Math.round(uiState.confidence * 100)}% ·{" "}
               Dager med data: {uiState.days_with_data}
