@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '../../../../lib/supabase';
 import { computeState, computeIntervention } from '@themunk/core';
 
 export const dynamic = 'force-dynamic';
