@@ -1,7 +1,9 @@
 {
   "name": "@themunk/core",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "private": true,
-  "main": "index.ts",
-  "types": "index.ts"
+  "exports": {
+    "./state/pipeline": "./state/pipeline.ts",
+    "./state/intervention": "./state/intervention.ts"
+  }
 }
