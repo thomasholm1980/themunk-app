@@ -1,9 +1,8 @@
-// apps/web/app/api/state/today/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../../lib/supabase";
 import { computeState } from "../../../../../../packages/core/state/pipeline";
 
-const DUPLICATE_WINDOW_MS = 6 * 60 * 60 * 1000; // 6 hours
+const DUPLICATE_WINDOW_MS = 6 * 60 * 60 * 1000;
 
 function getUserId(req: NextRequest): string {
   return req.headers.get("x-user-id") ?? "anonymous";
@@ -13,10 +12,8 @@ function getRequestId(req: NextRequest): string {
   return req.headers.get("x-request-id") ?? crypto.randomUUID();
 }
 
-// Timezone-safe day_key: always Europe/Oslo
 function getTodayOslo(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Oslo" });
-  // "sv-SE" returns YYYY-MM-DD format
 }
 
 export async function GET(req: NextRequest) {
@@ -24,7 +21,6 @@ export async function GET(req: NextRequest) {
   const requestId = getRequestId(req);
   const today = getTodayOslo();
 
-  // --- Duplicate protection ---
   const { data: existing } = await supabase
     .from("daily_state")
     .select("state, confidence, reasons, state_trace, created_at")
@@ -60,7 +56,6 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // --- Fetch logs (7 days) ---
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const fromDate = sevenDaysAgo.toISOString().slice(0, 10);
@@ -77,22 +72,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 
-  // Deduplicate: one entry per day
   const byDay = new Map<string, (typeof logs)[0]>();
   for (const log of logs ?? []) {
     if (!byDay.has(log.day_key)) byDay.set(log.day_key, log);
   }
   const deduped = Array.from(byDay.values());
 
-  // --- Compute state ---
   const result = computeState(deduped);
 
-  // Build gating trace
   const gating = {
     duplicate_found: !!existing,
     recomputed: true,
     reason: existing
-      ? "Existing state older than 6h — recomputed"
+      ? "Existing state older than 6h recomputed"
       : "No existing state for today",
   };
 
@@ -101,7 +93,6 @@ export async function GET(req: NextRequest) {
     gating,
   };
 
-  // --- Upsert to daily_state ---
   const { error: upsertError } = await supabase.from("daily_state").upsert(
     {
       user_id: userId,
@@ -118,4 +109,29 @@ export async function GET(req: NextRequest) {
     console.error("Supabase upsert error:", upsertError);
   }
 
-  // ---
+  console.log(JSON.stringify({
+    event: "state_computed",
+    request_id: requestId,
+    user_id: userId,
+    day_key: today,
+    state: result.state,
+    confidence: result.confidence,
+    days_of_data: result.days_with_data,
+    avg_energy_7d: result.avg_energy_7d,
+    avg_stress_7d: result.avg_stress_7d,
+    avg_mood_7d: result.avg_mood_7d,
+  }));
+
+  return NextResponse.json({
+    state: result.state,
+    confidence: result.confidence,
+    reasons: result.reasons,
+    meta: {
+      avg_energy_7d: result.avg_energy_7d,
+      avg_stress_7d: result.avg_stress_7d,
+      avg_mood_7d: result.avg_mood_7d,
+      days_with_data: result.days_with_data,
+      cached: false,
+    },
+  });
+}
