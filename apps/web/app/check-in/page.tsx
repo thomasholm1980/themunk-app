@@ -4,30 +4,16 @@
 import { useState } from "react";
 
 const STATE_COLOR: Record<string, string> = {
-  GREEN:  "text-green-400 border-green-400",
+  GREEN: "text-green-400 border-green-400",
   YELLOW: "text-yellow-400 border-yellow-400",
-  RED:    "text-red-400 border-red-400",
+  RED: "text-red-400 border-red-400",
 };
 
 interface Intervention {
-  intensity: 'high' | 'medium' | 'low';
+  intensity: "high" | "medium" | "low";
   action: string;
   secondary: string;
   duration?: number;
-}
-
-interface StateResponse {
-  state: string;
-  confidence: number;
-  reasons: string[];
-  intervention: Intervention;
-  meta?: {
-    avg_energy_7d: number;
-    avg_stress_7d: number;
-    avg_mood_7d: number;
-    days_with_data: number;
-    cached: boolean;
-  };
 }
 
 interface UIState {
@@ -38,46 +24,85 @@ interface UIState {
   days_with_data: number;
 }
 
-function mapStateToUI(res: StateResponse): UIState {
+function mapStateToUI(res: any): UIState {
+  if (!res || !res.state) {
+    return {
+      state: "YELLOW",
+      confidence: 0,
+      reasons: ["Ingen data ennå"],
+      intervention: {
+        intensity: "low",
+        action: "Logg dagens tilstand",
+        secondary: "Dette hjelper modellen lære",
+      },
+      days_with_data: 0,
+    };
+  }
+
   return {
     state: res.state,
-    confidence: res.confidence,
-    reasons: res.reasons,
-    intervention: res.intervention,
+    confidence: res.confidence ?? 0,
+    reasons: res.reasons ?? [],
+    intervention: res.intervention ?? {
+      intensity: "low",
+      action: "Ingen anbefaling tilgjengelig",
+      secondary: "",
+    },
     days_with_data: res.meta?.days_with_data ?? 0,
   };
 }
 
 export default function CheckInPage() {
-  const [energy,  setEnergy]  = useState(3);
-  const [mood,    setMood]    = useState(3);
-  const [stress,  setStress]  = useState(3);
-  const [notes,   setNotes]   = useState("");
-  const [status,  setStatus]  = useState<"idle"|"loading"|"done"|"error">("idle");
+  const [energy, setEnergy] = useState(3);
+  const [mood, setMood] = useState(3);
+  const [stress, setStress] = useState(3);
+  const [notes, setNotes] = useState("");
+
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
+    "idle"
+  );
+
   const [uiState, setUiState] = useState<UIState | null>(null);
 
   async function fetchState() {
     const res = await fetch("/api/state/today", {
       headers: { "x-user-id": "demo-user" },
     });
+
     if (!res.ok) throw new Error("State fetch failed");
-    const json: StateResponse = await res.json();
+
+    const json = await res.json();
     setUiState(mapStateToUI(json));
   }
 
   async function submitLog() {
     setStatus("loading");
+
     const today = new Date().toISOString().slice(0, 10);
+
     try {
       const logRes = await fetch("/api/logs", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json", "x-user-id": "demo-user" },
-        body: JSON.stringify({ day_key: today, energy, mood, stress, notes }),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": "demo-user",
+        },
+        body: JSON.stringify({
+          day_key: today,
+          energy,
+          mood,
+          stress,
+          notes,
+        }),
       });
+
       if (!logRes.ok) throw new Error("Log save failed");
+
       await fetchState();
+
       setStatus("done");
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStatus("error");
     }
   }
@@ -85,77 +110,123 @@ export default function CheckInPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-md space-y-10">
-
         {/* Header */}
         <div className="text-center space-y-2">
-          <p className="text-xs tracking-[0.3em] uppercase text-gray-500">The Munk</p>
+          <p className="text-xs tracking-[0.3em] uppercase text-gray-500">
+            The Munk
+          </p>
+
           <h1 className="text-3xl font-light">Dagens innsjekk</h1>
+
           <p className="text-sm text-gray-500">
-            {new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" })}
+            {new Date().toLocaleDateString("no-NO", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
           </p>
         </div>
 
         {/* Sliders */}
         <div className="space-y-6">
           {[
-            { label: "Energi",   value: energy,  set: setEnergy },
-            { label: "Humør",    value: mood,    set: setMood   },
-            { label: "Stress",   value: stress,  set: setStress },
+            { label: "Energi", value: energy, set: setEnergy },
+            { label: "Humør", value: mood, set: setMood },
+            { label: "Stress", value: stress, set: setStress },
           ].map(({ label, value, set }) => (
             <div key={label} className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">{label}</span>
                 <span className="tabular-nums">{value} / 5</span>
               </div>
-              <input type="range" min={1} max={5} step={1} value={value}
-                onChange={e => set(Number(e.target.value))}
-                className="w-full accent-yellow-400" />
+
+              <input
+                type="range"
+                min={1}
+                max={5}
+                step={1}
+                value={value}
+                onChange={(e) => set(Number(e.target.value))}
+                className="w-full accent-yellow-400"
+              />
             </div>
           ))}
 
+          {/* Notes */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Notater (valgfritt)</label>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)}
-              rows={2} placeholder="Noe som påvirket dagen?"
+            <label className="text-sm text-gray-400">
+              Notater (valgfritt)
+            </label>
+
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              placeholder="Noe som påvirket dagen?"
               className="w-full bg-[#1a1a1a] border border-gray-700 rounded px-3 py-2
-                         text-sm text-gray-200 placeholder-gray-600 resize-none
-                         focus:outline-none focus:border-gray-500" />
+              text-sm text-gray-200 placeholder-gray-600 resize-none
+              focus:outline-none focus:border-gray-500"
+            />
           </div>
         </div>
 
         {/* Submit */}
-        <button onClick={submitLog} disabled={status === "loading"}
+        <button
+          onClick={submitLog}
+          disabled={status === "loading"}
           className="w-full py-3 border border-gray-600 text-sm tracking-widest uppercase
-                     hover:border-gray-400 transition-colors disabled:opacity-40">
+          hover:border-gray-400 transition-colors disabled:opacity-40"
+        >
           {status === "loading" ? "Laster…" : "Send inn"}
         </button>
 
-        {/* State result */}
+        {/* Result */}
         {uiState && (
-          <div className={`border rounded p-6 space-y-4 ${STATE_COLOR[uiState.state]}`}>
+          <div
+            className={`border rounded p-6 space-y-4 ${
+              STATE_COLOR[uiState.state] ?? "border-gray-600"
+            }`}
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs tracking-widest uppercase">Tilstand</span>
+              <span className="text-xs tracking-widest uppercase">
+                Tilstand
+              </span>
+
               <span className="text-2xl font-light">{uiState.state}</span>
             </div>
+
             <ul className="space-y-1">
               {uiState.reasons.map((r, i) => (
-                <li key={i} className="text-sm text-gray-300">{r}</li>
+                <li key={i} className="text-sm text-gray-300">
+                  {r}
+                </li>
               ))}
             </ul>
 
             {/* Intervention */}
             <div className="border-t border-gray-700 pt-4 space-y-2">
-              <p className="text-xs tracking-widest uppercase text-gray-500">Anbefalt handling</p>
-              <p className="text-sm font-medium">{uiState.intervention.action}</p>
-              <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
+              <p className="text-xs tracking-widest uppercase text-gray-500">
+                Anbefalt handling
+              </p>
+
+              <p className="text-sm font-medium">
+                {uiState.intervention.action}
+              </p>
+
+              <p className="text-sm text-gray-400">
+                {uiState.intervention.secondary}
+              </p>
+
               {uiState.intervention.duration && (
-                <p className="text-xs text-gray-600">{uiState.intervention.duration} min</p>
+                <p className="text-xs text-gray-600">
+                  {uiState.intervention.duration} min
+                </p>
               )}
             </div>
 
             <p className="text-xs text-gray-600">
-              Konfidans: {Math.round(uiState.confidence * 100)}% ·{" "}
-              Dager med data: {uiState.days_with_data}
+              Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med
+              data: {uiState.days_with_data}
             </p>
           </div>
         )}
