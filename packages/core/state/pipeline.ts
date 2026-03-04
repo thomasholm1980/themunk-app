@@ -1,84 +1,131 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { computeState } from '@themunk/core/state/pipeline';
-import { computeIntervention } from '@themunk/core/state/intervention';
+export type ManualLogInput = {
+  day_key: string;
+  energy: number; // 1-5
+  mood: number;   // 1-5
+  stress: number; // 1-5
+};
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export type StateColor = "GREEN" | "YELLOW" | "RED";
 
-const OSLO_TZ = 'Europe/Oslo';
+export type ComputeStateResult = {
+  state: StateColor;
+  confidence: number; // 0..1
+  reasons: string[];
+  trace: Record<string, unknown>;
+};
 
-function getOsloDateKey(): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: OSLO_TZ,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date());
+const THRESHOLDS = {
+  // These are intentionally simple v1 cutoffs.
+  // You can tune later, but keep deterministic.
+  red: {
+    energyMax: 2,
+    stressMin: 4,
+  },
+  yellow: {
+    energyMax: 3,
+    stressMin: 3,
+  },
+};
+
+function clamp(n: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, n));
 }
 
-export async function GET(request: Request) {
-  const userId = request.headers.get('x-user-id') ?? 'demo-user';
-  const dayKey = getOsloDateKey();
+function avg(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
 
-  const { data: logs } = await supabase
-    .from('manual_logs')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('day_key', dayKey)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  const latest = logs?.[0];
-
-  if (!latest) {
-    return NextResponse.json(
-      { state: null, message: 'No log for today' },
-      { headers: { 'Cache-Control': 'no-store' } }
-    );
+/**
+ * Deterministic state computation (v1).
+ * Input is a list to support future trend windows, but v1 uses latest only.
+ */
+export function computeState(inputs: ManualLogInput[]): ComputeStateResult {
+  const safeInputs = Array.isArray(inputs) ? inputs : [];
+  if (safeInputs.length === 0) {
+    return {
+      state: "YELLOW",
+      confidence: 0.2,
+      reasons: ["No inputs provided"],
+      trace: {
+        inputs_count: 0,
+        decision: "YELLOW",
+        gating: { reason: "no_inputs" },
+      },
+    };
   }
 
-  // Always compute — never gate on persistence
-  const { state, confidence, reasons, trace } = computeState([{
-    day_key: dayKey,
-    energy: latest.energy,
-    mood: latest.mood,
-    stress: latest.stress,
-  }]);
+  // Use latest (first) as "today" signal. Caller already passes latest.
+  const latest = safeInputs[0];
 
-  const intervention = computeIntervention(state);
+  const energy = clamp(Number(latest.energy), 1, 5);
+  const mood = clamp(Number(latest.mood), 1, 5);
+  const stress = clamp(Number(latest.stress), 1, 5);
 
-  // Persistence gating — DB only, never affects return value
-  const { data: existing } = await supabase
-    .from('daily_state')
-    .select('created_at')
-    .eq('user_id', userId)
-    .eq('day_key', dayKey)
-    .single();
+  const avg_stress_7d = avg(safeInputs.slice(0, 7).map((x) => clamp(Number(x.stress), 1, 5)));
+  const days_of_data = Math.min(safeInputs.length, 7);
 
-  const shouldWrite = !existing ||
-    (Date.now() - new Date(existing.created_at).getTime()) > 6 * 60 * 60 * 1000;
+  const reasons: string[] = [];
+  let state: StateColor = "GREEN";
 
-  if (shouldWrite) {
-    await supabase.from('daily_state').upsert({
-      user_id: userId,
-      day_key: dayKey,
+  // RED rules
+  if (energy <= THRESHOLDS.red.energyMax) reasons.push("Energy critically low");
+  if (stress >= THRESHOLDS.red.stressMin) reasons.push("Stress critically elevated");
+
+  if (energy <= THRESHOLDS.red.energyMax && stress >= THRESHOLDS.red.stressMin) {
+    state = "RED";
+  } else {
+    // YELLOW rules
+    const yReasons: string[] = [];
+    if (energy <= THRESHOLDS.yellow.energyMax) yReasons.push("Energy trending low");
+    if (stress >= THRESHOLDS.yellow.stressMin) yReasons.push("Stress trending high");
+
+    if (yReasons.length > 0) {
+      state = "YELLOW";
+      reasons.push(...yReasons);
+    } else {
+      state = "GREEN";
+      // add a light reason to help UI; optional
+      reasons.push("Baseline stable");
+    }
+  }
+
+  // Confidence heuristic (deterministic)
+  // More days of data -> slightly higher confidence
+  const confidence = clamp(0.55 + (days_of_data - 1) * 0.05, 0.55, 0.85);
+
+  const trace = {
+    inputs: {
+      day_key: latest.day_key,
+      energy,
+      mood,
+      stress,
+      days_of_data,
+      avg_stress_7d: Number(avg_stress_7d.toFixed(2)),
+    },
+    rules: {
+      thresholds: THRESHOLDS,
+      evaluated: {
+        red: {
+          energy_leq: energy <= THRESHOLDS.red.energyMax,
+          stress_geq: stress >= THRESHOLDS.red.stressMin,
+        },
+        yellow: {
+          energy_leq: energy <= THRESHOLDS.yellow.energyMax,
+          stress_geq: stress >= THRESHOLDS.yellow.stressMin,
+        },
+      },
+    },
+    decision: {
       state,
       confidence,
       reasons,
-      state_trace: trace,
-    });
+    },
+    gating: {
+      type: "none",
+      note: "computation is deterministic; persistence gating handled in API route",
+    },
+  };
 
-    await supabase.from('daily_intervention').upsert({
-      user_id: userId,
-      day_key: dayKey,
-      intervention,
-    });
-  }
-
-  // Always return — intervention is a pure function of state
-  return NextResponse.json(
-    { state, confidence, reasons, intervention },
-    { headers: { 'Cache-Control': 'no-store' } }
-  );
+  return { state, confidence, reasons, trace };
 }
