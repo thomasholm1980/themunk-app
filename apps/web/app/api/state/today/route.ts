@@ -47,18 +47,21 @@ export async function GET(request: Request) {
 
   const intervention = computeIntervention(state);
 
-  // Persistence gating — DB only, never affects return value
+  // Input-change gating — only write if inputs have changed
   const { data: existing } = await supabase
     .from('daily_state')
-    .select('created_at')
+    .select('state_trace')
     .eq('user_id', userId)
     .eq('day_key', dayKey)
     .single();
 
-  const shouldWrite = !existing ||
-    (Date.now() - new Date(existing.created_at).getTime()) > 6 * 60 * 60 * 1000;
+  const prevInputs = existing?.state_trace?.inputs;
+  const inputsChanged = !prevInputs ||
+    prevInputs.energy !== latest.energy ||
+    prevInputs.mood !== latest.mood ||
+    prevInputs.stress !== latest.stress;
 
-  if (shouldWrite) {
+  if (inputsChanged) {
     await supabase.from('daily_state').upsert({
       user_id: userId,
       day_key: dayKey,
