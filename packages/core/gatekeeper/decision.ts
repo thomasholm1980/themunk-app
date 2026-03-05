@@ -16,13 +16,12 @@ export function gatekeep(
   brief: DailyBrief,
   policy: PolicyDecisions,
 ): GatekeeperDecision {
-  // Flatten all text fields for scanning
+  // Scan only content fields — exclude disclaimer (it is policy-controlled)
   const allText = [
     brief.headline,
     ...brief.what_we_see,
     brief.what_it_might_mean,
     ...brief.today_plan,
-    brief.disclaimer,
   ].join(' ');
 
   const scan = scanText(allText);
