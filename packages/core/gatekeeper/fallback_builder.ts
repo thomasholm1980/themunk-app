@@ -29,8 +29,9 @@ export function buildFallbackBrief(
         ? 'Some data appears to be missing.'
         : 'Our system is taking a cautious approach today.',
     ],
-    what_it_might_mean:
+    what_it_might_mean: [
       'This may be a good moment to rest, reflect, and check in with how you feel.',
+    ],
     today_plan: [
       'Take things at your own pace.',
       'Rest if you need to.',
