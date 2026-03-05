@@ -1,0 +1,65 @@
+{
+  "version": "1",
+  "templates": {
+    "T-GREEN-BASE": {
+      "id": "T-GREEN-BASE",
+      "readiness_band": "GREEN",
+      "headline": "You're in a good place today.",
+      "what_we_see": [
+        "Energy and stress indicators are within healthy range.",
+        "Baseline is stable based on available data."
+      ],
+      "what_it_might_mean": "This may be a good window for focused work or physical training.",
+      "today_plan": [
+        "Block 90 minutes for deep work.",
+        "Include strength training or high-intensity movement.",
+        "Protect your recovery window tonight."
+      ]
+    },
+    "T-AMBER-BASE": {
+      "id": "T-AMBER-BASE",
+      "readiness_band": "YELLOW",
+      "headline": "Take it steady today.",
+      "what_we_see": [
+        "Some signals suggest moderate strain or lower energy.",
+        "Trends indicate a mixed readiness picture."
+      ],
+      "what_it_might_mean": "This could be a day to prioritise lighter cognitive work and movement over intensity.",
+      "today_plan": [
+        "Keep cognitive load moderate.",
+        "Take a 20-minute walk.",
+        "Avoid overcommitting on tasks or social obligations."
+      ]
+    },
+    "T-RED-BASE": {
+      "id": "T-RED-BASE",
+      "readiness_band": "RED",
+      "headline": "Recovery is the priority today.",
+      "what_we_see": [
+        "Signals indicate low energy or elevated stress.",
+        "Your system may need time to restore."
+      ],
+      "what_it_might_mean": "This may not be the day for high demands. Gentle activity and rest could support recovery.",
+      "today_plan": [
+        "Follow a recovery protocol.",
+        "Try 5 minutes of breathing or stillness.",
+        "Limit screen time and stimulation where possible."
+      ]
+    },
+    "T-DATA-MISSING": {
+      "id": "T-DATA-MISSING",
+      "readiness_band": null,
+      "headline": "Limited data today.",
+      "what_we_see": [
+        "We don't have enough signal to give a full picture.",
+        "A check-in or wearable data would help."
+      ],
+      "what_it_might_mean": "Without enough data, we default to a cautious, balanced approach.",
+      "today_plan": [
+        "Listen to your body today.",
+        "Keep demands moderate.",
+        "Check in again tomorrow."
+      ]
+    }
+  }
+}
