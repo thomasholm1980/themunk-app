@@ -63,7 +63,7 @@ export async function GET(request: Request) {
   );
 
   // LLM slot fill — what_it_might_mean only
-  const adapter = new FallbackAdapter(); // swap for AnthropicAdapter in Layer 5.2
+  const adapter = new FallbackAdapter();
   const slotResult = await fillWhatItMightMean(
     {
       readiness_band: stateResult.state,
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
 
   brief = {
     ...brief,
-    what_it_might_mean: slotResult.what_it_might_mean.join(' '),
+    what_it_might_mean: slotResult.what_it_might_mean,
   };
 
   // Gatekeeper — scans untrusted fields
