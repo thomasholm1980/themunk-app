@@ -10,11 +10,13 @@ import {
   FallbackAdapter,
 } from '@themunk/core';
 import { AnthropicAdapter } from '../../../../lib/anthropic_adapter';
+import { logBriefRunEvent } from '../../../../lib/telemetry';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const OSLO_TZ = 'Europe/Oslo';
+const BUILD_VERSION = process.env.VERCEL_GIT_COMMIT_SHA ?? 'local';
 
 function getOsloDateKey(): string {
   return new Intl.DateTimeFormat('sv-SE', {
@@ -55,7 +57,6 @@ export async function GET(request: Request) {
     flags,
   });
 
-  // Assemble deterministic base brief
   let brief = assembleBrief(
     stateResult.state,
     policy,
@@ -64,9 +65,11 @@ export async function GET(request: Request) {
     flags,
   );
 
-  // Select adapter based on feature flag
   const llmEnabled = process.env.LLM_ENABLED === 'true';
   const adapter = llmEnabled ? new AnthropicAdapter() : new FallbackAdapter();
+  const modelName = llmEnabled
+    ? (process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001')
+    : 'fallback';
 
   const slotResult = await fillWhatItMightMean(
     {
@@ -82,7 +85,6 @@ export async function GET(request: Request) {
     what_it_might_mean: slotResult.what_it_might_mean,
   };
 
-  // Gatekeeper — scans untrusted fields
   const decision = gatekeep(brief, policy);
 
   if (!decision.allow) {
@@ -94,20 +96,23 @@ export async function GET(request: Request) {
     );
   }
 
-  // Structured logging
   const latency_ms = Date.now() - startTime;
-  console.log(JSON.stringify({
-    event: 'brief_generated',
+
+  // Fire-and-forget telemetry — never blocks response
+  logBriefRunEvent({
     user_id: userId,
     day_key: dayKey,
+    readiness_band: stateResult.state,
     template_id: brief.template_id,
+    guidance_intensity: policy.guidance_intensity,
     slot_source: slotResult.source,
-    model: llmEnabled ? (process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001') : 'fallback',
+    model: modelName,
     latency_ms,
-    blocked_by_gatekeeper: !decision.allow,
+    gatekeeper_allow: decision.allow,
     blocked_reasons: decision.blocked_reasons,
     fallback_used: brief.fallback_used,
-  }));
+    build_version: BUILD_VERSION,
+  });
 
   return NextResponse.json(
     { brief, decision, slot_source: slotResult.source, latency_ms },
