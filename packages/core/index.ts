@@ -18,3 +18,4 @@ export { FallbackAdapter } from "./llm/llm_adapter";
 export type { LLMAdapter, } from "./llm/llm_adapter";
 export type { SlotFillerInput, SlotFillerOutput } from "./llm/types";
 export { fillWhatItMightMean } from "./renderer/slot_filler/fill_what_it_might_mean";
+export type { LLMRequest, LLMResponse } from "./llm/types";
