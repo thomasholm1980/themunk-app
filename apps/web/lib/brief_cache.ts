@@ -1,5 +1,5 @@
 // apps/web/lib/brief_cache.ts
-// Per-user/day brief cache + call cap. Prevents unnecessary LLM calls.
+// Per-user/day brief cache + call cap.
 
 import { supabase } from './supabase';
 import type { DailyBrief } from '@themunk/core';
@@ -20,12 +20,16 @@ export async function getCachedBrief(
   user_id: string,
   day_key: string,
 ): Promise<CacheResult> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('daily_briefs')
     .select('brief, generation_count')
     .eq('user_id', user_id)
     .eq('day_key', day_key)
-    .single();
+    .maybeSingle();
+
+  if (error) {
+    console.error('brief_cache_read_failed', error.message);
+  }
 
   if (!data) {
     return { brief: null, generation_count: 0, cache_hit: false, cap_triggered: false };
@@ -47,15 +51,18 @@ export async function saveBrief(
   brief: DailyBrief,
   generation_count: number,
 ): Promise<void> {
-  try {
-    await supabase.from('daily_briefs').upsert({
+  const { error } = await supabase.from('daily_briefs').upsert(
+    {
       user_id,
       day_key,
       brief,
       generation_count,
       updated_at: new Date().toISOString(),
-    });
-  } catch {
-    console.error('brief_cache_write_failed');
+    },
+    { onConflict: 'user_id,day_key' }
+  );
+
+  if (error) {
+    console.error('brief_cache_write_failed', error.message);
   }
 }
