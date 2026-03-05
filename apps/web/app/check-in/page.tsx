@@ -1,81 +1,83 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const STATE_COLOR: Record<string, string> = {
+type MunkState = "GREEN" | "YELLOW" | "RED";
+
+const STATE_COLOR: Record<MunkState, string> = {
   GREEN: "text-green-400 border-green-400",
   YELLOW: "text-yellow-400 border-yellow-400",
   RED: "text-red-400 border-red-400",
 };
 
-type Intensity = "high" | "medium" | "low";
-
-interface Intervention {
-  intensity: Intensity;
+type Intervention = {
+  intensity: "high" | "medium" | "low";
   action: string;
   secondary: string;
   duration?: number;
-}
+};
 
-interface UIState {
-  state: "GREEN" | "YELLOW" | "RED";
-  confidence: number; // 0..1
+type StateApiResponse =
+  | {
+      state: MunkState;
+      confidence?: number;
+      reasons?: string[];
+      intervention?: Intervention;
+      meta?: { days_with_data?: number };
+    }
+  | {
+      state: null;
+      message?: string;
+    };
+
+type UIState = {
+  state: MunkState;
+  confidence: number;
   reasons: string[];
   intervention: Intervention;
   days_with_data: number;
+};
+
+const FALLBACK_UI: UIState = {
+  state: "YELLOW",
+  confidence: 0,
+  reasons: ["Ingen data ennå"],
+  intervention: {
+    intensity: "low",
+    action: "Logg dagens tilstand",
+    secondary: "Dette hjelper modellen lære",
+  },
+  days_with_data: 0,
+};
+
+const OSLO_TZ = "Europe/Oslo";
+
+function getOsloDateKey(): string {
+  // sv-SE gir YYYY-MM-DD
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: OSLO_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
-function fallbackState(): UIState {
-  return {
-    state: "YELLOW",
-    confidence: 0,
-    reasons: ["Ingen data ennå"],
-    intervention: {
-      intensity: "low",
-      action: "Logg dagens tilstand",
-      secondary: "Dette hjelper modellen lære",
-    },
-    days_with_data: 0,
-  };
-}
-
-function mapStateToUI(res: any): UIState {
-  if (!res || !res.state) return fallbackState();
-
-  const state = (res.state as string).toUpperCase();
-  const safeState: UIState["state"] =
-    state === "GREEN" || state === "YELLOW" || state === "RED" ? state : "YELLOW";
-
-  const reasons: string[] =
-    Array.isArray(res.reasons) && res.reasons.length > 0 ? res.reasons : ["Ingen forklaring tilgjengelig"];
-
-  const intervention: Intervention =
-    res.intervention && typeof res.intervention === "object"
-      ? {
-          intensity: (res.intervention.intensity ?? "low") as Intensity,
-          action: String(res.intervention.action ?? "Ingen anbefaling tilgjengelig"),
-          secondary: String(res.intervention.secondary ?? ""),
-          duration:
-            res.intervention.duration !== undefined ? Number(res.intervention.duration) : undefined,
-        }
-      : {
-          intensity: "low",
-          action: "Ingen anbefaling tilgjengelig",
-          secondary: "",
-        };
-
-  const confidence =
-    typeof res.confidence === "number" && isFinite(res.confidence) ? res.confidence : 0;
-
-  const days_with_data =
-    typeof res.meta?.days_with_data === "number" ? res.meta.days_with_data : 0;
+function mapStateToUI(res: StateApiResponse): UIState {
+  if (!res || res.state == null) return FALLBACK_UI;
 
   return {
-    state: safeState,
-    confidence,
-    reasons,
-    intervention,
-    days_with_data,
+    state: res.state,
+    confidence: typeof (res as any).confidence === "number" ? (res as any).confidence : 0,
+    reasons: Array.isArray((res as any).reasons) ? (res as any).reasons : [],
+    intervention:
+      (res as any).intervention && typeof (res as any).intervention.action === "string"
+        ? (res as any).intervention
+        : {
+            intensity: "low",
+            action: "Ingen anbefaling tilgjengelig",
+            secondary: "",
+          },
+    days_with_data: (res as any).meta?.days_with_data ?? 0,
   };
 }
 
@@ -86,7 +88,20 @@ export default function CheckInPage() {
   const [notes, setNotes] = useState("");
 
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [uiState, setUiState] = useState<UIState>(fallbackState());
+  const [uiState, setUiState] = useState<UIState>(FALLBACK_UI);
+
+  // Unngå hydration-trøbbel: skriv dato etter mount
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const headerDate = useMemo(() => {
+    if (!mounted) return "";
+    return new Date().toLocaleDateString("no-NO", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  }, [mounted]);
 
   async function fetchState() {
     const res = await fetch("/api/state/today", {
@@ -94,20 +109,25 @@ export default function CheckInPage() {
       cache: "no-store",
     });
 
-    // hvis API feiler, behold fallback (ikke crash)
-    if (!res.ok) {
-      setUiState(fallbackState());
-      return;
-    }
+    if (!res.ok) throw new Error("State fetch failed");
 
-    const json = await res.json();
+    const json: StateApiResponse = await res.json();
     setUiState(mapStateToUI(json));
   }
+
+  // Hent state når siden åpnes
+  useEffect(() => {
+    fetchState().catch(() => {
+      // stille fallback (ikke crash)
+      setUiState(FALLBACK_UI);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function submitLog() {
     setStatus("loading");
 
-    const today = new Date().toISOString().slice(0, 10);
+    const day_key = getOsloDateKey(); // IMPORTANT: matcher API (Oslo + YYYY-MM-DD)
 
     try {
       const logRes = await fetch("/api/logs", {
@@ -117,15 +137,18 @@ export default function CheckInPage() {
           "x-user-id": "demo-user",
         },
         body: JSON.stringify({
-          day_key: today,
+          day_key,
           energy,
           mood,
           stress,
-          notes,
+          notes: notes?.trim() || null,
         }),
       });
 
-      if (!logRes.ok) throw new Error("Log save failed");
+      if (!logRes.ok) {
+        const t = await logRes.text().catch(() => "");
+        throw new Error(`Log save failed: ${logRes.status} ${t}`);
+      }
 
       await fetchState();
       setStatus("done");
@@ -135,21 +158,6 @@ export default function CheckInPage() {
     }
   }
 
-  // Hent state når siden lastes (hydration-safe)
-  useEffect(() => {
-    fetchState().catch(() => setUiState(fallbackState()));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const dateLabel =
-    typeof window === "undefined"
-      ? ""
-      : new Date().toLocaleDateString("no-NO", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        });
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-md space-y-10">
@@ -157,7 +165,7 @@ export default function CheckInPage() {
         <div className="text-center space-y-2">
           <p className="text-xs tracking-[0.3em] uppercase text-gray-500">The Munk</p>
           <h1 className="text-3xl font-light">Dagens innsjekk</h1>
-          <p className="text-sm text-gray-500">{dateLabel}</p>
+          <p className="text-sm text-gray-500">{headerDate}</p>
         </div>
 
         {/* Sliders */}
@@ -212,22 +220,22 @@ export default function CheckInPage() {
         </button>
 
         {/* Result */}
-        <div
-          className={`border rounded p-6 space-y-4 ${
-            STATE_COLOR[uiState.state] ?? "border-gray-600"
-          }`}
-        >
+        <div className={`border rounded p-6 space-y-4 ${STATE_COLOR[uiState.state]}`}>
           <div className="flex items-center justify-between">
             <span className="text-xs tracking-widest uppercase">Tilstand</span>
             <span className="text-2xl font-light">{uiState.state}</span>
           </div>
 
           <ul className="space-y-1">
-            {uiState.reasons.map((r, i) => (
-              <li key={i} className="text-sm text-gray-300">
-                {r}
-              </li>
-            ))}
+            {uiState.reasons.length ? (
+              uiState.reasons.map((r, i) => (
+                <li key={i} className="text-sm text-gray-300">
+                  {r}
+                </li>
+              ))
+            ) : (
+              <li className="text-sm text-gray-300">—</li>
+            )}
           </ul>
 
           {/* Intervention */}
@@ -235,7 +243,7 @@ export default function CheckInPage() {
             <p className="text-xs tracking-widest uppercase text-gray-500">Anbefalt handling</p>
             <p className="text-sm font-medium">{uiState.intervention.action}</p>
             <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
-            {uiState.intervention.duration !== undefined && (
+            {uiState.intervention.duration && (
               <p className="text-xs text-gray-600">{uiState.intervention.duration} min</p>
             )}
           </div>
@@ -247,9 +255,7 @@ export default function CheckInPage() {
         </div>
 
         {status === "error" && (
-          <p className="text-center text-sm text-red-400">
-            Kunne ikke lagre eller hente state. Prøv igjen.
-          </p>
+          <p className="text-center text-sm text-red-400">Kunne ikke lagre/hente. Prøv igjen.</p>
         )}
       </div>
     </main>
