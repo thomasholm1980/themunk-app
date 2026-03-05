@@ -51,6 +51,21 @@ export async function GET(request: Request) {
     );
   }
 
+  // Return cached brief if fresh (same day, already generated)
+  if (cache.cache_hit && cache.brief) {
+    return NextResponse.json(
+      {
+        brief: cache.brief,
+        decision: { allow: true, blocked_reasons: [], required_edits: [], escalation_override: null },
+        slot_source: 'cache',
+        latency_ms: Date.now() - startTime,
+        cache_hit: true,
+        cap_triggered: false,
+      },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
+
   const { data: logs } = await supabase
     .from('manual_logs')
     .select('*')
@@ -84,7 +99,7 @@ export async function GET(request: Request) {
     flags,
   );
 
-  const llmEnabled = process.env.LLM_ENABLED === 'true' && !cache.cap_triggered;
+  const llmEnabled = process.env.LLM_ENABLED === 'true';
   const adapter = llmEnabled ? new AnthropicAdapter() : new FallbackAdapter();
   const modelName = llmEnabled
     ? (process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001')
@@ -118,8 +133,8 @@ export async function GET(request: Request) {
   const latency_ms = Date.now() - startTime;
   const new_generation_count = cache.generation_count + 1;
 
-  // Save to cache
-  saveBrief(userId, dayKey, brief, new_generation_count);
+  // Await cache save before returning
+  await saveBrief(userId, dayKey, brief, new_generation_count);
 
   // Fire-and-forget telemetry
   logBriefRunEvent({
