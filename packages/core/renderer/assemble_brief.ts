@@ -14,7 +14,7 @@ export interface DailyBrief {
   readiness_band: ReadinessBand | null;
   headline: string;
   what_we_see: string[];
-  what_it_might_mean: string;
+  what_it_might_mean: string[];
   today_plan: string[];
   disclaimer: string;
   fallback_used: boolean;
@@ -43,7 +43,7 @@ export function assembleBrief(
     readiness_band: template.readiness_band as ReadinessBand | null,
     headline: template.headline,
     what_we_see: template.what_we_see,
-    what_it_might_mean: template.what_it_might_mean,
+    what_it_might_mean: [template.what_it_might_mean],
     today_plan: template.today_plan,
     disclaimer,
     fallback_used: false,
