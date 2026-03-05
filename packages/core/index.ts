@@ -14,3 +14,7 @@ export { gatekeep } from "./gatekeeper/decision";
 export type { GatekeeperDecision } from "./gatekeeper/decision";
 export { buildFallbackBrief } from "./gatekeeper/fallback_builder";
 export { scanText } from "./gatekeeper/scan";
+export { FallbackAdapter } from "./llm/llm_adapter";
+export type { LLMAdapter, } from "./llm/llm_adapter";
+export type { SlotFillerInput, SlotFillerOutput } from "./llm/types";
+export { fillWhatItMightMean } from "./renderer/slot_filler/fill_what_it_might_mean";
