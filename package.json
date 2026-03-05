@@ -4,6 +4,8 @@
   "workspaces": ["apps/web", "packages/*"],
   "scripts": {
     "dev": "cd apps/web && npm run dev",
-    "build": "cd apps/web && npm run build"
+    "build": "cd apps/web && npm run build",
+    "eval": "npx ts-node --project packages/core/tsconfig.json packages/core/tests/run_eval.ts",
+    "test:disclaimer": "npx ts-node --project packages/core/tsconfig.json packages/core/tests/test_disclaimer.ts"
   }
 }
