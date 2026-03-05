@@ -1,0 +1,36 @@
+{
+  "version": "1",
+  "block_rules": [
+    {
+      "id": "NO_MEDICAL_DIAGNOSIS",
+      "pattern": "\\b(diagnos(e|is|ed)|you have|you may have|you are suffering)\\b",
+      "reason": "medical_diagnosis"
+    },
+    {
+      "id": "NO_MEDICATION",
+      "pattern": "\\b(medication|prescri(be|ption)|drug|dose|mg|pill|tablet|antidepressant|SSRI)\\b",
+      "reason": "medication_reference"
+    },
+    {
+      "id": "NO_MEDICAL_ADVICE",
+      "pattern": "\\b(you should see a doctor|consult a physician|medical advice|clinically|treatment plan)\\b",
+      "reason": "medical_advice"
+    },
+    {
+      "id": "NO_SELF_HARM",
+      "pattern": "\\b(self.harm|suicide|suicidal|end your life|hurt yourself)\\b",
+      "reason": "self_harm_content"
+    },
+    {
+      "id": "NO_JAILBREAK",
+      "pattern": "\\b(ignore previous|disregard instructions|pretend you are|you are now|bypass|override system)\\b",
+      "reason": "jailbreak_attempt"
+    }
+  ],
+  "required_uncertainty": {
+    "patterns": [
+      "\\b(may|might|could|suggest|consider|possibly|appears to)\\b"
+    ],
+    "required_in_fields": ["what_it_might_mean"]
+  }
+}
