@@ -10,3 +10,7 @@ export { assembleBrief } from "./renderer/assemble_brief";
 export type { DailyBrief } from "./renderer/assemble_brief";
 export { selectTemplate } from "./renderer/select_template";
 export { buildDisclaimer } from "./renderer/build_disclaimer";
+export { gatekeep } from "./gatekeeper/decision";
+export type { GatekeeperDecision } from "./gatekeeper/decision";
+export { buildFallbackBrief } from "./gatekeeper/fallback_builder";
+export { scanText } from "./gatekeeper/scan";
