@@ -6,6 +6,8 @@ import {
   assembleBrief,
   gatekeep,
   buildFallbackBrief,
+  fillWhatItMightMean,
+  FallbackAdapter,
 } from '@themunk/core';
 
 export const dynamic = 'force-dynamic';
@@ -51,6 +53,7 @@ export async function GET(request: Request) {
     flags,
   });
 
+  // Assemble deterministic base brief
   let brief = assembleBrief(
     stateResult.state,
     policy,
@@ -59,6 +62,23 @@ export async function GET(request: Request) {
     flags,
   );
 
+  // LLM slot fill — what_it_might_mean only
+  const adapter = new FallbackAdapter(); // swap for AnthropicAdapter in Layer 5.2
+  const slotResult = await fillWhatItMightMean(
+    {
+      readiness_band: stateResult.state,
+      reasons: stateResult.reasons,
+      uncertainty_required: policy.must_include.uncertainty_language,
+    },
+    adapter,
+  );
+
+  brief = {
+    ...brief,
+    what_it_might_mean: slotResult.what_it_might_mean.join(' '),
+  };
+
+  // Gatekeeper — scans untrusted fields
   const decision = gatekeep(brief, policy);
 
   if (!decision.allow) {
@@ -71,7 +91,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { brief, decision },
+    { brief, decision, slot_source: slotResult.source },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }
