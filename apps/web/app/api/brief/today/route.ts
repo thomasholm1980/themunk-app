@@ -1,37 +1,77 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getAuthContext, isAuthError } from "../../../../lib/auth";
-import { MonkBrief } from "../../../../../../packages/core";
+import { NextResponse } from 'next/server';
+import { supabase } from '../../../../lib/supabase';
+import {
+  computeState,
+  computePolicy,
+  assembleBrief,
+  gatekeep,
+  buildFallbackBrief,
+} from '@themunk/core';
 
-export async function GET(req: NextRequest) {
-  const auth = getAuthContext(req);
-  if (isAuthError(auth)) return auth;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-  const today = new Date().toISOString().slice(0, 10);
+const OSLO_TZ = 'Europe/Oslo';
 
-  const mockBrief: MonkBrief = {
-    brief_version: "1.0",
-    day_key: today,
-    generated_at: new Date().toISOString(),
-    state: "YELLOW",
-    state_confidence: 0.6,
-    signals_summary: {
-      sleep_score: 72,
-      readiness_score: 65,
-      activity_score: 70,
-      hrv_balance_score_0_100: 58,
-    },
-    trend: {
-      sleep_7d_avg: 74,
-      readiness_7d_avg: 66,
-      direction: "stable",
-    },
-    one_action: {
-      category: "recovery",
-      instruction: "Prioritér 8 timer søvn i natt og unngå skjermer etter 22:00.",
-      rationale: "HRV og readiness er under baseline. Kroppen trenger restitusjon.",
-    },
-    data_quality_summary: "partial",
-  };
+function getOsloDateKey(): string {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: OSLO_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+}
 
-  return NextResponse.json({ ok: true, data: mockBrief });
+export async function GET(request: Request) {
+  const userId = request.headers.get('x-user-id') ?? 'demo-user';
+  const dayKey = getOsloDateKey();
+
+  const { data: logs } = await supabase
+    .from('manual_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  const latest = logs?.[0];
+  const flags: string[] = latest ? [] : ['data_missing'];
+
+  const stateResult = latest
+    ? computeState([{
+        day_key: dayKey,
+        energy: latest.energy,
+        mood: latest.mood,
+        stress: latest.stress,
+      }])
+    : computeState([]);
+
+  const policy = computePolicy({
+    readiness_band: stateResult.state,
+    flags,
+  });
+
+  let brief = assembleBrief(
+    stateResult.state,
+    policy,
+    userId,
+    dayKey,
+    flags,
+  );
+
+  const decision = gatekeep(brief, policy);
+
+  if (!decision.allow) {
+    brief = buildFallbackBrief(
+      policy,
+      userId,
+      dayKey,
+      decision.blocked_reasons,
+    );
+  }
+
+  return NextResponse.json(
+    { brief, decision },
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
 }
