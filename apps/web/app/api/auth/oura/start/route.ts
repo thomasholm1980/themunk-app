@@ -1,4 +1,3 @@
-// apps/web/app/api/auth/oura/start/route.ts
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -16,7 +15,7 @@ export async function GET() {
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: 'email personal daily heartrate workout tag session',
+    scope: 'daily personal',
   });
 
   const authUrl = `https://cloud.ouraring.com/oauth/authorize?${params.toString()}`;
