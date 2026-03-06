@@ -1,13 +1,14 @@
 // apps/web/app/api/wearables/oura/sync/route.ts
 // Layer 7 — Wearable sync endpoint
-// v1.0.0
+// v2.0.0
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { SimulatorAdapter } from '@themunk/core/wearables';
+import { SimulatorAdapter } from '@themunk/core';
+import { OuraAdapter } from '@themunk/core';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,7 +16,7 @@ const supabase = createClient(
 );
 
 const WEARABLES_ENABLED = process.env.WEARABLES_ENABLED === 'true';
-const USER_ID = 'thomas'; // MVP: single user
+const USER_ID = 'thomas';
 
 function todayOslo(): string {
   return new Intl.DateTimeFormat('sv-SE', {
@@ -33,10 +34,24 @@ export async function POST() {
 
   const start = Date.now();
   const dayKey = todayOslo();
-  const adapter = new SimulatorAdapter();
+
+  const adapter = new OuraAdapter({
+    getAccessToken: async (userId: string) => {
+      const { data } = await supabase
+        .from('oura_tokens')
+        .select('access_token')
+        .eq('user_id', userId)
+        .single();
+      return data?.access_token ?? null;
+    },
+  });
 
   try {
     const data = await adapter.fetchDay(USER_ID, dayKey);
+
+    if (!data) {
+      return NextResponse.json({ status: 'no_data', day_key: dayKey }, { status: 200 });
+    }
 
     const { error } = await supabase
       .from('wearable_logs')
@@ -59,7 +74,6 @@ export async function POST() {
 
     const latency = Date.now() - start;
 
-    // Telemetry
     await supabase.from('wearable_sync_events').insert({
       user_id: USER_ID,
       day_key: dayKey,
@@ -71,10 +85,7 @@ export async function POST() {
     });
 
     if (error) {
-      return NextResponse.json(
-        { status: 'error', error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ status: 'error', error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -83,6 +94,7 @@ export async function POST() {
       source: adapter.source,
       latency_ms: latency,
     });
+
   } catch (err: unknown) {
     const latency = Date.now() - start;
     const message = err instanceof Error ? err.message : 'unknown';
@@ -97,9 +109,6 @@ export async function POST() {
       error_code: 'EXCEPTION',
     });
 
-    return NextResponse.json(
-      { status: 'error', error: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ status: 'error', error: message }, { status: 500 });
   }
 }
