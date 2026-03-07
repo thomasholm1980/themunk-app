@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../lib/supabase';
 import { resolveUserId, getOsloDateKey } from '../../../lib/request-utils';
 import { isValidAccuracy, isValidDayKey } from '@themunk/core';
-import { buildReflectionSignal } from '@themunk/core';
+import { buildReflectionSignal, buildReflectionSnapshotRecord } from '@themunk/core';
 
 export async function POST(request: NextRequest) {
   const userId = resolveUserId(request);
@@ -47,6 +47,20 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Memory Engine v1 — non-blocking reflection snapshot
+  try {
+    await supabase.from('memory_snapshots').upsert(
+      buildReflectionSnapshotRecord({
+        user_id: userId,
+        day_key: signal.day_key,
+        reflection_accuracy: signal.accuracy,
+      }),
+      { onConflict: 'user_id,day_key' }
+    );
+  } catch {
+    // non-blocking
   }
 
   return NextResponse.json(

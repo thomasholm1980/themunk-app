@@ -156,6 +156,21 @@ export async function GET(request: Request) {
     ]);
   }
 
+  // Memory Engine v1 — non-blocking state snapshot
+  try {
+    await supabase.from('memory_snapshots').upsert(
+      buildStateSnapshotRecord({
+        user_id: userId,
+        day_key: dayKey,
+        state: result.state,
+        trajectory: null,
+      }),
+      { onConflict: 'user_id,day_key' }
+    );
+  } catch {
+    // non-blocking — memory failure does not affect API response
+  }
+
   return NextResponse.json(
     { ...result, intervention, protocol, schedule, daily_brief },
     { headers: { 'Cache-Control': 'no-store' } }
