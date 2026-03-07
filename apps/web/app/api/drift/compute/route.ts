@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../../lib/supabase';
+import { supabase } from '../../../../lib/supabase';
 import { computeDrift } from '@themunk/core';
 
 const WINDOWS = [7, 14] as const
