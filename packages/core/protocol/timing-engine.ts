@@ -15,7 +15,7 @@ export type ProtocolSchedule = {
   protocol_version: string
 }
 
-type TimingInput = {
+export type TimingInput = {
   state: MunkState
   deep_work_minutes: number
   recovery_minutes: number
