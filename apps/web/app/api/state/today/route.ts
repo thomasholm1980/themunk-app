@@ -5,6 +5,7 @@ import {
   computeIntervention,
   computeProtocol,
   buildStateSnapshotRecord,
+  detectPatterns,
   computeProtocolSchedule,
   buildDailyBrief,
 } from '@themunk/core';
@@ -157,6 +158,29 @@ export async function GET(request: Request) {
     ]);
   }
 
+  // Pattern Engine Light v1 — read memory, detect patterns (non-blocking)
+  let pattern_engine = { version: 'pattern_v1', day_key: dayKey, pattern_codes: [] }
+  try {
+    const { data: memoryRows } = await supabase
+      .from('memory_snapshots')
+      .select('day_key, state, reflection_accuracy, created_at')
+      .eq('user_id', userId)
+      .gte('day_key', (() => { const d = new Date(); d.setDate(d.getDate() - 14); return d.toISOString().slice(0, 10) })())
+      .order('day_key', { ascending: true })
+
+    const recentStates = (memoryRows ?? [])
+      .filter((r: any) => r.state)
+      .map((r: any) => ({ day_key: r.day_key, state: r.state, created_at: r.created_at }))
+
+    const recentReflections = (memoryRows ?? [])
+      .filter((r: any) => r.reflection_accuracy)
+      .map((r: any) => ({ day_key: r.day_key, accuracy: r.reflection_accuracy }))
+
+    pattern_engine = detectPatterns({ day_key: dayKey, recentStates, recentReflections })
+  } catch {
+    // non-blocking — pattern failure does not affect API response
+  }
+
   // Memory Engine v1 — non-blocking state snapshot
   try {
     await supabase.from('memory_snapshots').upsert(
@@ -173,7 +197,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { ...result, intervention, protocol, schedule, daily_brief },
+    { ...result, intervention, protocol, schedule, daily_brief, pattern_engine },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }
