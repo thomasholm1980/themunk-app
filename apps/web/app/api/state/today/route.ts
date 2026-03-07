@@ -90,7 +90,7 @@ export async function GET(request: Request) {
     .eq('window_type', '7d')
     .maybeSingle();
 
-  const daily_brief: DailyBriefV1 = buildDailyBrief({
+  const daily_brief = buildDailyBrief({
     day_key:          dayKey,
     state:            result.state,
     confidence:       result.confidence,
