@@ -61,7 +61,7 @@ export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
     state,
     observation_code: mapObservationCode(state),
     observation_text: language.observation_sentence,
-    context_text:     text.context_text,
+    context_text:     governed.context_sentence ?? null,
     guidance_items:   interpretation.selected_guidance,
     priority_items:   [...text.priority_items],
     trajectory_text,
