@@ -2,6 +2,7 @@
 // apps/web/app/check-in/page.tsx
 
 import { useEffect, useMemo, useState } from "react";
+import LongitudinalPanel from "../components/LongitudinalPanel";
 
 const USER_ID = "demo-user";
 
@@ -54,9 +55,7 @@ function fallbackUI(message?: string): UIState {
 
 function mapStateToUI(res: StateResponse | null | undefined): UIState {
   if (!res || !res.state) return fallbackUI(res?.message);
-
   const state = (res.state as UIState["state"]) || "YELLOW";
-
   return {
     state,
     confidence: Number(res.confidence ?? 0),
@@ -77,19 +76,13 @@ export default function CheckInPage() {
   const [stress, setStress] = useState(3);
   const [notes, setNotes] = useState("");
 
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
-    "idle"
-  );
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [uiState, setUiState] = useState<UIState | null>(null);
   const [dateLabel, setDateLabel] = useState<string>("");
 
-  const todayKey = useMemo(() => {
-    // YYYY-MM-DD
-    return new Date().toISOString().slice(0, 10);
-  }, []);
+  const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
-    // Hydration-safe date label
     setDateLabel(
       new Date().toLocaleDateString("no-NO", {
         weekday: "long",
@@ -104,26 +97,21 @@ export default function CheckInPage() {
       headers: { "x-user-id": USER_ID },
       cache: "no-store",
     });
-
-    // Ikke throw her – vi vil heller vise fallback i UI
     if (!res.ok) {
       setUiState(fallbackUI("Kunne ikke hente state (API-feil)"));
       return;
     }
-
     const json: StateResponse = await res.json();
     setUiState(mapStateToUI(json));
   }
 
   useEffect(() => {
-    // Hent state på load
     fetchState().catch(() => setUiState(fallbackUI("Kunne ikke hente state")));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function submitLog() {
     setStatus("loading");
-
     try {
       const logRes = await fetch("/api/logs", {
         method: "POST",
@@ -131,17 +119,9 @@ export default function CheckInPage() {
           "Content-Type": "application/json",
           "x-user-id": USER_ID,
         },
-        body: JSON.stringify({
-          day_key: todayKey,
-          energy,
-          mood,
-          stress,
-          notes,
-        }),
+        body: JSON.stringify({ day_key: todayKey, energy, mood, stress, notes }),
       });
-
       if (!logRes.ok) throw new Error("Log save failed");
-
       await fetchState();
       setStatus("done");
     } catch (err) {
@@ -155,13 +135,12 @@ export default function CheckInPage() {
     : "border-gray-600 text-gray-200";
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-screen flex flex-col items-center px-6 py-16">
       <div className="w-full max-w-md space-y-10">
+
         {/* Header */}
         <div className="text-center space-y-2">
-          <p className="text-xs tracking-[0.3em] uppercase text-gray-500">
-            The Munk
-          </p>
+          <p className="text-xs tracking-[0.3em] uppercase text-gray-500">The Munk</p>
           <h1 className="text-3xl font-light">Dagens innsjekk</h1>
           <p className="text-sm text-gray-500">{dateLabel}</p>
         </div>
@@ -178,7 +157,6 @@ export default function CheckInPage() {
                 <span className="text-gray-400">{label}</span>
                 <span className="tabular-nums">{value} / 5</span>
               </div>
-
               <input
                 type="range"
                 min={1}
@@ -215,40 +193,28 @@ export default function CheckInPage() {
           {status === "loading" ? "Laster…" : "Send inn"}
         </button>
 
-        {/* Result */}
+        {/* Today — state result */}
         {uiState && (
           <div className={`border rounded p-6 space-y-4 ${boxClass}`}>
             <div className="flex items-center justify-between">
               <span className="text-xs tracking-widest uppercase">Tilstand</span>
               <span className="text-2xl font-light">{uiState.state}</span>
             </div>
-
             <ul className="space-y-1">
               {uiState.reasons.map((r, i) => (
-                <li key={i} className="text-sm text-gray-300">
-                  {r}
-                </li>
+                <li key={i} className="text-sm text-gray-300">{r}</li>
               ))}
             </ul>
-
             <div className="border-t border-gray-700 pt-4 space-y-2">
-              <p className="text-xs tracking-widest uppercase text-gray-500">
-                Anbefalt handling
-              </p>
+              <p className="text-xs tracking-widest uppercase text-gray-500">Anbefalt handling</p>
               <p className="text-sm font-medium">{uiState.intervention.action}</p>
-              <p className="text-sm text-gray-400">
-                {uiState.intervention.secondary}
-              </p>
+              <p className="text-sm text-gray-400">{uiState.intervention.secondary}</p>
               {uiState.intervention.duration && (
-                <p className="text-xs text-gray-600">
-                  {uiState.intervention.duration} min
-                </p>
+                <p className="text-xs text-gray-600">{uiState.intervention.duration} min</p>
               )}
             </div>
-
             <p className="text-xs text-gray-600">
-              Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med
-              data: {uiState.days_with_data}
+              Konfidans: {Math.round(uiState.confidence * 100)}% · Dager med data: {uiState.days_with_data}
             </p>
           </div>
         )}
@@ -258,6 +224,15 @@ export default function CheckInPage() {
             Kunne ikke lagre eller hente state. Prøv igjen.
           </p>
         )}
+
+        {/* Divider */}
+        <div className="border-t border-zinc-800 pt-2">
+          <p className="text-xs tracking-[0.3em] uppercase text-zinc-600 mb-6">
+            Historisk utvikling
+          </p>
+          <LongitudinalPanel />
+        </div>
+
       </div>
     </main>
   );
