@@ -1,14 +1,11 @@
-// apps/web/app/api/state/today/route.ts
-// Layer 7+8 — State + Protocol Engine
-// v2.1.0
+import { NextResponse } from 'next/server';
+import { supabase } from '../../../../lib/supabase';
+import { computeStateV2, computeIntervention, computeProtocol } from '@the-munk/core';
+import { computeProtocolSchedule } from '@the-munk/core/protocol';
+import type { ManualInput, WearableInput } from '@the-munk/core';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-import { NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
-import { computeStateV2, computeIntervention, computeProtocol } from '@themunk/core';
-import type { ManualInput, WearableInput } from '@themunk/core';
 
 const OSLO_TZ = 'Europe/Oslo';
 
@@ -25,26 +22,26 @@ export async function GET(request: Request) {
   const userId = request.headers.get('x-user-id') ?? 'thomas';
   const dayKey = getOsloDateKey();
 
-  const [{ data: logs }, { data: wearableRow }] = await Promise.all([
-    supabase
-      .from('manual_logs')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('day_key', dayKey)
-      .order('created_at', { ascending: false })
-      .limit(1),
-    supabase
-      .from('wearable_logs')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('day_key', dayKey)
-      .eq('source', 'oura')
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .single(),
-  ]);
+  // Fetch manual log
+  const { data: logs } = await supabase
+    .from('manual_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-  const latest = logs?.[0] ?? null;
+  const latest = logs?.[0];
+
+  // Fetch wearable log
+  const { data: wearableRow } = await supabase
+    .from('wearable_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day_key', dayKey)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .single();
 
   const manualInput: ManualInput | null = latest ? {
     energy: latest.energy,
@@ -60,7 +57,7 @@ export async function GET(request: Request) {
     sleep_score: wearableRow.sleep_score,
     readiness_score: wearableRow.readiness_score,
     activity_score: wearableRow.activity_score,
-    sleep_duration_minutes: wearableRow.sleep_duration_hours && wearableRow.sleep_duration_hours > 0
+    sleep_duration_minutes: wearableRow.sleep_duration_hours
       ? Math.round(wearableRow.sleep_duration_hours * 60)
       : null,
     source: 'oura',
@@ -79,6 +76,21 @@ export async function GET(request: Request) {
   const intervention = computeIntervention(result.state);
   const protocol = computeProtocol(result.state, dayKey);
 
+  // Wire 8b — ProtocolTimingEngine (optional enrichment)
+  let schedule = null;
+  try {
+    schedule = computeProtocolSchedule({
+      state: result.state,
+      deep_work_minutes: protocol.deep_work_minutes,
+      recovery_minutes: protocol.recovery_minutes,
+      wake_time: '07:00',
+    });
+  } catch (err) {
+    console.error('[state/today] schedule generation failed — continuing', err);
+    schedule = null;
+  }
+
+  // Input-change gating
   const { data: existing } = await supabase
     .from('daily_state')
     .select('state_trace')
@@ -124,11 +136,17 @@ export async function GET(request: Request) {
         protocol_version: protocol.protocol_version,
         generated_at: protocol.generated_at,
       }),
+      ...(schedule ? [supabase.from('protocol_schedule').upsert({
+        user_id: userId,
+        day_key: dayKey,
+        ...schedule,
+        generated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,day_key' })] : []),
     ]);
   }
 
   return NextResponse.json(
-    { ...result, intervention, protocol },
+    { ...result, intervention, protocol, schedule },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }

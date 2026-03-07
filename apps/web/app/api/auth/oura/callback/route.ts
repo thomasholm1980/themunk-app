@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Token exchange failed', detail: err }, { status: 500 });
   }
 
-  const tokens = await tokenRes.json();
+  const tokens = await tokenRes.json() as Record<string, string>;
 
   const { error: dbError } = await supabase
     .from('oura_tokens')
