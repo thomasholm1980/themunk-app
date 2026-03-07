@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { resolveUserId, getOsloDateKey } from "../../../../lib/request-utils";
 import { supabase } from '../../../../lib/supabase';
 import { computeStateV2, computeIntervention, computeProtocol } from '@themunk/core';
 import { computeProtocolSchedule } from '@themunk/core';
@@ -7,19 +8,10 @@ import type { ManualInput, WearableInput } from '@themunk/core';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const OSLO_TZ = 'Europe/Oslo';
 
-function getOsloDateKey(): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: OSLO_TZ,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date());
-}
 
 export async function GET(request: Request) {
-  const userId = request.headers.get('x-user-id') ?? 'thomas';
+  const userId = resolveUserId(request);
   const dayKey = getOsloDateKey();
 
   // Fetch manual log
@@ -93,16 +85,19 @@ export async function GET(request: Request) {
   // Input-change gating
   const { data: existing } = await supabase
     .from('daily_state')
-    .select('state_trace')
+    .select('*')
     .eq('user_id', userId)
     .eq('day_key', dayKey)
-    .single();
+    .maybeSingle();
 
-  const inputsChanged = !existing?.state_trace ||
-    existing?.state_trace?.manual_score !== result.manual_score ||
-    existing?.state_trace?.wearable_score !== result.wearable_score;
+  let inputsChanged = true;
+  if (existing) {
+    inputsChanged =
+      existing.state_trace?.manual_score !== result.manual_score ||
+      existing.state_trace?.wearable_score !== result.wearable_score;
+  }
 
-  if (inputsChanged) {
+  if (!existing || inputsChanged) {
     await Promise.all([
       supabase.from('daily_state').upsert({
         user_id: userId,
