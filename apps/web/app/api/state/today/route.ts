@@ -6,6 +6,7 @@ import {
   computeProtocol,
   buildStateSnapshotRecord,
   detectPatterns,
+  buildPatternContext,
   computeProtocolSchedule,
   buildDailyBrief,
 } from '@themunk/core';
@@ -181,6 +182,10 @@ export async function GET(request: Request) {
     // non-blocking — pattern failure does not affect API response
   }
 
+  const pattern_context = buildPatternContext({
+    pattern_codes: pattern_engine.pattern_codes
+  })
+
   // Memory Engine v1 — non-blocking state snapshot
   try {
     await supabase.from('memory_snapshots').upsert(
@@ -197,7 +202,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { ...result, intervention, protocol, schedule, daily_brief, pattern_engine },
+    { ...result, intervention, protocol, schedule, daily_brief, pattern_engine, pattern_context },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }
