@@ -3,14 +3,14 @@
 // Layer: Interpretation layer (sits after engine pipeline)
 // v1.0.0
 
-export type ConfidenceLevel = "HIGH" | "MEDIUM" | "LOW" | null
+export type DailyBriefConfidence = "HIGH" | "MEDIUM" | "LOW" | null
 
 export type ObservationCode =
   | "system_steady"
   | "mild_strain"
   | "recovery_needed"
 
-export type DailyBrief = {
+export type DailyBriefV1 = {
   version: "v1"
   day_key: string
 
@@ -28,7 +28,7 @@ export type DailyBrief = {
   reflection_prompt?: string
   memory_reference?: string
 
-  confidence: ConfidenceLevel
+  confidence: DailyBriefConfidence
 
   telemetry: {
     protocol_version: string

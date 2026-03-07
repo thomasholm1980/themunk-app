@@ -3,7 +3,7 @@
 // No variability. No LLM. No raw metrics in output text.
 // v1.0.0
 
-import type { ObservationCode, ConfidenceLevel } from './types'
+import type { ObservationCode, DailyBriefConfidence } from './types'
 
 type MunkState = 'GREEN' | 'YELLOW' | 'RED'
 
@@ -87,7 +87,7 @@ export function mapTrajectoryText(
 // ── Confidence passthrough ───────────────────────────────────────
 export function mapConfidence(
   raw: string | null | undefined
-): ConfidenceLevel {
+): DailyBriefConfidence {
   if (raw === 'HIGH' || raw === 'MEDIUM' || raw === 'LOW') return raw
   return null
 }

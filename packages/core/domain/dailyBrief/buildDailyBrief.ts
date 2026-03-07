@@ -3,7 +3,7 @@
 // Read-only. Deterministic. No side effects.
 // v1.0.0
 
-import type { DailyBrief } from './types'
+import type { DailyBriefV1 } from './types'
 import {
   mapObservationCode,
   mapStateText,
@@ -11,7 +11,7 @@ import {
   mapConfidence,
 } from './mappers'
 
-export interface BuildDailyBriefInput {
+export interface BuildDailyBriefV1Input {
   day_key: string
   state: 'GREEN' | 'YELLOW' | 'RED'
   confidence: string | null | undefined
@@ -21,7 +21,7 @@ export interface BuildDailyBriefInput {
 
 const REFLECTION_PROMPT = 'How does this feel today?'
 
-export function buildDailyBrief(input: BuildDailyBriefInput): DailyBrief {
+export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
   const { day_key, state, confidence, protocol_version, window_7d_status } = input
 
   const text           = mapStateText(state)
