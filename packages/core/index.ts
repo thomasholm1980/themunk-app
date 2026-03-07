@@ -20,3 +20,7 @@ export type { SlotFillerInput, SlotFillerOutput } from "./llm/types";
 export { fillWhatItMightMean } from "./renderer/slot_filler/fill_what_it_might_mean";
 export type { LLMRequest, LLMResponse } from "./llm/types";
 export * from './wearables';
+export { computeStateV2 } from './state/compute-state-v2'
+export type { ManualInput, WearableInput, ComputeStateV2Result } from './state/types'
+export { computeProtocol } from './protocol/protocol-engine'
+export type { DailyProtocol } from './protocol/protocol-types'
