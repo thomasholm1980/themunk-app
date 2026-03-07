@@ -1,9 +1,16 @@
 import { DailyBriefV2Input, DailyBriefV2 } from './brief-v2-types';
 import { BRIEF_V2_TEMPLATES, FALLBACK_EXPLANATION } from './brief-v2-templates';
 
+
+function normalizeTime(t: string | null | undefined): string | null {
+  if (!t) return null;
+  // Convert HH:MM:SS to HH:MM
+  return t.length === 8 && t[2] === ':' && t[5] === ':' ? t.slice(0, 5) : t;
+}
+
 function formatWindow(start?: string, end?: string): string | null {
   if (!start || !end) return null;
-  return `${start}-${end}`;
+  return `${normalizeTime(start)}-${normalizeTime(end)}`;
 }
 
 export function composeBriefV2(input: DailyBriefV2Input): DailyBriefV2 {
@@ -33,6 +40,17 @@ export function composeBriefV2(input: DailyBriefV2Input): DailyBriefV2 {
     ? `score_${Math.round(adherence.adherence_score * 100)}`
     : 'not_available';
 
+  const telemetry = {
+    day_key: input.day_key,
+    state: state.state,
+    template_id: template.template_id,
+    has_schedule: schedule !== null,
+    has_adherence: adherence !== null,
+    has_drift: drift !== null && drift.status !== 'not_available',
+    protocol_version: protocol.protocol_version,
+    brief_version: '2.0.0' as const,
+  };
+
   return {
     day_key: input.day_key,
     brief_version: '2.0.0',
@@ -57,5 +75,6 @@ export function composeBriefV2(input: DailyBriefV2Input): DailyBriefV2 {
       protocol_version: protocol.protocol_version,
       template_id: template.template_id,
     },
+    telemetry,
   };
 }

@@ -90,9 +90,6 @@ export async function GET(request: Request) {
     .eq('day_key', dayKey)
     .maybeSingle();
 
-  console.log('[state/today] userId:', userId, 'dayKey:', dayKey);
-  console.log('[state/today] manualInput:', !!manualInput, 'wearableInput:', !!wearableInput);
-  console.log('[state/today] existing row:', !!existing);
 
   let inputsChanged = true;
   if (existing) {
@@ -101,11 +98,9 @@ export async function GET(request: Request) {
       existing.state_trace?.wearable_score !== result.wearable_score;
   }
 
-  console.log('[state/today] inputsChanged:', inputsChanged);
 
   if (!existing || inputsChanged) {
-    console.log('[state/today] entering upsert branch');
-    await Promise.all([
+      await Promise.all([
       supabase.from('daily_state').upsert({
         user_id: userId,
         day_key: dayKey,

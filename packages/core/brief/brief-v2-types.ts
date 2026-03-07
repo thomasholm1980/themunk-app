@@ -65,8 +65,20 @@ export interface DailyBriefV2 {
     drift_status: string;
     adherence_status: string;
   };
+  telemetry: BriefTelemetry;
   meta: {
     protocol_version: string;
     template_id: string;
   };
+}
+// Telemetry extension for DailyBriefV2
+export interface BriefTelemetry {
+  day_key: string;
+  state: MunkStateCode;
+  template_id: string;
+  has_schedule: boolean;
+  has_adherence: boolean;
+  has_drift: boolean;
+  protocol_version: string;
+  brief_version: '2.0.0';
 }
