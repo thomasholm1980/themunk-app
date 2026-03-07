@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 import { computeStateV2, computeIntervention, computeProtocol } from '@themunk/core';
-import { computeProtocolSchedule } from '@themunk/core/protocol';
+import { computeProtocolSchedule } from '@themunk/core';
 import type { ManualInput, WearableInput } from '@themunk/core';
 
 export const dynamic = 'force-dynamic';
