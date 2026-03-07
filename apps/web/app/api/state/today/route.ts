@@ -7,6 +7,7 @@ import {
   buildStateSnapshotRecord,
   detectPatterns,
   buildPatternContext,
+  buildCoreScreen,
   computeProtocolSchedule,
   buildDailyBrief,
 } from '@themunk/core';
@@ -189,6 +190,13 @@ export async function GET(request: Request) {
     pattern_codes:    pattern_engine.pattern_codes,
   });
 
+  const core_screen = buildCoreScreen({
+    state:            result.state,
+    observation_text: daily_brief.observation_text,
+    context_text:     daily_brief.context_text ?? null,
+    guidance_text:    daily_brief.guidance_text ?? daily_brief.guidance_items?.[0] ?? '',
+  })
+
   // Memory Engine v1 — non-blocking state snapshot
   try {
     await supabase.from('memory_snapshots').upsert(
@@ -205,7 +213,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { ...result, intervention, protocol, schedule, daily_brief, pattern_engine, pattern_context },
+    { ...result, intervention, protocol, schedule, daily_brief, pattern_engine, pattern_context, core_screen },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }
