@@ -162,7 +162,6 @@ export default function CheckInPage() {
               <ReflectionSignal
                 userId={USER_ID}
                 dayKey={todayKey}
-                options={screen.reflection_options}
               />
             </div>
           </div>
