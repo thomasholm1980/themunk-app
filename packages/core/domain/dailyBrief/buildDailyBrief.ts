@@ -53,7 +53,7 @@ export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
     day_key,
     state,
     observation_code: mapObservationCode(state),
-    observation_text: text.observation_text,
+    observation_text: language.observation_sentence,
     context_text:     text.context_text,
     guidance_items:   interpretation.selected_guidance,
     priority_items:   [...text.priority_items],
