@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../../lib/supabase';
-import { composeBriefV2 } from '@the-munk/core/brief';
+import { composeBriefV2 } from '@themunk/core/brief';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

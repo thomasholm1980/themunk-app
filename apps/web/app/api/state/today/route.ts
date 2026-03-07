@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
-import { computeStateV2, computeIntervention, computeProtocol } from '@the-munk/core';
-import { computeProtocolSchedule } from '@the-munk/core/protocol';
-import type { ManualInput, WearableInput } from '@the-munk/core';
+import { computeStateV2, computeIntervention, computeProtocol } from '@themunk/core';
+import { computeProtocolSchedule } from '@themunk/core/protocol';
+import type { ManualInput, WearableInput } from '@themunk/core';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
