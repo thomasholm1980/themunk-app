@@ -54,3 +54,5 @@ export { buildInterpretation } from './domain/interpretation/buildInterpretation
 export type { InterpretationResult, InterpretationInput, PrimaryFrame, ContextMode } from './domain/interpretation/types'
 export { buildLanguageOutput } from './domain/language/v1/buildLanguageOutput'
 export type { LanguageInput, LanguageOutput, GuidanceMode } from './domain/language/v1/types'
+export { buildGovernedBrief } from './domain/governance/v1/buildGovernedBrief'
+export type { GovernanceInput, GovernedBrief, GovernanceFlag } from './domain/governance/v1/types'

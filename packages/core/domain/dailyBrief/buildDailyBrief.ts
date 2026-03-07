@@ -7,6 +7,7 @@ import type { DailyBriefV1 } from './types'
 import type { InterpretationResult } from '../interpretation/types'
 import { buildInterpretation } from '../interpretation/buildInterpretation'
 import { buildLanguageOutput } from '../language/v1/buildLanguageOutput'
+import { buildGovernedBrief } from '../governance/v1/buildGovernedBrief'
 import {
   mapObservationCode,
   mapStateText,
@@ -40,6 +41,12 @@ export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
     context_mode:          interpretation.context_mode,
     optional_pattern_code: interpretation.optional_pattern_code,
     selected_guidance:     interpretation.selected_guidance,
+  })
+
+  const governed = buildGovernedBrief({
+    observation_sentence: language.observation_sentence,
+    context_sentence:     language.context_sentence,
+    guidance_sentence:    language.guidance_sentence,
   })
 
   const text = mapStateText(state)
