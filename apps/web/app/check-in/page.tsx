@@ -167,7 +167,7 @@ export default function CheckInPage() {
           </div>
         )}
 
-        <LongitudinalPanel userId={USER_ID} />
+        <LongitudinalPanel />
       </div>
     </main>
   );
