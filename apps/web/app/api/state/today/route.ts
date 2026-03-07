@@ -20,7 +20,6 @@ export async function GET(request: Request) {
   const userId = request.headers.get('x-user-id') ?? 'demo-user';
   const dayKey = getDayKey();
 
-  // Fetch latest manual log for today
   const { data: logs } = await supabase
     .from('manual_logs')
     .select('*')
@@ -31,12 +30,11 @@ export async function GET(request: Request) {
 
   const latest = logs?.[0];
 
-  // Fetch latest wearable log for today
   const { data: wearableRow } = await supabase
     .from('wearable_logs')
     .select('*')
     .eq('day_key', dayKey)
-    .order('synced_at', { ascending: false })
+    .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -54,12 +52,12 @@ export async function GET(request: Request) {
     sleep_score: wearableRow.sleep_score,
     readiness_score: wearableRow.readiness_score,
     activity_score: wearableRow.activity_score,
-    sleep_duration_minutes: wearableRow.sleep_duration_hours
+    sleep_duration_minutes: wearableRow.sleep_duration_hours && wearableRow.sleep_duration_hours > 0
       ? Math.round(wearableRow.sleep_duration_hours * 60)
       : null,
     source: 'oura',
     day_key: wearableRow.day_key,
-    synced_at: wearableRow.synced_at ?? wearableRow.updated_at,
+    synced_at: wearableRow.updated_at,
   } : null;
 
   if (!manualInput && !wearableInput) {
@@ -72,7 +70,6 @@ export async function GET(request: Request) {
   const result = computeStateV2({ manualInput, wearableInput });
   const intervention = computeIntervention(result.state);
 
-  // Input-change gating
   const { data: existing } = await supabase
     .from('daily_state')
     .select('state_trace')
@@ -80,8 +77,7 @@ export async function GET(request: Request) {
     .eq('day_key', dayKey)
     .single();
 
-  const prevInputs = existing?.state_trace?.inputs_used;
-  const inputsChanged = !prevInputs ||
+  const inputsChanged = !existing?.state_trace ||
     existing?.state_trace?.manual_score !== result.manual_score ||
     existing?.state_trace?.wearable_score !== result.wearable_score;
 
