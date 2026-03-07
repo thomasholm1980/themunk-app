@@ -93,14 +93,7 @@ export async function GET(request: Request) {
     .eq('window_type', '7d')
     .maybeSingle();
 
-  const daily_brief = buildDailyBrief({
-    day_key:          dayKey,
-    state:            result.state,
-    confidence:       result.confidence,
-    protocol_version: protocol.protocol_version,
-    window_7d_status: longitudinalRow?.status ?? null,
-    pattern_codes:    pattern_engine.pattern_codes,
-  });
+
 
   // Input-change gating
   const { data: existing } = await supabase
@@ -186,6 +179,15 @@ export async function GET(request: Request) {
   const pattern_context = buildPatternContext({
     pattern_codes: pattern_engine.pattern_codes
   })
+
+  const daily_brief = buildDailyBrief({
+    day_key:          dayKey,
+    state:            result.state,
+    confidence:       result.confidence,
+    protocol_version: protocol.protocol_version,
+    window_7d_status: longitudinalRow?.status ?? null,
+    pattern_codes:    pattern_engine.pattern_codes,
+  });
 
   // Memory Engine v1 — non-blocking state snapshot
   try {
