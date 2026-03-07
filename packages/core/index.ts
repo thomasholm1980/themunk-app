@@ -36,4 +36,4 @@ export { buildLongitudinalSummary, computeStateDistribution, computeWindowAverag
 export type { LongitudinalStatus, TrajectoryDirection, ConfidenceLevel, DriverCode, DriftSummaryInput, DriftSummaryResult, WindowResult, WindowMetrics, StateDistribution, LongitudinalSummaryRecord, DailyStateRow, WearableLogRow, NervousSystemDriftRow, ProtocolAdherenceRow } from './longitudinal/types'
 export { DRIFT_ENGINE_VERSION, MIN_DAYS_7D, MIN_DAYS_14D } from './longitudinal/constants'
 export { buildDailyBrief } from './domain/dailyBrief/buildDailyBrief'
-export type { DailyBrief, BuildDailyBriefInput, ConfidenceLevel, ObservationCode } from './domain/dailyBrief/types'
+export type { DailyBrief as DailyBriefV1, BuildDailyBriefInput, ConfidenceLevel as BriefConfidenceLevel, ObservationCode } from './domain/dailyBrief/types'
