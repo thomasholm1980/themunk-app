@@ -14,17 +14,9 @@ function subtractDays(dateKey: string, days: number): string {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  
-
-  let userId: string;
-  try {
-    userId = await resolveUserId(req, supabase);
-  } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+  const userId = resolveUserId(req);
   const computedAt = new Date().toISOString();
-  const todayKey   = getOsloDateKey(computedAt);
+  const todayKey   = getOsloDateKey();
   const from14d    = subtractDays(todayKey, 14);
 
   try {

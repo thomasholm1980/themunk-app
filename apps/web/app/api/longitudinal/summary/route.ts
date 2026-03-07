@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '../../../../lib/supabase';
+import { supabase } from '../../../../lib/supabase';
 import { resolveUserId } from '../../../../lib/request-utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  
-
-  let userId: string;
-  try {
-    userId = await resolveUserId(req, supabase);
-  } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const userId = resolveUserId(req);
 
   const { data, error } = await supabase
     .from('longitudinal_summary')
