@@ -57,4 +57,5 @@ export type { LanguageInput, LanguageOutput, GuidanceMode } from './domain/langu
 export { buildGovernedBrief } from './domain/governance/v1/buildGovernedBrief'
 export type { GovernanceInput, GovernedBrief, GovernanceFlag } from './domain/governance/v1/types'
 export { buildCoreScreen } from './domain/screen/v1/buildCoreScreen'
-export type { CoreScreenModel, BuildCoreScreenInput, StateValue, ReflectionOption } from './domain/screen/v1/types'
+export type { CoreScreenModel, StateValue, ReflectionOption } from './domain/screen/v1/types'
+export type { BuildCoreScreenInput } from './domain/screen/v1/buildCoreScreen'
