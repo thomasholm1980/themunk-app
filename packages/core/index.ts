@@ -46,3 +46,5 @@ export { buildStateSnapshotRecord, buildReflectionSnapshotRecord } from './domai
 export type { StateSnapshotInput, ReflectionSnapshotInput } from './domain/memory/storeMemorySnapshot'
 export { getRecentStates, getRecentReflections } from './domain/memory/queries'
 export type { DayStateMemory, ReflectionMemory, MemorySnapshot } from './domain/memory/types'
+export type { PatternCode, PatternEngineOutput, PatternEngineInput } from './domain/patterns/types'
+export { detectPatterns } from './domain/patterns/detectPatterns'
