@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "main": "./index.ts",
+  "types": "./index.ts",
   "exports": {
-    ".": "./index.ts",
-    "./wearables": "./wearables/index.ts",
-    "./state": "./state/index.ts"
+    ".": "./index.ts"
   }
 }
