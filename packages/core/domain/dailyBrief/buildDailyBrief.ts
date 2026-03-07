@@ -6,6 +6,7 @@
 import type { DailyBriefV1 } from './types'
 import type { InterpretationResult } from '../interpretation/types'
 import { buildInterpretation } from '../interpretation/buildInterpretation'
+import { buildLanguageOutput } from '../language/v1/buildLanguageOutput'
 import {
   mapObservationCode,
   mapStateText,
@@ -32,6 +33,13 @@ export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
     pattern_codes: input.pattern_codes ?? [],
     window_7d_status: input.window_7d_status,
     confidence,
+  })
+
+  const language = buildLanguageOutput({
+    primary_frame:         interpretation.primary_frame,
+    context_mode:          interpretation.context_mode,
+    optional_pattern_code: interpretation.optional_pattern_code,
+    selected_guidance:     interpretation.selected_guidance,
   })
 
   const text = mapStateText(state)
