@@ -21,6 +21,14 @@ interface SummaryRow {
   summary_code: LongitudinalStatus;
 }
 
+interface SummaryResponse {
+  day_key: string;
+  windows: {
+    '7d'?: SummaryRow;
+    '14d'?: SummaryRow;
+  };
+}
+
 const STATUS_LABEL: Record<LongitudinalStatus, string> = {
   insufficient_data:   'Insufficient data',
   volatile:            'Volatile',
@@ -70,7 +78,7 @@ const DRIVER_LABEL: Record<string, string> = {
 };
 
 const CONFIDENCE_LABEL: Record<string, string> = {
-  low:    'Low confidence',
+  low:    'Building baseline',
   medium: 'Medium confidence',
   high:   'High confidence',
 };
@@ -91,7 +99,7 @@ function WindowCard({ row }: { row: SummaryRow }) {
         {STATUS_LABEL[row.status]}
       </div>
       <div className="text-zinc-500 text-xs">
-        {CONFIDENCE_LABEL[row.confidence] ?? row.confidence}
+        {CONFIDENCE_LABEL[row.confidence] ?? 'Building baseline'}
       </div>
       {isInsufficient ? (
         <p className="text-zinc-600 text-xs">
@@ -116,7 +124,7 @@ function WindowCard({ row }: { row: SummaryRow }) {
 }
 
 export default function LongitudinalPanel() {
-  const [rows, setRows]       = useState<SummaryRow[] | null>(null);
+  const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
 
@@ -124,9 +132,9 @@ export default function LongitudinalPanel() {
     fetch('/api/longitudinal/summary')
       .then((r) => r.json())
       .then((json) => {
-        if (json.error) { setError(json.error); return; }
-        if (!json.data)  { setRows([]); return; }
-        setRows([json.data]);
+        if (json.error)   { setError(json.error); return; }
+        if (!json.windows) { setSummary(null); return; }
+        setSummary(json as SummaryResponse);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -140,12 +148,14 @@ export default function LongitudinalPanel() {
     return <div className="text-red-400 text-sm py-4 font-mono">Error: {error}</div>;
   }
 
-  if (!rows || rows.length === 0) {
+  if (!summary) {
     return <div className="text-zinc-600 text-sm py-6 text-center">No trajectory data available yet.</div>;
   }
 
-  const trajectory  = rows[0].trajectory;
-  const summaryCode = rows[0].summary_code;
+  const w7  = summary.windows['7d'];
+  const w14 = summary.windows['14d'];
+  const trajectory = w7?.trajectory ?? w14?.trajectory ?? 'unknown';
+  const summaryCode = w7?.summary_code ?? 'insufficient_data';
 
   return (
     <section className="space-y-4">
@@ -155,11 +165,15 @@ export default function LongitudinalPanel() {
           {TRAJECTORY_LABEL[trajectory]}
         </span>
       </div>
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {rows.map((row) => (
-          <WindowCard key={row.window_type} row={row} />
-        ))}
+        {w7  && <WindowCard row={w7} />}
+        {w14 && <WindowCard row={w14} />}
+        {!w7 && !w14 && (
+          <p className="text-zinc-600 text-xs col-span-2">No window data available.</p>
+        )}
       </div>
+
       {summaryCode === 'insufficient_data' && (
         <p className="text-zinc-600 text-xs text-center pt-1">
           Trajectory classification requires a minimum of 5 consecutive check-in days.
