@@ -4,6 +4,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import LongitudinalPanel from "../components/LongitudinalPanel";
+import ReflectionSignal from "../components/ReflectionSignal";
 
 const USER_ID = "thomas";
 
@@ -167,6 +168,11 @@ export default function CheckInPage() {
                 See signals ↓
               </p>
             </div>
+          </div>
+
+          {/* Reflection Signal */}
+          <div className="border-t border-zinc-800 pt-4">
+            <ReflectionSignal dayKey={todayKey} userId={USER_ID} />
           </div>
         )}
 
