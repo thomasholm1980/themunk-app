@@ -176,6 +176,13 @@ export default function CheckInPage() {
           </div>
         )}
 
+
+        {/* Reflection Signal */}
+        {brief && (
+          <div className="border-t border-zinc-800 pt-4">
+          </div>
+        )}
+
         {/* Check-in form */}
         <div className="space-y-6">
           <p className="text-xs tracking-[0.3em] uppercase text-zinc-600">
