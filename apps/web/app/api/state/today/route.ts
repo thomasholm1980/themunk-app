@@ -1,15 +1,20 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
-import { computeIntervention } from '@themunk/core';
-import { computeStateV2 } from '../../../../../../packages/core/state/compute-state-v2';
-import type { ManualInput, WearableInput } from '../../../../../../packages/core/state/types';
+// apps/web/app/api/state/today/route.ts
+// Layer 7+8 — State + Protocol Engine
+// v2.1.0
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-function getDayKey(): string {
+import { NextResponse } from 'next/server';
+import { supabase } from '../../../../lib/supabase';
+import { computeStateV2, computeIntervention, computeProtocol } from '@themunk/core';
+import type { ManualInput, WearableInput } from '@themunk/core';
+
+const OSLO_TZ = 'Europe/Oslo';
+
+function getOsloDateKey(): string {
   return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Oslo',
+    timeZone: OSLO_TZ,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -17,26 +22,29 @@ function getDayKey(): string {
 }
 
 export async function GET(request: Request) {
-  const userId = request.headers.get('x-user-id') ?? 'demo-user';
-  const dayKey = getDayKey();
+  const userId = request.headers.get('x-user-id') ?? 'thomas';
+  const dayKey = getOsloDateKey();
 
-  const { data: logs } = await supabase
-    .from('manual_logs')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('day_key', dayKey)
-    .order('created_at', { ascending: false })
-    .limit(1);
+  const [{ data: logs }, { data: wearableRow }] = await Promise.all([
+    supabase
+      .from('manual_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('day_key', dayKey)
+      .order('created_at', { ascending: false })
+      .limit(1),
+    supabase
+      .from('wearable_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('day_key', dayKey)
+      .eq('source', 'oura')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single(),
+  ]);
 
-  const latest = logs?.[0];
-
-  const { data: wearableRow } = await supabase
-    .from('wearable_logs')
-    .select('*')
-    .eq('day_key', dayKey)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const latest = logs?.[0] ?? null;
 
   const manualInput: ManualInput | null = latest ? {
     energy: latest.energy,
@@ -69,6 +77,7 @@ export async function GET(request: Request) {
 
   const result = computeStateV2({ manualInput, wearableInput });
   const intervention = computeIntervention(result.state);
+  const protocol = computeProtocol(result.state, dayKey);
 
   const { data: existing } = await supabase
     .from('daily_state')
@@ -82,31 +91,44 @@ export async function GET(request: Request) {
     existing?.state_trace?.wearable_score !== result.wearable_score;
 
   if (inputsChanged) {
-    await supabase.from('daily_state').upsert({
-      user_id: userId,
-      day_key: dayKey,
-      state: result.state,
-      manual_score: result.manual_score,
-      wearable_score: result.wearable_score,
-      final_score: result.final_score,
-      confidence: result.confidence,
-      disagreement_flag: result.disagreement_flag,
-      rationale_code: result.rationale_code,
-      signal_flags: result.signal_flags,
-      inputs_used: result.inputs_used,
-      state_trace: result,
-      updated_at: new Date().toISOString(),
-    });
-
-    await supabase.from('daily_intervention').upsert({
-      user_id: userId,
-      day_key: dayKey,
-      intervention,
-    });
+    await Promise.all([
+      supabase.from('daily_state').upsert({
+        user_id: userId,
+        day_key: dayKey,
+        state: result.state,
+        manual_score: result.manual_score,
+        wearable_score: result.wearable_score,
+        final_score: result.final_score,
+        confidence: result.confidence,
+        disagreement_flag: result.disagreement_flag,
+        rationale_code: result.rationale_code,
+        signal_flags: result.signal_flags,
+        inputs_used: result.inputs_used,
+        state_trace: result,
+        updated_at: new Date().toISOString(),
+      }),
+      supabase.from('daily_intervention').upsert({
+        user_id: userId,
+        day_key: dayKey,
+        intervention,
+      }),
+      supabase.from('daily_protocol').upsert({
+        user_id: userId,
+        day_key: protocol.day_key,
+        state: protocol.state,
+        cognitive_load: protocol.cognitive_load,
+        training_recommendation: protocol.training_recommendation,
+        nervous_system_mode: protocol.nervous_system_mode,
+        deep_work_minutes: protocol.deep_work_minutes,
+        recovery_minutes: protocol.recovery_minutes,
+        protocol_version: protocol.protocol_version,
+        generated_at: protocol.generated_at,
+      }),
+    ]);
   }
 
   return NextResponse.json(
-    { ...result, intervention },
+    { ...result, intervention, protocol },
     { headers: { 'Cache-Control': 'no-store' } }
   );
 }
