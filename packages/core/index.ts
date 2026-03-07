@@ -38,7 +38,7 @@ export { DRIFT_ENGINE_VERSION, MIN_DAYS_7D, MIN_DAYS_14D } from './longitudinal/
 export type { DailyBriefV1, DailyBriefConfidence, ObservationCode } from './domain/dailyBrief/types'
 export { buildDailyBrief } from './domain/dailyBrief/buildDailyBrief'
 export type { BuildDailyBriefV1Input } from './domain/dailyBrief/buildDailyBrief'
-export { buildReflectionSignal, getRecentReflections } from './domain/reflection/submitReflectionSignal'
+export { buildReflectionSignal } from './domain/reflection/submitReflectionSignal'
 export { isValidAccuracy, isValidDayKey } from './domain/reflection/validators'
 export type { ReflectionSignalV1, ReflectionAccuracy } from './domain/reflection/types'
 export type { ReflectionSignalInput } from './domain/reflection/submitReflectionSignal'
