@@ -74,7 +74,7 @@ export default function CheckInPage() {
       const logRes = await fetch("/api/logs", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-id": USER_ID },
-        body: JSON.stringify({ energy, mood, stress, notes }),
+        body: JSON.stringify({ energy, mood, stress, notes, day_key: todayKey }),
       });
       if (!logRes.ok) { setStatus("error"); return; }
       await fetchState();
