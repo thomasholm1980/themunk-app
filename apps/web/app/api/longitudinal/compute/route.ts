@@ -14,7 +14,7 @@ function subtractDays(dateKey: string, days: number): string {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const userId = resolveUserId(req);
+  const userId     = resolveUserId(req);
   const computedAt = new Date().toISOString();
   const todayKey   = getOsloDateKey();
   const from14d    = subtractDays(todayKey, 14);
@@ -65,34 +65,57 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const result = buildLongitudinalSummary(input);
     const { window_7d: w7, window_14d: w14 } = result;
 
-    const record = {
-      user_id:                 userId,
-      computed_at:             result.computedAt,
-      day_key:                 todayKey,
-      window_7d_status:        w7.status,
-      window_14d_status:       w14.status,
-      trajectory:              result.trajectory,
-      summary_code:            result.summary_code,
-      flags:                   result.flags,
-      state_distribution_7d:   w7.metrics.state_distribution,
-      state_distribution_14d:  w14.metrics.state_distribution,
-      avg_hrv_rmssd_7d:        w7.metrics.avg_hrv_rmssd,
-      avg_resting_hr_7d:       w7.metrics.avg_resting_hr,
-      avg_sleep_score_7d:      w7.metrics.avg_sleep_score,
-      avg_readiness_score_7d:  w7.metrics.avg_readiness_score,
-      avg_adherence_score_7d:  w7.metrics.avg_adherence_score,
-      avg_hrv_rmssd_14d:       w14.metrics.avg_hrv_rmssd,
-      avg_resting_hr_14d:      w14.metrics.avg_resting_hr,
-      avg_sleep_score_14d:     w14.metrics.avg_sleep_score,
-      avg_readiness_score_14d: w14.metrics.avg_readiness_score,
-      avg_adherence_score_14d: w14.metrics.avg_adherence_score,
-      version:                 result.version,
+    const baseRecord = {
+      user_id:     userId,
+      day_key:     todayKey,
+      computed_at: computedAt,
+      trajectory:  result.trajectory,
+      summary_code: result.summary_code,
+      flags:       result.flags,
+      version:     result.version,
     };
 
-    const { error: upsertErr } = await supabase
+    const record7d = {
+      ...baseRecord,
+      window_type:        '7d',
+      status:             w7.status,
+      confidence:         w7.confidence,
+      driver_codes:       w7.driver_codes,
+      state_distribution: w7.metrics.state_distribution,
+      days_available:     w7.metrics.days_available,
+      avg_hrv_rmssd:      w7.metrics.avg_hrv_rmssd,
+      avg_resting_hr:     w7.metrics.avg_resting_hr,
+      avg_sleep_score:    w7.metrics.avg_sleep_score,
+      avg_readiness_score: w7.metrics.avg_readiness_score,
+      avg_adherence_score: w7.metrics.avg_adherence_score,
+      summary_payload:    w7,
+    };
+
+    const record14d = {
+      ...baseRecord,
+      window_type:        '14d',
+      status:             w14.status,
+      confidence:         w14.confidence,
+      driver_codes:       w14.driver_codes,
+      state_distribution: w14.metrics.state_distribution,
+      days_available:     w14.metrics.days_available,
+      avg_hrv_rmssd:      w14.metrics.avg_hrv_rmssd,
+      avg_resting_hr:     w14.metrics.avg_resting_hr,
+      avg_sleep_score:    w14.metrics.avg_sleep_score,
+      avg_readiness_score: w14.metrics.avg_readiness_score,
+      avg_adherence_score: w14.metrics.avg_adherence_score,
+      summary_payload:    w14,
+    };
+
+    const { error: err7 } = await supabase
       .from('longitudinal_summary')
-      .upsert(record, { onConflict: 'user_id,day_key' });
-    if (upsertErr) throw new Error(`upsert: ${upsertErr.message}`);
+      .upsert(record7d, { onConflict: 'user_id,day_key,window_type' });
+    if (err7) throw new Error(`upsert 7d: ${err7.message}`);
+
+    const { error: err14 } = await supabase
+      .from('longitudinal_summary')
+      .upsert(record14d, { onConflict: 'user_id,day_key,window_type' });
+    if (err14) throw new Error(`upsert 14d: ${err14.message}`);
 
     console.log('[longitudinal/compute]', {
       userId, summary_code: result.summary_code,
@@ -106,7 +129,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       window_7d_status:  w7.status,
       window_14d_status: w14.status,
       flags:             result.flags,
-      computed_at:       result.computedAt,
+      computed_at:       computedAt,
     }, { headers: { 'Cache-Control': 'no-store' } });
 
   } catch (err) {
