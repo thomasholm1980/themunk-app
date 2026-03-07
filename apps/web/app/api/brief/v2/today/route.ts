@@ -5,22 +5,14 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
+import { resolveUserId, getOsloDateKey } from '../../../../../lib/request-utils';
 import { supabase } from '../../../../../lib/supabase';
 import { composeBriefV2 } from '@themunk/core';
 
-const OSLO_TZ = 'Europe/Oslo';
 
-function getOsloDateKey(): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: OSLO_TZ,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date());
-}
 
-export async function GET() {
-  const userId = 'thomas';
+export async function GET(request: Request) {
+  const userId = resolveUserId(request);
   const dayKey = getOsloDateKey();
 
   try {
