@@ -22,6 +22,7 @@ export type DailyBriefV1 = {
   context_text: string
 
   guidance_items: string[]
+  guidance_text:  string
   priority_items: string[]
 
   trajectory_text?: string
