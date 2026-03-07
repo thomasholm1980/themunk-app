@@ -50,3 +50,5 @@ export type { PatternCode, PatternEngineOutput, PatternEngineInput } from './dom
 export { detectPatterns } from './domain/patterns/detectPatterns'
 export { buildPatternContext } from './domain/language/buildPatternContext'
 export type { PatternContext, PatternContextInput } from './domain/language/types'
+export { buildInterpretation } from './domain/interpretation/buildInterpretation'
+export type { InterpretationResult, InterpretationInput, PrimaryFrame, ContextMode } from './domain/interpretation/types'

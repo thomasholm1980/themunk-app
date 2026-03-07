@@ -4,6 +4,8 @@
 // v1.0.0
 
 import type { DailyBriefV1 } from './types'
+import type { InterpretationResult } from '../interpretation/types'
+import { buildInterpretation } from '../interpretation/buildInterpretation'
 import {
   mapObservationCode,
   mapStateText,
@@ -17,6 +19,7 @@ export interface BuildDailyBriefV1Input {
   confidence: string | null | undefined
   protocol_version: string
   window_7d_status?: string | null
+  pattern_codes?: string[]
 }
 
 const REFLECTION_PROMPT = 'How does this feel today?'
@@ -24,7 +27,14 @@ const REFLECTION_PROMPT = 'How does this feel today?'
 export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
   const { day_key, state, confidence, protocol_version, window_7d_status } = input
 
-  const text           = mapStateText(state)
+  const interpretation: InterpretationResult = buildInterpretation({
+    state,
+    pattern_codes: input.pattern_codes ?? [],
+    window_7d_status: input.window_7d_status,
+    confidence,
+  })
+
+  const text = mapStateText(state)
   const trajectory_text = mapTrajectoryText(
     window_7d_status as Parameters<typeof mapTrajectoryText>[0]
   )
@@ -37,7 +47,7 @@ export function buildDailyBrief(input: BuildDailyBriefV1Input): DailyBriefV1 {
     observation_code: mapObservationCode(state),
     observation_text: text.observation_text,
     context_text:     text.context_text,
-    guidance_items:   [...text.guidance_items],
+    guidance_items:   interpretation.selected_guidance,
     priority_items:   [...text.priority_items],
     trajectory_text,
     reflection_prompt,

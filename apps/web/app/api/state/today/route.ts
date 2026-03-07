@@ -99,6 +99,7 @@ export async function GET(request: Request) {
     confidence:       result.confidence,
     protocol_version: protocol.protocol_version,
     window_7d_status: longitudinalRow?.status ?? null,
+    pattern_codes:    pattern_engine.pattern_codes,
   });
 
   // Input-change gating
