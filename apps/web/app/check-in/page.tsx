@@ -1,6 +1,6 @@
 "use client";
 // apps/web/app/check-in/page.tsx
-// v2.0.0 — DailyBrief v1 core screen
+// v2.1.0 — clean rewrite per Manju spec
 
 import { useEffect, useMemo, useState } from "react";
 import LongitudinalPanel from "../components/LongitudinalPanel";
@@ -101,98 +101,65 @@ export default function CheckInPage() {
           <p className="text-sm text-zinc-500">{dateLabel}</p>
         </div>
 
-        {/* DailyBrief — top of screen, no raw metrics */}
+        {/* DailyBrief */}
         {brief && (
           <div className={`border rounded-sm p-6 space-y-6 ${STATE_BORDER[brief.state] ?? "border-zinc-700"}`}>
 
-            {/* Observation */}
             <div className="space-y-2">
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">
-                The Munk observes
-              </p>
-              <p className="text-zinc-100 text-base leading-relaxed">
-                {brief.observation_text}
-              </p>
-              <p className="text-zinc-400 text-sm leading-relaxed">
-                {brief.context_text}
-              </p>
+              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">The Munk observes</p>
+              <p className="text-zinc-100 text-base leading-relaxed">{brief.observation_text}</p>
+              <p className="text-zinc-400 text-sm leading-relaxed">{brief.context_text}</p>
             </div>
 
-            {/* Guidance */}
             <div className="space-y-2">
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">
-                Today's guidance
-              </p>
+              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s guidance</p>
               <ul className="space-y-1">
                 {brief.guidance_items.map((item, i) => (
                   <li key={i} className="text-sm text-zinc-300 flex gap-2">
-                    <span className="text-zinc-600">–</span>
-                    {item}
+                    <span className="text-zinc-600">–</span>{item}
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Priorities */}
             <div className="space-y-2">
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">
-                Today's priorities
-              </p>
+              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s priorities</p>
               <ul className="space-y-1">
                 {brief.priority_items.map((item, i) => (
                   <li key={i} className="text-sm text-zinc-300 flex gap-2">
-                    <span className="text-zinc-600">–</span>
-                    {item}
+                    <span className="text-zinc-600">–</span>{item}
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Trajectory (optional) */}
             {brief.trajectory_text && (
               <p className="text-xs text-zinc-500 italic border-t border-zinc-800 pt-4">
                 {brief.trajectory_text}
               </p>
             )}
 
-            {/* Reflection (optional) */}
-            {brief.reflection_prompt && (
-              <p className="text-xs text-zinc-600 pt-1">
-                {brief.reflection_prompt}
-              </p>
-            )}
-
-            {/* Low emphasis signals link */}
             <div className="border-t border-zinc-800 pt-3">
-              <p className="text-xs text-zinc-700 tracking-widest uppercase">
-                See signals ↓
-              </p>
+              <p className="text-xs text-zinc-700 tracking-widest uppercase">See signals ↓</p>
             </div>
           </div>
+        )}
 
-          {/* Reflection Signal */}
+        {/* Reflection Signal */}
+        {brief && (
           <div className="border-t border-zinc-800 pt-4">
             <ReflectionSignal dayKey={todayKey} userId={USER_ID} />
           </div>
         )}
 
-
-        {/* Reflection Signal */}
-        {brief && (
-          <div className="border-t border-zinc-800 pt-4">
-          </div>
-        )}
-
         {/* Check-in form */}
         <div className="space-y-6">
-          <p className="text-xs tracking-[0.3em] uppercase text-zinc-600">
-            Dagens innsjekk
-          </p>
+          <p className="text-xs tracking-[0.3em] uppercase text-zinc-600">Dagens innsjekk</p>
 
           {[
-            { label: "Energi",  value: energy, set: setEnergy },
-            { label: "Humør",   value: mood,   set: setMood   },
-            { label: "Stress",  value: stress, set: setStress },
+            { label: "Energi", value: energy, set: setEnergy },
+            { label: "Humør",  value: mood,   set: setMood   },
+            { label: "Stress", value: stress, set: setStress },
           ].map(({ label, value, set }) => (
             <div key={label} className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -214,9 +181,7 @@ export default function CheckInPage() {
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="Noe som påvirket dagen?"
-              className="w-full bg-[#1a1a1a] border border-zinc-700 rounded px-3 py-2
-                         text-sm text-zinc-200 placeholder-zinc-600 resize-none
-                         focus:outline-none focus:border-zinc-500"
+              className="w-full bg-[#1a1a1a] border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 resize-none focus:outline-none focus:border-zinc-500"
             />
           </div>
         </div>
@@ -224,23 +189,18 @@ export default function CheckInPage() {
         <button
           onClick={submitLog}
           disabled={status === "loading"}
-          className="w-full py-3 border border-zinc-600 text-sm tracking-widest uppercase
-                     text-zinc-300 hover:border-zinc-400 transition-colors disabled:opacity-40"
+          className="w-full py-3 border border-zinc-600 text-sm tracking-widest uppercase text-zinc-300 hover:border-zinc-400 transition-colors disabled:opacity-40"
         >
           {status === "loading" ? "Laster…" : "Send inn"}
         </button>
 
         {status === "error" && (
-          <p className="text-center text-sm text-red-400">
-            Kunne ikke lagre. Prøv igjen.
-          </p>
+          <p className="text-center text-sm text-red-400">Kunne ikke lagre. Prøv igjen.</p>
         )}
 
         {/* Longitudinal */}
         <div className="border-t border-zinc-800 pt-6">
-          <p className="text-xs tracking-[0.3em] uppercase text-zinc-600 mb-6">
-            Historisk utvikling
-          </p>
+          <p className="text-xs tracking-[0.3em] uppercase text-zinc-600 mb-6">Historisk utvikling</p>
           <LongitudinalPanel />
         </div>
 
