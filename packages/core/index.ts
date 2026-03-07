@@ -42,3 +42,7 @@ export { buildReflectionSignal, getRecentReflections } from './domain/reflection
 export { isValidAccuracy, isValidDayKey } from './domain/reflection/validators'
 export type { ReflectionSignalV1, ReflectionAccuracy } from './domain/reflection/types'
 export type { ReflectionSignalInput } from './domain/reflection/submitReflectionSignal'
+export { buildStateSnapshotRecord, buildReflectionSnapshotRecord } from './domain/memory/storeMemorySnapshot'
+export type { StateSnapshotInput, ReflectionSnapshotInput } from './domain/memory/storeMemorySnapshot'
+export { getRecentStates, getRecentReflections } from './domain/memory/queries'
+export type { DayStateMemory, ReflectionMemory, MemorySnapshot } from './domain/memory/types'
