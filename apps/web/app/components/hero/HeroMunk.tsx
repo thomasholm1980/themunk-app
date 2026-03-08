@@ -1,7 +1,6 @@
 // apps/web/app/components/hero/HeroMunk.tsx
-// Phase 6 — Hero Munk Integration v4
-// Transparent asset + CSS mist/cloud layer
-// Chest light = regulation state proxy. Not HRV. Not energy score.
+// Phase 6 — Hero Munk Integration v5
+// Transparent asset + CSS mist. No hard edges.
 
 import Image from 'next/image'
 
@@ -29,17 +28,17 @@ export function HeroMunk({ state }: HeroMunkProps) {
       role="img"
       aria-label="Munk regulation presence"
     >
-      {/* CSS mist — ground cloud base under the Munk */}
+      {/* CSS mist — ground cloud base, warm and diffuse */}
       <div
         className="absolute pointer-events-none"
         style={{
-          bottom: '0%',
+          bottom: '-10%',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '120%',
-          height: '50%',
-          background: 'radial-gradient(ellipse 90% 60% at 50% 90%, rgba(200, 190, 175, 0.55) 0%, rgba(180, 170, 155, 0.2) 50%, transparent 75%)',
-          filter: 'blur(22px)',
+          width: '130%',
+          height: '55%',
+          background: 'radial-gradient(ellipse 85% 55% at 50% 85%, rgba(210, 200, 185, 0.6) 0%, rgba(200, 190, 175, 0.25) 45%, transparent 70%)',
+          filter: 'blur(24px)',
         }}
       />
 
@@ -65,12 +64,6 @@ export function HeroMunk({ state }: HeroMunkProps) {
           filter: 'blur(8px)',
           transition: 'all 1.2s ease-in-out',
         }}
-      />
-
-      {/* Bottom fade — blends into dark page */}
-      <div
-        className="absolute inset-x-0 bottom-0 pointer-events-none"
-        style={{ height: '30%', background: 'linear-gradient(to bottom, transparent, #18181b)' }}
       />
     </div>
   )
