@@ -12,6 +12,7 @@
     "./state/pattern": "./state/pattern.ts",
     "./state/language": "./state/language.ts",
     "./state/reflection": "./state/reflection.ts",
-    "./state/trajectory": "./state/trajectory.ts"
+    "./state/trajectory": "./state/trajectory.ts",
+    "./state/patterns-v2": "./state/patterns-v2.ts"
   }
 }
