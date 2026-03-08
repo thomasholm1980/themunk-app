@@ -32,6 +32,7 @@ export interface PatternEngineV2Output {
   version: 'pattern_v2'
   window_days: 7
   sufficient_data: boolean
+  pattern_age_days: number
   dominant_pattern: PatternCode | null
   active_patterns: PatternObject[]
 }
@@ -147,7 +148,7 @@ export function computePatternsV2(rawHistory: StateHistoryEntry[]): PatternEngin
     .slice(-WINDOW)
 
   if (sorted.length < MIN_VALID_DAYS) {
-    return { version: 'pattern_v2', window_days: 7, sufficient_data: false, dominant_pattern: null, active_patterns: [] }
+    return { version: 'pattern_v2', window_days: 7, sufficient_data: false, pattern_age_days: 0, dominant_pattern: null, active_patterns: [] }
   }
 
   const active_patterns = [
@@ -159,5 +160,7 @@ export function computePatternsV2(rawHistory: StateHistoryEntry[]): PatternEngin
 
   const dominant_pattern = PRIORITY_ORDER.find(code => active_patterns.some(p => p.code === code)) ?? null
 
-  return { version: 'pattern_v2', window_days: 7, sufficient_data: true, dominant_pattern, active_patterns }
+  const pattern_age_days = sorted.length
+
+  return { version: 'pattern_v2', window_days: 7, sufficient_data: true, pattern_age_days,  dominant_pattern, active_patterns }
 }
