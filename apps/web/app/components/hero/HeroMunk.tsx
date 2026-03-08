@@ -1,5 +1,5 @@
 // apps/web/app/components/hero/HeroMunk.tsx
-// Phase 6 — Hero Munk Integration v2
+// Phase 6 — Hero Munk Integration v3
 // Presentation layer only.
 // Chest light = regulation state proxy. Not HRV. Not energy score.
 
@@ -18,6 +18,8 @@ const PRESETS = {
   NEUTRAL: { opacity: 0.82, glowColor: 'rgba(255, 180, 80, 0.42)',  glowSize: '44px' },
 } as const
 
+const BG = '#e4e0d9'
+
 export function HeroMunk({ state }: HeroMunkProps) {
   const key = state === 'GREEN' || state === 'YELLOW' || state === 'RED' ? state : 'NEUTRAL'
   const preset = PRESETS[key]
@@ -25,7 +27,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
   return (
     <div
       className="relative w-full overflow-hidden"
-      style={{ height: 'clamp(260px, 34vh, 420px)', background: '#e9e6e0' }}
+      style={{ height: 'clamp(260px, 34vh, 420px)', background: BG }}
       role="img"
       aria-label="Munk regulation presence"
     >
@@ -50,11 +52,18 @@ export function HeroMunk({ state }: HeroMunkProps) {
           transition: 'all 1.2s ease-in-out',
         }}
       />
-      {/* Bottom fade — blends hero into page */}
-      <div
-        className="absolute inset-x-0 bottom-0 pointer-events-none"
-        style={{ height: '40%', background: 'linear-gradient(to bottom, transparent, #e9e6e0)' }}
-      />
+      {/* Top fade */}
+      <div className="absolute inset-x-0 top-0 pointer-events-none"
+        style={{ height: '30%', background: `linear-gradient(to bottom, ${BG}, transparent)` }} />
+      {/* Bottom fade */}
+      <div className="absolute inset-x-0 bottom-0 pointer-events-none"
+        style={{ height: '40%', background: `linear-gradient(to top, ${BG}, transparent)` }} />
+      {/* Left fade */}
+      <div className="absolute inset-y-0 left-0 pointer-events-none"
+        style={{ width: '20%', background: `linear-gradient(to right, ${BG}, transparent)` }} />
+      {/* Right fade */}
+      <div className="absolute inset-y-0 right-0 pointer-events-none"
+        style={{ width: '20%', background: `linear-gradient(to left, ${BG}, transparent)` }} />
     </div>
   )
 }
