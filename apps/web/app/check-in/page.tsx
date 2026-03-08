@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReflectionSignal from "../components/ReflectionSignal";
 import LongitudinalPanel from "../components/LongitudinalPanel";
+import { HeroMunk } from "../components/hero/HeroMunk";
 
 const USER_ID = "thomas";
 
@@ -132,6 +133,11 @@ export default function CheckInPage() {
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${dotClass}`} />
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Munk Forecast</p>
+            </div>
+
+            {/* Hero Munk — presentation layer only */}
+            <div className="-mx-2 -mt-1">
+              <HeroMunk state={screen.state} />
             </div>
 
             {/* 1. Headline */}
