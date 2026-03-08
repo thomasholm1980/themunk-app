@@ -93,7 +93,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           className="absolute bottom-0 left-0 w-full pointer-events-none"
           style={{
             height: '240px',
-            background: 'linear-gradient(to bottom, rgba(245,242,235,0) 0%, rgba(245,242,235,0.35) 40%, rgba(245,242,235,0.75) 70%, rgba(245,242,235,1) 100%)',
+            background: 'linear-gradient(to bottom, rgba(233,230,224,0) 0%, rgba(233,230,224,0.4) 40%, rgba(233,230,224,0.8) 70%, rgba(233,230,224,1) 100%)',
           }}
         />
       </div>
