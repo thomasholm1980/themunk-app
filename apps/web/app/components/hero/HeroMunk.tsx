@@ -66,12 +66,12 @@ export function HeroMunk({ state }: HeroMunkProps) {
           }}
         >
           <Image
-            src="/assets/munk-hero-v4.png"
+            src="/assets/munk-hero-v5.png"
             alt="The Munk"
             fill
             priority
             className="object-contain" 
-            style={{ opacity: preset.opacity, transition: "opacity 1.2s ease-in-out", mixBlendMode: "multiply" }}
+            style={{ opacity: preset.opacity, transition: "opacity 1.2s ease-in-out", mixBlendMode: "screen" }}
           />
         </div>
 
