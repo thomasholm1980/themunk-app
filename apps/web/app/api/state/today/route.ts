@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
+import { computePatterns } from '@themunk/core/state/pattern'
+import type { DaySignals } from '@themunk/core/state/pattern'
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -29,6 +31,7 @@ export async function GET() {
     const userId = 'thomas'
     const dayKey = getOsloDateKey()
 
+    // 1. Fetch today's log
     const { data: log, error: logError } = await supabase
       .from('manual_logs')
       .select('*')
@@ -48,7 +51,7 @@ export async function GET() {
 
     if (!log) {
       return NextResponse.json(
-        { state: null, contract: null, day_key: dayKey },
+        { state: null, contract: null, pattern_engine: null, day_key: dayKey },
         { headers: { 'Cache-Control': 'no-store' } }
       )
     }
@@ -61,10 +64,36 @@ export async function GET() {
       created_at: log.created_at ?? new Date().toISOString(),
     }
 
+    // 2. Fetch recent days for pattern engine (last 7 days)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const sevenDaysAgoKey = sevenDaysAgo.toISOString().slice(0, 10)
+
+    const { data: recentLogs } = await supabase
+      .from('manual_logs')
+      .select('energy, mood, stress, day_key')
+      .eq('user_id', userId)
+      .gte('day_key', sevenDaysAgoKey)
+      .order('day_key', { ascending: true })
+
+    const recentDays: DaySignals[] = (recentLogs ?? []).map((r: DaySignals) => ({
+      energy: r.energy ?? 3,
+      mood: r.mood ?? 3,
+      stress: r.stress ?? 3,
+      day_key: r.day_key,
+    }))
+
+    // 3. Compute state
     const raw = computeStateV2({ manualInput, wearableInput: null })
     const normalized = normalizeStateResult(raw)
+
+    // 4. Build Decision Contract v1
     const contract = buildDecisionContract(normalized.state, manualInput)
 
+    // 5. Compute patterns
+    const pattern_engine = computePatterns(recentDays)
+
+    // 6. Upsert to daily_state
     const { error: upsertError } = await supabase
       .from('daily_state')
       .upsert(
@@ -88,15 +117,24 @@ export async function GET() {
       state: contract.state,
       protocol_id: contract.protocol_id,
       confidence: contract.confidence,
-      rationale_code: raw.rationale_code,
+      pattern_codes: pattern_engine.pattern_codes,
     })
 
     return NextResponse.json(
-      { state: normalized.state, contract, day_key: dayKey },
+      {
+        state: normalized.state,
+        contract: {
+          ...contract,
+          pattern_engine,
+        },
+        day_key: dayKey,
+      },
       { headers: { 'Cache-Control': 'no-store' } }
     )
   } catch (err) {
-    console.error('[state/today] unexpected error', { err, message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined })
+    const message = err instanceof Error ? err.message : String(err)
+    const stack = err instanceof Error ? err.stack : undefined
+    console.error('[state/today] unexpected error', { message, stack })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: { 'Cache-Control': 'no-store' } }
