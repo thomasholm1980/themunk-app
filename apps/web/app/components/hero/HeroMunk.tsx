@@ -35,7 +35,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
       `}</style>
 
       <div
-        className="relative w-full overflow-hidden flex justify-center items-end"
+        className="relative w-full flex justify-center items-end"
         style={{ height: 'clamp(300px, 40vh, 480px)' }}
         role="img"
         aria-label="Munk regulation presence"
