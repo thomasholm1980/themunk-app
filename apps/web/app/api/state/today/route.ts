@@ -3,6 +3,8 @@ import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { computePatterns } from '@themunk/core/state/pattern'
+import { computePatternsV2 } from '@themunk/core/state/patterns-v2'
+import type { StateHistoryEntry } from '@themunk/core/state/patterns-v2'
 import { computeLanguageLayer } from '@themunk/core/state/language'
 import type { DaySignals } from '@themunk/core/state/pattern'
 import { NextResponse } from 'next/server'
@@ -104,6 +106,7 @@ export async function GET() {
         {
           user_id: userId,
           day_key: dayKey,
+        pattern_engine_v2,
           state: normalized.state,
           state_trace: normalized.trace,
           contract_version: 'decision_v1',
@@ -111,6 +114,24 @@ export async function GET() {
         },
         { onConflict: 'user_id,day_key' }
       )
+
+    // 8. Fetch daily_state history for Pattern Engine v2
+    const { data: stateHistory } = await supabase
+      .from('daily_state')
+      .select('day_key, state, sleep_score, recovery_score')
+      .eq('user_id', userId)
+      .order('day_key', { ascending: false })
+      .limit(7)
+
+    const historyEntries: StateHistoryEntry[] = (stateHistory ?? []).map((r: StateHistoryEntry) => ({
+      day_key: r.day_key,
+      state: r.state,
+      sleep_score: r.sleep_score ?? null,
+      recovery_score: r.recovery_score ?? null,
+    }))
+
+    // 9. Compute Pattern Engine v2
+    const pattern_engine_v2 = computePatternsV2(historyEntries)
 
     if (upsertError) {
       console.error('[state/today] upsert error', { error: upsertError.message })
@@ -133,6 +154,7 @@ export async function GET() {
           language_layer,
         },
         day_key: dayKey,
+        pattern_engine_v2,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
