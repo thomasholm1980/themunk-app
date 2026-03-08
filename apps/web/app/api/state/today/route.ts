@@ -106,7 +106,6 @@ export async function GET() {
         {
           user_id: userId,
           day_key: dayKey,
-        pattern_engine_v2,
           state: normalized.state,
           state_trace: normalized.trace,
           contract_version: 'decision_v1',
@@ -154,7 +153,6 @@ export async function GET() {
           language_layer,
         },
         day_key: dayKey,
-        pattern_engine_v2,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
