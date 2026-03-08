@@ -6,7 +6,7 @@
   "types": "./index.ts",
   "exports": {
     ".": "./index.ts",
-    "./state/engine": "./state/engine.ts",
+    "./state/compute-state-v2": "./state/compute-state-v2.ts",
     "./state/decision": "./state/decision.ts"
   }
 }
