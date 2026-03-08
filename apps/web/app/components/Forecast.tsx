@@ -2,6 +2,11 @@
 // Renders forecast block from decision_v1 contract fields only
 // Props: headline, interpretation, contextLine (optional)
 
+// Forecast language constraints
+// headline ≤ 55 chars
+// interpretation ≤ 90 chars
+// contextLine ≤ 110 chars
+
 interface ForecastProps {
   headline: string
   interpretation: string
@@ -11,10 +16,10 @@ interface ForecastProps {
 export default function Forecast({ headline, interpretation, contextLine }: ForecastProps) {
   return (
     <div className="space-y-3">
-      <p className="text-2xl font-semibold text-zinc-950 tracking-tight">
+      <p className="text-base font-medium text-zinc-950 tracking-tight">
         {headline}
       </p>
-      <p className="text-base text-zinc-800 leading-relaxed">
+      <p className="text-base font-normal text-zinc-800 leading-relaxed">
         {interpretation}
       </p>
       {contextLine && (
