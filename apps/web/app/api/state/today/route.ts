@@ -3,6 +3,7 @@ import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { computePatterns } from '@themunk/core/state/pattern'
+import { computeLanguageLayer } from '@themunk/core/state/language'
 import type { DaySignals } from '@themunk/core/state/pattern'
 import { NextResponse } from 'next/server'
 
@@ -93,7 +94,10 @@ export async function GET() {
     // 5. Compute patterns
     const pattern_engine = computePatterns(recentDays)
 
-    // 6. Upsert to daily_state
+    // 6. Compute language layer
+    const language_layer = computeLanguageLayer(pattern_engine.pattern_codes)
+
+    // 7. Upsert to daily_state
     const { error: upsertError } = await supabase
       .from('daily_state')
       .upsert(
@@ -126,6 +130,7 @@ export async function GET() {
         contract: {
           ...contract,
           pattern_engine,
+          language_layer,
         },
         day_key: dayKey,
       },
