@@ -1,8 +1,8 @@
 "use client";
 // apps/web/app/check-in/page.tsx
-// Core Screen UI Binding v1
-// Pure renderer of core_screen contract. No frontend interpretation logic.
-// v4.0.0 — interpretation-first layout: Hero → Forecast → Signals
+// Phase 8 — UI Binding to decision_v1
+// Renders exclusively from /api/state/today → decision_v1 contract
+// No hardcoded forecast/guidance copy
 
 import { useEffect, useMemo, useState } from "react";
 import ReflectionSignal from "../components/ReflectionSignal";
@@ -23,19 +23,35 @@ const STATE_BORDER: Record<string, string> = {
   RED:    "border-red-800",
 };
 
-interface CoreScreen {
-  version:            "screen_v1";
-  state:              "GREEN" | "YELLOW" | "RED";
-  headline:           string;
-  observation_text:   string;
-  context_text:       string | null;
-  guidance_text:      string;
-  reflection_options: ("ACCURATE" | "SOMEWHAT_ACCURATE" | "NOT_ACCURATE")[];
+// decision_v1 contract shape
+interface DecisionContract {
+  state:           "GREEN" | "YELLOW" | "RED";
+  protocol_id:     "deep_work" | "balanced_day" | "recovery";
+  forecast: {
+    headline:      string;
+    line:          string;
+  };
+  guidance: {
+    line:          string;
+  };
+  explanation: {
+    primary_driver:   string;
+    secondary_driver: string;
+    line:             string;
+  };
+  windows: {
+    deep_work:  string | null;
+    training:   string | null;
+    recovery:   string | null;
+  };
+  confidence:       number;
+  contract_version: "decision_v1";
 }
 
 interface StateResponse {
-  state:        "GREEN" | "YELLOW" | "RED" | null;
-  core_screen?: CoreScreen;
+  state:     "GREEN" | "YELLOW" | "RED" | null;
+  contract:  DecisionContract | null;
+  day_key:   string;
 }
 
 export default function CheckInPage() {
@@ -44,9 +60,11 @@ export default function CheckInPage() {
   const [stress, setStress] = useState(3);
   const [notes,  setNotes]  = useState("");
 
-  const [status,    setStatus]    = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [screen,    setScreen]    = useState<CoreScreen | null>(null);
-  const [dateLabel, setDateLabel] = useState("");
+  const [status,      setStatus]      = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [contract,    setContract]    = useState<DecisionContract | null>(null);
+  const [apiError,    setApiError]    = useState(false);
+  const [showWhy,     setShowWhy]     = useState(false);
+  const [dateLabel,   setDateLabel]   = useState("");
 
   const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -59,12 +77,19 @@ export default function CheckInPage() {
   }, []);
 
   async function fetchState() {
-    const res = await fetch("/api/state/today", {
-      headers: { "x-user-id": USER_ID },
-    });
-    if (!res.ok) return;
-    const json: StateResponse = await res.json();
-    if (json.core_screen) setScreen(json.core_screen);
+    try {
+      const res = await fetch("/api/state/today", {
+        headers: { "x-user-id": USER_ID },
+      });
+      if (!res.ok) { setApiError(true); return; }
+      const json: StateResponse = await res.json();
+      if (json.contract) {
+        setContract(json.contract);
+        setApiError(false);
+      }
+    } catch {
+      setApiError(true);
+    }
   }
 
   useEffect(() => { fetchState(); }, []);
@@ -85,8 +110,8 @@ export default function CheckInPage() {
     }
   }
 
-  const dotClass    = screen ? (STATE_DOT[screen.state]    ?? "bg-zinc-500")    : "bg-zinc-500";
-  const borderClass = screen ? (STATE_BORDER[screen.state] ?? "border-zinc-700"): "border-zinc-700";
+  const dotClass    = contract ? (STATE_DOT[contract.state]    ?? "bg-zinc-500")    : "bg-zinc-500";
+  const borderClass = contract ? (STATE_BORDER[contract.state] ?? "border-zinc-700"): "border-zinc-700";
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#e9e6e0] via-[#dcd6cc] to-zinc-950 text-zinc-100 flex flex-col items-center">
@@ -97,43 +122,84 @@ export default function CheckInPage() {
         <p className="text-xs text-zinc-600 font-mono capitalize">{dateLabel}</p>
       </div>
 
-      {/* 2. Hero Munk — standalone, no card, always visible */}
+      {/* 2. Hero */}
       <div className="w-full max-w-md">
-        <HeroMunk state={screen?.state ?? null} />
+        <HeroMunk state={contract?.state ?? null} />
       </div>
 
       <div className="w-full max-w-md px-4 space-y-6 pb-16">
 
-        {/* 3. Forecast — only when screen is available */}
-        {screen && (
+        {/* 3a. API error fallback */}
+        {apiError && (
+          <div className="text-sm text-zinc-500 text-center py-4">
+            Could not load today&apos;s forecast. Try again shortly.
+          </div>
+        )}
+
+        {/* 3b. Loading state */}
+        {!contract && !apiError && (
+          <div className="text-sm text-zinc-500 text-center py-4 animate-pulse">
+            Reading signals...
+          </div>
+        )}
+
+        {/* 3c. Forecast — decision_v1 only */}
+        {contract && (
           <div className="space-y-4">
+
+            {/* Label */}
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${dotClass}`} />
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-600">Munk Forecast</p>
             </div>
 
+            {/* Headline */}
             <p className="text-2xl font-semibold text-zinc-950 tracking-tight">
-              {screen.headline}
+              {contract.forecast.headline}
             </p>
 
+            {/* Forecast line */}
             <p className="text-base text-zinc-800 leading-relaxed">
-              {screen.observation_text}
+              {contract.forecast.line}
             </p>
 
-            {screen.context_text && (
-              <p className="text-sm text-zinc-700 leading-relaxed italic">
-                {screen.context_text}
-              </p>
-            )}
-
+            {/* Guidance */}
             <div className="pt-2 border-t border-zinc-400/30">
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-600 mb-2">Guidance</p>
-              <p className="text-sm text-zinc-800">{screen.guidance_text}</p>
+              <p className="text-sm text-zinc-800">{contract.guidance.line}</p>
             </div>
 
+            {/* Why this today — collapsible */}
+            <div className="pt-2 border-t border-zinc-400/30">
+              <button
+                onClick={() => setShowWhy(v => !v)}
+                className="text-xs tracking-[0.2em] uppercase text-zinc-500 hover:text-zinc-700 transition-colors"
+              >
+                {showWhy ? "Hide" : "Why this today?"}
+              </button>
+
+              {showWhy && (
+                <div className="mt-3 space-y-2 text-sm text-zinc-700">
+                  <div className="flex gap-2">
+                    <span className="text-zinc-400">↑</span>
+                    <span>{contract.explanation.primary_driver}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="text-zinc-400">→</span>
+                    <span>{contract.explanation.secondary_driver}</span>
+                  </div>
+                  <p className="text-xs text-zinc-500 pt-1 leading-relaxed">
+                    {contract.explanation.line}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Reflection */}
             <div className="pt-2 border-t border-zinc-400/30">
               <ReflectionSignal userId={USER_ID} dayKey={todayKey} />
             </div>
+
           </div>
         )}
 
