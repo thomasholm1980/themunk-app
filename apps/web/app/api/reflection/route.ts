@@ -1,70 +1,59 @@
 // apps/web/app/api/reflection/route.ts
-// Reflection Signal v1 — POST endpoint
-// Stores one signal per user per day. Latest overwrites.
-// v1.0.0
+// Reflection Layer v1 — POST handler
 
-export const dynamic = 'force-dynamic';
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { validateReflectionPayload } from "@themunk/core/state/reflection";
+
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase';
-import { resolveUserId, getOsloDateKey } from '../../../lib/request-utils';
-import { isValidAccuracy, isValidDayKey } from '@themunk/core';
-import { buildReflectionSignal, buildReflectionSnapshotRecord } from '@themunk/core';
-
-export async function POST(request: NextRequest) {
-  const userId = resolveUserId(request);
-
-  let body: { day_key?: unknown; accuracy?: unknown };
+export async function POST(req: Request) {
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const { day_key, accuracy } = body;
-
-  if (!isValidDayKey(day_key)) {
-    return NextResponse.json({ error: 'Invalid day_key' }, { status: 400 });
-  }
-
-  if (!isValidAccuracy(accuracy)) {
-    return NextResponse.json({ error: 'Invalid accuracy value' }, { status: 400 });
-  }
-
-  const signal = buildReflectionSignal({ day_key, accuracy });
-
-  const { error } = await supabase
-    .from('reflection_signals')
-    .upsert({
-      user_id:    userId,
-      day_key:    signal.day_key,
-      version:    signal.version,
-      accuracy:   signal.accuracy,
-      created_at: signal.created_at,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id,day_key' });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  // Memory Engine v1 — non-blocking reflection snapshot
-  try {
-    await supabase.from('memory_snapshots').upsert(
-      buildReflectionSnapshotRecord({
-        user_id: userId,
-        day_key: signal.day_key,
-        reflection_accuracy: signal.accuracy,
-      }),
-      { onConflict: 'user_id,day_key' }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-  } catch {
-    // non-blocking
-  }
 
-  return NextResponse.json(
-    { status: 'ok', stored: true },
-    { headers: { 'Cache-Control': 'no-store' } }
-  );
+    const body = await req.json();
+    const validation = validateReflectionPayload(body);
+
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: 400, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    const { payload } = validation;
+    const user_id = "00000000-0000-0000-0000-000000000001";
+
+    const { data, error } = await supabase
+      .from("reflection_logs")
+      .upsert(
+        { user_id, day_key: payload!.day_key, score: payload!.score },
+        { onConflict: "user_id,day_key" }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[reflection/POST] Supabase error:", error.message);
+      return NextResponse.json(
+        { error: "Failed to save reflection" },
+        { status: 500, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    return NextResponse.json(
+      { ok: true, reflection: data },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+  } catch (err) {
+    console.error("[reflection/POST] Unexpected error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500, headers: { "Cache-Control": "no-store" } }
+    );
+  }
 }
