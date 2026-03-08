@@ -55,6 +55,7 @@ export async function GET() {
     }
 
     const signals = {
+      created_at: new Date().toISOString(),
       energy: log.energy ?? 3,
       mood: log.mood ?? 3,
       stress: log.stress ?? 3,
