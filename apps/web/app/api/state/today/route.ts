@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
-import { computeStateV2 as computeState } from '@themunk/core/state/compute-state-v2'
+import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
+import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
@@ -25,7 +26,6 @@ export async function GET() {
     const userId = 'thomas'
     const dayKey = getOsloDateKey()
 
-    // 1. Fetch latest log for today
     const { data: log, error: logError } = await supabase
       .from('manual_logs')
       .select('*')
@@ -39,14 +39,10 @@ export async function GET() {
       console.error('[state/today] log fetch error', { error: logError.message })
       return NextResponse.json(
         { error: 'Failed to fetch log' },
-        {
-          status: 500,
-          headers: { 'Cache-Control': 'no-store' },
-        }
+        { status: 500, headers: { 'Cache-Control': 'no-store' } }
       )
     }
 
-    // 2. No log yet — return empty state
     if (!log) {
       return NextResponse.json(
         { state: null, contract: null, day_key: dayKey },
@@ -54,28 +50,32 @@ export async function GET() {
       )
     }
 
-    const signals = {
-      created_at: new Date().toISOString(),
+    const manualInput = {
       energy: log.energy ?? 3,
       mood: log.mood ?? 3,
       stress: log.stress ?? 3,
+      notes: log.notes ?? null,
+      created_at: log.created_at ?? new Date().toISOString(),
     }
 
-    // 3. Compute deterministic state
-    const stateResult = computeState({ manualInput: signals, wearableInput: null })
+    // 1. Raw engine output
+    const raw = computeStateV2({ manualInput, wearableInput: null })
 
-    // 4. Build Decision Contract v1
-    const contract = buildDecisionContract(stateResult.state, signals)
+    // 2. Normalize via adapter
+    const normalized = normalizeStateResult(raw)
 
-    // 5. Upsert to daily_state
+    // 3. Build Decision Contract v1
+    const contract = buildDecisionContract(normalized.state, manualInput)
+
+    // 4. Upsert to daily_state
     const { error: upsertError } = await supabase
       .from('daily_state')
       .upsert(
         {
           user_id: userId,
           day_key: dayKey,
-          state: stateResult.state,
-          state_trace: stateResult.trace,
+          state: normalized.state,
+          state_trace: normalized.trace,
           contract_version: 'decision_v1',
           updated_at: new Date().toISOString(),
         },
@@ -91,20 +91,18 @@ export async function GET() {
       state: contract.state,
       protocol_id: contract.protocol_id,
       confidence: contract.confidence,
+      rationale_code: raw.rationale_code,
     })
 
     return NextResponse.json(
-      { state: stateResult.state, contract, day_key: dayKey },
+      { state: normalized.state, contract, day_key: dayKey },
       { headers: { 'Cache-Control': 'no-store' } }
     )
   } catch (err) {
     console.error('[state/today] unexpected error', { err })
     return NextResponse.json(
       { error: 'Internal server error' },
-      {
-        status: 500,
-        headers: { 'Cache-Control': 'no-store' },
-      }
+      { status: 500, headers: { 'Cache-Control': 'no-store' } }
     )
   }
 }

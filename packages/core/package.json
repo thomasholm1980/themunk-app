@@ -7,6 +7,7 @@
   "exports": {
     ".": "./index.ts",
     "./state/compute-state-v2": "./state/compute-state-v2.ts",
-    "./state/decision": "./state/decision.ts"
+    "./state/decision": "./state/decision.ts",
+    "./state/normalize": "./state/normalize.ts"
   }
 }
