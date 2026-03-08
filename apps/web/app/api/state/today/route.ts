@@ -96,7 +96,7 @@ export async function GET() {
       { headers: { 'Cache-Control': 'no-store' } }
     )
   } catch (err) {
-    console.error('[state/today] unexpected error', { err })
+    console.error('[state/today] unexpected error', { err, message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: { 'Cache-Control': 'no-store' } }
