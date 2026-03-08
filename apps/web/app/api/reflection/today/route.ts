@@ -1,5 +1,5 @@
 // apps/web/app/api/reflection/today/route.ts
-// Reflection Layer v1 — GET handler
+// Reflection Layer v1.1 — GET handler (three dimensions)
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -28,7 +28,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("reflection_logs")
-      .select("*")
+      .select("energy, stress, focus")
       .eq("user_id", user_id)
       .eq("day_key", day_key)
       .maybeSingle();

@@ -1,10 +1,10 @@
 // packages/core/state/reflection.ts
-// Reflection Layer v1 — types and validation
-
-export type ReflectionScore = 1 | 2 | 3;
+// Reflection Layer v1.1 — three-dimensional validation
 
 export interface ReflectionPayload {
-  score: ReflectionScore;
+  energy: number;
+  stress: number;
+  focus: number;
   day_key: string;
 }
 
@@ -12,8 +12,18 @@ export interface ReflectionRecord {
   id: string;
   user_id: string;
   day_key: string;
-  score: ReflectionScore;
+  energy: number;
+  stress: number;
+  focus: number;
   created_at: string;
+}
+
+function validateDimension(value: unknown, name: string): string | null {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1 || n > 3) {
+    return `${name} must be 1, 2, or 3`;
+  }
+  return null;
 }
 
 export function validateReflectionPayload(body: unknown): {
@@ -31,13 +41,18 @@ export function validateReflectionPayload(body: unknown): {
     return { valid: false, error: "Missing or invalid day_key" };
   }
 
-  const score = Number(b.score);
-  if (!Number.isInteger(score) || score < 1 || score > 3) {
-    return { valid: false, error: "score must be 1, 2, or 3" };
+  for (const dim of ["energy", "stress", "focus"]) {
+    const err = validateDimension(b[dim], dim);
+    if (err) return { valid: false, error: err };
   }
 
   return {
     valid: true,
-    payload: { score: score as ReflectionScore, day_key: b.day_key },
+    payload: {
+      energy: Number(b.energy),
+      stress: Number(b.stress),
+      focus: Number(b.focus),
+      day_key: b.day_key,
+    },
   };
 }

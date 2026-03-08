@@ -1,5 +1,5 @@
 // apps/web/app/api/reflection/route.ts
-// Reflection Layer v1 — POST handler
+// Reflection Layer v1.1 — POST handler (three dimensions)
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -31,7 +31,13 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from("reflection_logs")
       .upsert(
-        { user_id, day_key: payload!.day_key, score: payload!.score },
+        {
+          user_id,
+          day_key: payload!.day_key,
+          energy: payload!.energy,
+          stress: payload!.stress,
+          focus: payload!.focus,
+        },
         { onConflict: "user_id,day_key" }
       )
       .select()
