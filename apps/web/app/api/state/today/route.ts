@@ -153,6 +153,7 @@ export async function GET() {
           language_layer,
         },
         day_key: dayKey,
+        pattern_engine_v2,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
