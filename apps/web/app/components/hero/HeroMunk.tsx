@@ -1,7 +1,6 @@
 // apps/web/app/components/hero/HeroMunk.tsx
-// Phase 6 — Hero Munk Integration v6
-// Transparent asset + CSS mist + chest glow breathing + mist drift
-// Chest light = regulation state proxy. Not HRV. Not energy score.
+// Phase 6 — Hero Munk Integration v7
+// Larger monk (90%), stronger mist fade, translateY grounding
 
 import Image from 'next/image'
 
@@ -30,8 +29,8 @@ export function HeroMunk({ state }: HeroMunkProps) {
           50%       { transform: translate(-50%, -50%) scale(1.03); opacity: 1; }
         }
         @keyframes munkMistDrift {
-          0%, 100% { transform: translateX(-20%) translateX(0px); }
-          50%       { transform: translateX(-20%) translateX(10px); }
+          0%, 100% { transform: translateX(0px); }
+          50%       { transform: translateX(10px); }
         }
       `}</style>
 
@@ -41,24 +40,30 @@ export function HeroMunk({ state }: HeroMunkProps) {
         role="img"
         aria-label="Munk regulation presence"
       >
-        {/* CSS mist — ground cloud base */}
+        {/* Mist layer — dissolves base artifact */}
         <div
           className="absolute pointer-events-none"
           style={{
-            bottom: '-5%',
-            left: '-20%',
-            width: '140%',
-            height: '55%',
-            background: 'radial-gradient(ellipse 85% 55% at 50% 85%, rgba(210, 200, 185, 0.55) 0%, rgba(200, 190, 175, 0.2) 50%, transparent 72%)',
-            filter: 'blur(24px)',
+            bottom: '-40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '160%',
+            height: '160px',
+            background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 70%)',
+            filter: 'blur(40px)',
             animation: 'munkMistDrift 20s linear infinite',
           }}
         />
 
-        {/* Munk — transparent PNG, 70% width centered */}
+        {/* Munk — 90% width, grounded 8px into mist */}
         <div
           className="relative"
-          style={{ width: '70%', maxWidth: '520px', height: '100%' }}
+          style={{
+            width: '90%',
+            maxWidth: '620px',
+            height: '100%',
+            transform: 'translateY(8px)',
+          }}
         >
           <Image
             src="/assets/munk-transparent.png"
@@ -70,7 +75,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           />
         </div>
 
-        {/* Chest glow — breathing animation, state-mapped duration */}
+        {/* Chest glow — breathing */}
         <div
           className="absolute pointer-events-none"
           style={{
