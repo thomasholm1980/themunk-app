@@ -61,7 +61,7 @@ export async function GET() {
     }
 
     // 3. Compute deterministic state
-    const stateResult = computeState(signals)
+    const stateResult = computeState({ manualInput: signals, wearableInput: null })
 
     // 4. Build Decision Contract v1
     const contract = buildDecisionContract(stateResult.state, signals)
