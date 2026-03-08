@@ -89,7 +89,7 @@ export default function CheckInPage() {
   const dotClass    = screen ? (STATE_DOT[screen.state]    ?? "bg-zinc-500")      : "bg-zinc-500";
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center px-4 py-10">
+    <main className="min-h-screen bg-gradient-to-b from-[#e9e6e0] via-[#dcd6cc] to-zinc-950 text-zinc-100 flex flex-col items-center px-4 py-10">
       <div className="w-full max-w-md space-y-8">
 
         {/* Header */}
@@ -129,7 +129,7 @@ export default function CheckInPage() {
 
         {/* Core Screen — pure render of server contract */}
         {screen && (
-          <div className={`border rounded-xl p-6 space-y-4 bg-zinc-900 ${borderClass}`}>
+          <div className="space-y-4 px-2">
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${dotClass}`} />
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Munk Forecast</p>
