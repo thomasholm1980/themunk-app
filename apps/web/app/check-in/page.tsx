@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import ReflectionSignal from "../components/ReflectionSignal";
 import LongitudinalPanel from "../components/LongitudinalPanel";
 import { HeroMunk } from "../components/hero/HeroMunk";
+import Forecast from "../components/Forecast";
 
 const USER_ID = "thomas";
 
@@ -157,21 +158,11 @@ export default function CheckInPage() {
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-600">Munk Forecast</p>
             </div>
 
-            {/* Headline */}
-            <p className="text-2xl font-semibold text-zinc-950 tracking-tight">
-              {contract.forecast.headline}
-            </p>
-
-            {/* Forecast line */}
-            <p className="text-base text-zinc-800 leading-relaxed">
-              {contract.forecast.line}
-            </p>
-
-            {contract.language_layer?.sentences?.[0] && (
-              <p className="text-sm text-zinc-600 leading-relaxed mt-3">
-                {contract.language_layer.sentences[0]}
-              </p>
-            )}
+            <Forecast
+              headline={contract.forecast.headline}
+              interpretation={contract.forecast.line}
+              contextLine={contract.language_layer?.sentences?.[0]}
+            />
 
             {/* Guidance */}
             <div className="pt-2 border-t border-zinc-400/30">
