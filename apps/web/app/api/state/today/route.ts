@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { computeState } from '@themunk/core/state/compute-state-v2'
+import { computeStateV2 as computeState } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { NextResponse } from 'next/server'
 
