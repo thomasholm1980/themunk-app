@@ -5,6 +5,8 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./state/engine": "./state/engine.ts",
+    "./state/decision": "./state/decision.ts"
   }
 }
