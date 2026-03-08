@@ -46,6 +46,10 @@ interface DecisionContract {
   };
   confidence:       number;
   contract_version: "decision_v1";
+  language_layer?: {
+    sentences: string[];
+    language_version: "language_v1";
+  };
 }
 
 interface StateResponse {
