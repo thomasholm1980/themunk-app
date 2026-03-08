@@ -3,10 +3,18 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { toZonedTime, format } from "date-fns-tz";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function getOsloDayKey(): string {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Oslo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
 
 export async function GET() {
   try {
@@ -15,8 +23,7 @@ export async function GET() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const now = toZonedTime(new Date(), "Europe/Oslo");
-    const day_key = format(now, "yyyy-MM-dd", { timeZone: "Europe/Oslo" });
+    const day_key = getOsloDayKey();
     const user_id = "00000000-0000-0000-0000-000000000001";
 
     const { data, error } = await supabase
