@@ -5,7 +5,7 @@
 // No hardcoded forecast/guidance copy
 
 import { useEffect, useMemo, useState } from "react";
-import ReflectionSignal from "../components/ReflectionSignal";
+import ReflectionCard from "../components/ReflectionCard";
 import LongitudinalPanel from "../components/LongitudinalPanel";
 import { HeroMunk } from "../components/hero/HeroMunk";
 import Forecast from "../components/Forecast";
@@ -24,7 +24,6 @@ const STATE_BORDER: Record<string, string> = {
   RED:    "border-red-800",
 };
 
-// decision_v1 contract shape
 interface DecisionContract {
   state:           "GREEN" | "YELLOW" | "RED";
   protocol_id:     "deep_work" | "balanced_day" | "recovery";
@@ -196,9 +195,9 @@ export default function CheckInPage() {
               )}
             </div>
 
-            {/* Reflection */}
+            {/* Reflection Card */}
             <div className="pt-2 border-t border-zinc-400/30">
-              <ReflectionSignal userId={USER_ID} dayKey={todayKey} />
+              <ReflectionCard dayKey={todayKey} />
             </div>
 
           </div>
