@@ -163,6 +163,12 @@ export default function CheckInPage() {
               {contract.forecast.line}
             </p>
 
+            {contract.language_layer?.sentences?.[0] && (
+              <p className="text-sm text-zinc-600 leading-relaxed mt-3">
+                {contract.language_layer.sentences[0]}
+              </p>
+            )}
+
             {/* Guidance */}
             <div className="pt-2 border-t border-zinc-400/30">
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-600 mb-2">Guidance</p>
