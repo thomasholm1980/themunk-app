@@ -66,7 +66,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           }}
         >
           <Image
-            src="/assets/munk-transparent.png"
+            src="/assets/munk-hero-v3.png"
             alt="The Munk"
             fill
             priority
