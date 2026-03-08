@@ -7,10 +7,12 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('Supabase env vars missing')
+  return createClient(url, key)
+}
 
 function getOsloDateKey(): string {
   return new Intl.DateTimeFormat('sv-SE', {
@@ -23,6 +25,7 @@ function getOsloDateKey(): string {
 
 export async function GET() {
   try {
+    const supabase = getSupabase()
     const userId = 'thomas'
     const dayKey = getOsloDateKey()
 
@@ -58,16 +61,10 @@ export async function GET() {
       created_at: log.created_at ?? new Date().toISOString(),
     }
 
-    // 1. Raw engine output
     const raw = computeStateV2({ manualInput, wearableInput: null })
-
-    // 2. Normalize via adapter
     const normalized = normalizeStateResult(raw)
-
-    // 3. Build Decision Contract v1
     const contract = buildDecisionContract(normalized.state, manualInput)
 
-    // 4. Upsert to daily_state
     const { error: upsertError } = await supabase
       .from('daily_state')
       .upsert(
