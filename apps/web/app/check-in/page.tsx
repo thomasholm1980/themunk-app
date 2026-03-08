@@ -1,11 +1,10 @@
 "use client";
 // apps/web/app/check-in/page.tsx
-// Phase 8 — UI Binding to decision_v1
-// Renders exclusively from /api/state/today → decision_v1 contract
-// No hardcoded forecast/guidance copy
+// Phase 13 — Weekly State Path added
 
 import { useEffect, useMemo, useState } from "react";
 import ReflectionCard from "../components/ReflectionCard";
+import WeeklyStatePath from "../components/WeeklyStatePath";
 import LongitudinalPanel from "../components/LongitudinalPanel";
 import { HeroMunk } from "../components/hero/HeroMunk";
 import Forecast from "../components/Forecast";
@@ -64,11 +63,11 @@ export default function CheckInPage() {
   const [stress, setStress] = useState(3);
   const [notes,  setNotes]  = useState("");
 
-  const [status,      setStatus]      = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [contract,    setContract]    = useState<DecisionContract | null>(null);
-  const [apiError,    setApiError]    = useState(false);
-  const [showWhy,     setShowWhy]     = useState(false);
-  const [dateLabel,   setDateLabel]   = useState("");
+  const [status,    setStatus]    = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [contract,  setContract]  = useState<DecisionContract | null>(null);
+  const [apiError,  setApiError]  = useState(false);
+  const [showWhy,   setShowWhy]   = useState(false);
+  const [dateLabel, setDateLabel] = useState("");
 
   const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -195,9 +194,14 @@ export default function CheckInPage() {
               )}
             </div>
 
-            {/* Reflection Card */}
+            {/* Reflection */}
             <div className="pt-2 border-t border-zinc-400/30">
               <ReflectionCard dayKey={todayKey} />
+            </div>
+
+            {/* Weekly State Path */}
+            <div className="pt-2 border-t border-zinc-400/30">
+              <WeeklyStatePath />
             </div>
 
           </div>
