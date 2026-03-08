@@ -1,6 +1,6 @@
 // apps/web/app/components/hero/HeroMunk.tsx
-// Phase 6 — Hero Munk Integration v8
-// Taller hero, monk lower, stronger mist coverage
+// Phase 6 — Hero Munk Integration v9
+// Atmospheric vertical fade + 95% monk scale
 
 import Image from 'next/image'
 
@@ -40,41 +40,27 @@ export function HeroMunk({ state }: HeroMunkProps) {
         role="img"
         aria-label="Munk regulation presence"
       >
-        {/* Primary mist — dissolves base artifact */}
+        {/* CSS mist — ground cloud base */}
         <div
           className="absolute pointer-events-none"
           style={{
             bottom: '-20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '160%',
+            width: '180%',
             height: '200px',
-            background: 'radial-gradient(ellipse at center, rgba(225,218,208,0.7) 0%, rgba(215,208,195,0.35) 45%, transparent 70%)',
+            background: 'radial-gradient(ellipse at center, rgba(225,218,208,0.65) 0%, rgba(215,208,195,0.3) 50%, transparent 72%)',
             filter: 'blur(36px)',
             animation: 'munkMistDrift 20s linear infinite',
           }}
         />
 
-        {/* Secondary mist — wider, softer upper layer */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            bottom: '60px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '180%',
-            height: '120px',
-            background: 'radial-gradient(ellipse at center, rgba(215,208,195,0.3) 0%, transparent 65%)',
-            filter: 'blur(28px)',
-          }}
-        />
-
-        {/* Munk — 92% width, grounded into mist */}
+        {/* Munk — 95% width */}
         <div
           className="relative"
           style={{
-            width: '92%',
-            maxWidth: '640px',
+            width: '95%',
+            maxWidth: '660px',
             height: '100%',
             transform: 'translateY(16px)',
           }}
@@ -99,6 +85,15 @@ export function HeroMunk({ state }: HeroMunkProps) {
             background: `radial-gradient(circle, ${preset.glowColor} 0%, transparent 70%)`,
             filter: 'blur(10px)',
             animation: `munkGlowBreathe ${preset.breathDuration} ease-in-out infinite`,
+          }}
+        />
+
+        {/* Atmospheric vertical fade — dissolves baked gradient into page */}
+        <div
+          className="absolute bottom-0 left-0 w-full pointer-events-none"
+          style={{
+            height: '240px',
+            background: 'linear-gradient(to bottom, rgba(245,242,235,0) 0%, rgba(245,242,235,0.35) 40%, rgba(245,242,235,0.75) 70%, rgba(245,242,235,1) 100%)',
           }}
         />
       </div>
