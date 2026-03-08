@@ -2,7 +2,7 @@
 // apps/web/app/check-in/page.tsx
 // Core Screen UI Binding v1
 // Pure renderer of core_screen contract. No frontend interpretation logic.
-// v3.0.0
+// v4.0.0 — interpretation-first layout: Hero → Forecast → Signals
 
 import { useEffect, useMemo, useState } from "react";
 import ReflectionSignal from "../components/ReflectionSignal";
@@ -11,16 +11,16 @@ import { HeroMunk } from "../components/hero/HeroMunk";
 
 const USER_ID = "thomas";
 
-const STATE_BORDER: Record<string, string> = {
-  GREEN:  "border-emerald-700",
-  YELLOW: "border-yellow-700",
-  RED:    "border-red-800",
-};
-
 const STATE_DOT: Record<string, string> = {
   GREEN:  "bg-emerald-500",
   YELLOW: "bg-yellow-400",
   RED:    "bg-red-500",
+};
+
+const STATE_BORDER: Record<string, string> = {
+  GREEN:  "border-emerald-700",
+  YELLOW: "border-yellow-700",
+  RED:    "border-red-800",
 };
 
 interface CoreScreen {
@@ -44,9 +44,9 @@ export default function CheckInPage() {
   const [stress, setStress] = useState(3);
   const [notes,  setNotes]  = useState("");
 
-  const [status,     setStatus]     = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [screen,     setScreen]     = useState<CoreScreen | null>(null);
-  const [dateLabel,  setDateLabel]  = useState("");
+  const [status,    setStatus]    = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [screen,    setScreen]    = useState<CoreScreen | null>(null);
+  const [dateLabel, setDateLabel] = useState("");
 
   const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -85,26 +85,65 @@ export default function CheckInPage() {
     }
   }
 
-  const borderClass = screen ? (STATE_BORDER[screen.state] ?? "border-zinc-700") : "border-zinc-700";
-  const dotClass    = screen ? (STATE_DOT[screen.state]    ?? "bg-zinc-500")      : "bg-zinc-500";
+  const dotClass    = screen ? (STATE_DOT[screen.state]    ?? "bg-zinc-500")    : "bg-zinc-500";
+  const borderClass = screen ? (STATE_BORDER[screen.state] ?? "border-zinc-700"): "border-zinc-700";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#e9e6e0] via-[#dcd6cc] to-zinc-950 text-zinc-100 flex flex-col items-center px-4 py-10">
-      <div className="w-full max-w-md space-y-8">
+    <main className="min-h-screen bg-gradient-to-b from-[#e9e6e0] via-[#dcd6cc] to-zinc-950 text-zinc-100 flex flex-col items-center">
 
-        {/* Header */}
-        <div className="text-center space-y-1">
-          <p className="text-xs tracking-[0.3em] uppercase text-zinc-500 font-mono">The Munk</p>
-          <p className="text-xs text-zinc-600 font-mono capitalize">{dateLabel}</p>
-        </div>
+      {/* 1. Header */}
+      <div className="w-full max-w-md text-center pt-10 pb-2 px-4 space-y-1">
+        <p className="text-xs tracking-[0.3em] uppercase text-zinc-500 font-mono">The Munk</p>
+        <p className="text-xs text-zinc-600 font-mono capitalize">{dateLabel}</p>
+      </div>
 
-        {/* Input */}
+      {/* 2. Hero Munk — standalone, no card, always visible */}
+      <div className="w-full max-w-md">
+        <HeroMunk state={screen?.state ?? null} />
+      </div>
+
+      <div className="w-full max-w-md px-4 space-y-6 pb-16">
+
+        {/* 3. Forecast — only when screen is available */}
+        {screen && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${dotClass}`} />
+              <p className="text-xs tracking-[0.25em] uppercase text-zinc-600">Munk Forecast</p>
+            </div>
+
+            <p className="text-2xl font-semibold text-zinc-950 tracking-tight">
+              {screen.headline}
+            </p>
+
+            <p className="text-base text-zinc-800 leading-relaxed">
+              {screen.observation_text}
+            </p>
+
+            {screen.context_text && (
+              <p className="text-sm text-zinc-700 leading-relaxed italic">
+                {screen.context_text}
+              </p>
+            )}
+
+            <div className="pt-2 border-t border-zinc-400/30">
+              <p className="text-xs tracking-[0.25em] uppercase text-zinc-600 mb-2">Guidance</p>
+              <p className="text-sm text-zinc-800">{screen.guidance_text}</p>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-400/30">
+              <ReflectionSignal userId={USER_ID} dayKey={todayKey} />
+            </div>
+          </div>
+        )}
+
+        {/* 4. Signals card */}
         <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
-            { label: "Sleep", value: energy, set: setEnergy },
-            { label: "Mood",  value: mood,   set: setMood   },
-            { label: "Stress",value: stress, set: setStress },
+            { label: "Sleep",  value: energy, set: setEnergy },
+            { label: "Mood",   value: mood,   set: setMood   },
+            { label: "Stress", value: stress, set: setStress },
           ].map(({ label, value, set }) => (
             <div key={label} className="space-y-1">
               <div className="flex justify-between text-xs text-zinc-500">
@@ -127,53 +166,9 @@ export default function CheckInPage() {
           </button>
         </div>
 
-        {/* Core Screen — pure render of server contract */}
-        {screen && (
-          <div className="space-y-4 px-2">
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${dotClass}`} />
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Munk Forecast</p>
-            </div>
-
-            {/* Hero Munk — presentation layer only */}
-            <div className="-mx-2 -mt-1">
-              <HeroMunk state={screen.state} />
-            </div>
-
-            {/* 1. Headline */}
-            <p className="text-lg font-semibold text-zinc-100 tracking-wide">
-              {screen.headline}
-            </p>
-
-            {/* 2. Observation */}
-            <p className="text-sm text-zinc-300 leading-relaxed">
-              {screen.observation_text}
-            </p>
-
-            {/* 3. Context — only if not null */}
-            {screen.context_text && (
-              <p className="text-sm text-zinc-400 leading-relaxed italic">
-                {screen.context_text}
-              </p>
-            )}
-
-            {/* 4. Guidance */}
-            <div className="pt-1 border-t border-zinc-800">
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 mb-2">Guidance</p>
-              <p className="text-sm text-zinc-300">{screen.guidance_text}</p>
-            </div>
-
-            {/* 5. Reflection */}
-            <div className="pt-1 border-t border-zinc-800">
-              <ReflectionSignal
-                userId={USER_ID}
-                dayKey={todayKey}
-              />
-            </div>
-          </div>
-        )}
-
+        {/* 5. Longitudinal */}
         <LongitudinalPanel />
+
       </div>
     </main>
   );
