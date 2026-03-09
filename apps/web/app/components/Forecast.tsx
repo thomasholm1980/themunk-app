@@ -7,6 +7,10 @@
 // interpretation ≤ 90 chars
 // contextLine ≤ 110 chars
 
+'use client'
+
+import { useEffect } from 'react'
+
 interface ForecastProps {
   headline: string
   interpretation: string
@@ -14,6 +18,17 @@ interface ForecastProps {
 }
 
 export default function Forecast({ headline, interpretation, contextLine }: ForecastProps) {
+  useEffect(() => {
+    // One-time micro scroll cue — reveals continuation below
+    const raf = requestAnimationFrame(() => {
+      window.scrollBy({
+        top: 24,
+        behavior: 'smooth',
+      })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
     <div className="space-y-3">
       <p className="text-base font-medium text-zinc-950 tracking-tight">
