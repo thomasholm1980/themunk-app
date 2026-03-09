@@ -94,7 +94,7 @@ export async function GET() {
     const normalized = normalizeStateResult(raw)
 
     // 4. Build Decision Contract v1
-    const contract = buildDecisionContract(stability.stable_state, manualInput, null)
+    const contract = buildDecisionContract(normalized.state, manualInput, null)
 
     // 5. Compute patterns
     const pattern_engine = computePatterns(recentDays)
@@ -152,6 +152,10 @@ export async function GET() {
       .order('day_key', { ascending: true })
 
     const reflection_window = buildReflectionWindow(reflectionRows ?? [])
+
+    // Phase 19: apply stable_state to contract
+    contract.state = stability.stable_state
+    contract.protocol_id = stability.stable_state === 'GREEN' ? 'deep_work' : stability.stable_state === 'YELLOW' ? 'balanced_day' : 'recovery'
 
     // Phase 17: inject dominant pattern into contract guidance
     contract.guidance.pattern_context = getPatternContext(pattern_engine_v2.dominant_pattern)
