@@ -5,11 +5,7 @@ import { useEffect, useState } from 'react'
 
 type RegulationState = 'GREEN' | 'YELLOW' | 'RED' | null
 
-type SequenceStep =
-  | 'INTRO_FADE_IN'
-  | 'GLOW_BUILD'
-  | 'FORECAST_SHOW'
-  | 'IDLE'
+type SequenceStep = 'INTRO_FADE_IN' | 'GLOW_BUILD' | 'FORECAST_SHOW' | 'IDLE'
 
 interface HeroMunkProps {
   state: RegulationState
@@ -29,33 +25,37 @@ export function HeroMunk({ state }: HeroMunkProps) {
   }, [])
 
   const monkOpacity = step === 'INTRO_FADE_IN' ? 0 : 1
-  const coreScale = step === 'INTRO_FADE_IN' ? 0.2 : step === 'GLOW_BUILD' ? 2.5 : step === 'FORECAST_SHOW' ? 3.2 : 1.6
-  const midScale  = step === 'INTRO_FADE_IN' ? 0.2 : step === 'GLOW_BUILD' ? 2.0 : step === 'FORECAST_SHOW' ? 2.8 : 1.4
-  const haloScale = step === 'INTRO_FADE_IN' ? 0.2 : step === 'GLOW_BUILD' ? 1.5 : step === 'FORECAST_SHOW' ? 2.2 : 1.2
-  const glowAlpha = step === 'INTRO_FADE_IN' ? 0   : 1.0
+  const isIntro = step !== 'IDLE'
+
+  // Chest position — brystet er ca 44% ned på Munken
+  const chestTop = '44%'
+
+  const coreScale = step === 'INTRO_FADE_IN' ? 0.1 : step === 'GLOW_BUILD' ? 1.8 : step === 'FORECAST_SHOW' ? 2.2 : 1.0
+  const haloScale = step === 'INTRO_FADE_IN' ? 0.1 : step === 'GLOW_BUILD' ? 1.6 : step === 'FORECAST_SHOW' ? 2.0 : 0
+  const haloOpacity = step === 'FORECAST_SHOW' ? 0.8 : step === 'GLOW_BUILD' ? 0.6 : 0
 
   return (
     <>
       <style>{`
         @keyframes munkBreathe {
           0%, 100% { transform: scale(1.000); }
-          50%       { transform: scale(1.022); }
+          50%       { transform: scale(1.018); }
         }
         @keyframes munkFloat {
           0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-4px); }
+          50%       { transform: translateY(-3px); }
         }
-        @keyframes coreGlow {
-          0%, 100% { opacity: 0.90; transform: translate(-50%,-50%) scale(1.6); filter: blur(14px) brightness(140%); }
-          50%       { opacity: 1.00; transform: translate(-50%,-50%) scale(2.0); filter: blur(20px) brightness(180%); }
-        }
-        @keyframes midGlow {
-          0%, 100% { opacity: 0.75; transform: translate(-50%,-50%) scale(1.4); filter: blur(22px) brightness(130%); }
-          50%       { opacity: 1.00; transform: translate(-50%,-50%) scale(1.7); filter: blur(28px) brightness(155%); }
-        }
-        @keyframes haloGlow {
-          0%, 100% { opacity: 0.55; transform: translate(-50%,-50%) scale(1.2); filter: blur(40px); }
-          50%       { opacity: 0.90; transform: translate(-50%,-50%) scale(1.55); filter: blur(50px); }
+        @keyframes chestPulse {
+          0%, 100% { 
+            opacity: 0.85;
+            transform: translate(-50%, -50%) scale(1.0);
+            filter: blur(8px) brightness(140%);
+          }
+          50% { 
+            opacity: 1.0;
+            transform: translate(-50%, -50%) scale(1.25);
+            filter: blur(11px) brightness(180%);
+          }
         }
       `}</style>
 
@@ -65,30 +65,16 @@ export function HeroMunk({ state }: HeroMunkProps) {
         role="img"
         aria-label="Munk regulation presence"
       >
-        {/* Layer 3 — outer halo, 400px */}
+        {/* Halo — only during intro sequence, fades out after */}
         <div className="absolute pointer-events-none" style={{
-          top: '50%', left: '50%',
-          width: '400px', height: '400px',
+          top: chestTop, left: '50%',
+          width: '200px', height: '200px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,180,20,0.65) 0%, rgba(255,120,0,0.35) 50%, transparent 75%)',
-          opacity: glowAlpha,
+          background: 'radial-gradient(circle, rgba(255,180,20,0.7) 0%, rgba(255,120,0,0.3) 50%, transparent 75%)',
+          opacity: haloOpacity,
           transform: `translate(-50%, -50%) scale(${haloScale})`,
-          filter: 'blur(40px)',
-          transition: step === 'IDLE' ? 'none' : 'all 900ms ease-out',
-          animation: step === 'IDLE' ? 'haloGlow 5s ease-in-out infinite' : 'none',
-        }} />
-
-        {/* Layer 2 — mid glow, 220px */}
-        <div className="absolute pointer-events-none" style={{
-          top: '50%', left: '50%',
-          width: '220px', height: '220px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,210,60,0.90) 0%, rgba(255,160,10,0.80) 45%, transparent 75%)',
-          opacity: glowAlpha,
-          transform: `translate(-50%, -50%) scale(${midScale})`,
-          filter: 'blur(22px)',
-          transition: step === 'IDLE' ? 'none' : 'all 900ms ease-out',
-          animation: step === 'IDLE' ? 'midGlow 5s ease-in-out infinite' : 'none',
+          filter: 'blur(30px)',
+          transition: 'all 900ms ease-out',
         }} />
 
         {/* Monk */}
@@ -101,17 +87,17 @@ export function HeroMunk({ state }: HeroMunkProps) {
           <Image src="/assets/munk-hero-v7.png" alt="The Munk" fill priority className="object-contain object-bottom" />
         </div>
 
-        {/* Layer 1 — core chest glow, 180px */}
+        {/* Chest glow — stays in idle, pumping in breast */}
         <div className="absolute pointer-events-none" style={{
-          top: '50%', left: '50%',
-          width: '180px', height: '180px',
+          top: chestTop, left: '50%',
+          width: '70px', height: '70px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,245,150,1.0) 0%, rgba(255,210,50,1.0) 30%, rgba(255,150,0,0.85) 60%, transparent 80%)',
-          opacity: glowAlpha,
+          background: 'radial-gradient(circle, rgba(255,240,120,1.0) 0%, rgba(255,200,40,1.0) 40%, rgba(255,140,0,0.6) 70%, transparent 90%)',
+          opacity: step === 'INTRO_FADE_IN' ? 0 : 1,
           transform: `translate(-50%, -50%) scale(${coreScale})`,
-          filter: 'blur(12px)',
-          transition: step === 'IDLE' ? 'none' : 'all 900ms ease-out',
-          animation: step === 'IDLE' ? 'coreGlow 5s ease-in-out infinite' : 'none',
+          filter: 'blur(8px)',
+          transition: isIntro ? 'all 900ms ease-out' : 'none',
+          animation: step === 'IDLE' ? 'chestPulse 5s ease-in-out infinite' : 'none',
         }} />
       </div>
     </>
