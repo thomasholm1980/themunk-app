@@ -218,7 +218,7 @@ export default function CheckInPage() {
         )}
 
         
-        <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
+        {contractReady && (<div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
             { label: "Sleep",  value: energy, set: setEnergy },
@@ -245,6 +245,7 @@ export default function CheckInPage() {
             {status === "loading" ? "Reading..." : "Send Inn"}
           </button>
         </div>
+        )}
 
         {/* 5. Longitudinal */}
         <LongitudinalPanel />
