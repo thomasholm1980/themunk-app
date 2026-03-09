@@ -88,6 +88,7 @@ export default function CheckInPage() {
       const json: StateResponse = await res.json();
       if (json.contract) {
         setContract(json.contract);
+        setTimeout(() => window.scrollBy({ top: 28, behavior: "smooth" }), 600)
         setApiError(false);
       }
     } catch {
