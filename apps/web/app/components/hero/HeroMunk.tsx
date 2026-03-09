@@ -24,7 +24,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
     return () => { [t1,t2,t3,t4].forEach(clearTimeout) }
   }, [])
 
-  const chestTop = '44%'
+  const chestTop = '46%'
   const SETTLE_TRANSITION = '3200ms'
   const INTRO_TRANSITION = '1800ms'
   const transition = step === 'SETTLE' ? `all ${SETTLE_TRANSITION} ease-in-out` : `all ${INTRO_TRANSITION} ease-in-out`
@@ -34,7 +34,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
     step === 'INTRO_FADE_IN' ? 0.1 :
     step === 'GLOW_BUILD'    ? 1.8 :
     step === 'FORECAST_SHOW' ? 2.2 :
-    step === 'SETTLE'        ? 1.05 :
+    step === 'SETTLE'        ? 0.95 :
     1.0
 
   // Halo — same transition as core so they fade together
@@ -77,7 +77,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           }
           50% {
             opacity: 1.0;
-            transform: translate(-50%, -50%) scale(1.22);
+            transform: translate(-50%, -50%) scale(1.45);
             filter: blur(11px) brightness(172%);
           }
         }
@@ -114,7 +114,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
         {/* Chest glow */}
         <div className="absolute pointer-events-none" style={{
           top: chestTop, left: '50%',
-          width: '70px', height: '70px',
+          width: "38px", height: "38px"',
           borderRadius: '50%',
           background: coreGradient,
           opacity: step === 'INTRO_FADE_IN' ? 0 : 1,
