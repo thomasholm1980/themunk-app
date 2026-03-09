@@ -90,12 +90,12 @@ export default function CheckInPage() {
       const json: StateResponse = await res.json();
       if (json.contract) {
         const fetchTime = Date.now() - fetchStart;
-        const remaining = Math.max(0, 1500 - fetchTime);
+        const remaining = Math.max(0, 3500 - fetchTime);
         setTimeout(() => {
           setContract(json.contract);
           setContractReady(true);
           setApiError(false);
-          setTimeout(() => window.scrollBy({ top: 96, behavior: "smooth" }), 1200);
+          setTimeout(() => window.scrollBy({ top: 96, behavior: "smooth" }), 2500);
         }, remaining);
       }
     } catch {
@@ -161,7 +161,7 @@ export default function CheckInPage() {
 
         {/* 3c. Forecast — decision_v1 only */}
         {contractReady && (
-          <div className="space-y-4" style={{ opacity: contractReady ? 1 : 0, transform: contractReady ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 450ms ease-out, transform 450ms ease-out' }}>
+          <div className="space-y-4" style={{ opacity: contractReady ? 1 : 0, transform: contractReady ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 900ms ease-out, transform 900ms ease-out' }}>
 
             {/* Label */}
             <div className="flex items-center gap-2">

@@ -37,7 +37,7 @@ export function HeroMunk({ state, isReading = false, forecastReady = false, domi
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [forecastReady])
 
-  const breathCycle = isReading ? '9s' : '12s'
+  const breathCycle = isReading ? '10s' : '16s'
   const breathPeak = acknowledging ? 1.025 : 1.015
   const glowPeak = acknowledging ? 1.15 : 1.00
   const glowMin = acknowledging ? 0.92 : 0.82
@@ -96,7 +96,7 @@ export function HeroMunk({ state, isReading = false, forecastReady = false, domi
             maxWidth: '660px',
             height: '100%',
             position: 'relative',
-            animation: `munkFloat 13.5s ease-in-out infinite, munkBreathe ${breathCycle} ease-in-out infinite`,
+            animation: `munkFloat 18s ease-in-out infinite, munkBreathe ${breathCycle} ease-in-out infinite`,
           }}
         >
           <Image
