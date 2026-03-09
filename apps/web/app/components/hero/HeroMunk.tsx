@@ -120,8 +120,8 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
       >
         {/* Ambient halo */}
         <div className="absolute pointer-events-none" style={{
-          top: '46%', left: '50%',
-          width: '180px', height: '180px',
+          top: '38%', left: '50%',
+          width: '220px', height: '220px',
           borderRadius: '50%',
           background: `radial-gradient(circle, ${colors.halo} 0%, transparent 75%)`,
           filter: 'blur(28px)',
@@ -145,8 +145,8 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
 
         {/* Chest glow */}
         <div className="absolute pointer-events-none" style={{
-          top: '46%', left: '50%',
-          width: '36px', height: '36px',
+          top: '38%', left: '50%',
+          width: '52px', height: '52px',
           borderRadius: '50%',
           background: `radial-gradient(circle, ${colors.core}, transparent 95%)`,
           animation: `${glowName} ${breathDur}s ease-in-out infinite`,
