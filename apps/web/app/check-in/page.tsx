@@ -34,7 +34,6 @@ interface StateResponse {
 
 export default function CheckInPage() {
   const [contract,  setContract]  = useState<DecisionContract | null>(null);
-  const [introIdle, setIntroIdle] = useState(false);
   const [apiError,  setApiError]  = useState(false);
   const [showWhy,   setShowWhy]   = useState(false);
   const [dateLabel, setDateLabel] = useState("");
@@ -66,69 +65,72 @@ export default function CheckInPage() {
   useEffect(() => { fetchState(); }, []);
 
   const dotClass = contract ? (STATE_DOT[contract.state] ?? "bg-zinc-500") : "bg-zinc-500";
-  const showForecast = !!contract && introIdle;
+
+  // Phase 14.6: render immediately when contract arrives — no intro gate
+  const showForecast = !!contract;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#e9e6e0] via-[#dcd6cc] to-zinc-950 text-zinc-100 flex flex-col items-center">
+    <main className="min-h-screen flex flex-col items-center" style={{ background: "#e9e6e0" }}>
 
       {/* Header */}
       <div className="w-full max-w-md text-center pt-10 pb-2 px-4 space-y-1">
         <p className="text-xs tracking-[0.3em] uppercase text-zinc-500 font-mono">The Munk</p>
-        <p className="text-xs text-zinc-600 font-mono capitalize">{dateLabel}</p>
+        <p className="text-xs text-zinc-500 font-mono capitalize">{dateLabel}</p>
       </div>
 
-      {/* Hero */}
+      {/* Hero — Zone A (atmospheric, sits on same warm bg) */}
       <div className="w-full max-w-md">
         <HeroMunk
           state={contract?.state ?? null}
           isReading={false}
           forecastReady={!!contract}
           dominantPattern={null}
-          onIdleReached={() => setIntroIdle(true)}
+          onIdleReached={() => {}}
         />
       </div>
 
-      <div className="w-full max-w-md px-4 space-y-6 pb-16">
+      {/* Zone B — crisp content surface */}
+      <div className="w-full max-w-md px-4 pb-16 space-y-0" style={{ background: "#e9e6e0" }}>
 
-        {/* Error */}
         {apiError && (
           <div className="text-sm text-zinc-500 text-center py-4">
             Could not load today&apos;s forecast. Try again shortly.
           </div>
         )}
 
-        {/* Loading */}
         {!contract && !apiError && (
-          <div className="text-sm text-zinc-500 text-center py-4 animate-pulse">
+          <div className="text-sm text-zinc-400 text-center py-4 animate-pulse font-mono text-xs tracking-widest uppercase">
             Reading signals...
           </div>
         )}
 
-        {/* Forecast — after monk intro */}
         {showForecast && (
-          <div className="space-y-4" style={{ animation: 'fadeIn 1200ms ease-out both' }}>
-            <style>{`@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }`}</style>
+          <div className="space-y-0 divide-y divide-zinc-300/60">
 
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${dotClass}`} />
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-600">Munk Forecast</p>
+            {/* Forecast */}
+            <div className="py-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`w-2 h-2 rounded-full ${dotClass}`} />
+                <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 font-mono">Munk Forecast</p>
+              </div>
+              <Forecast
+                headline={contract!.forecast.headline}
+                interpretation={contract!.forecast.line}
+                contextLine={contract!.language_layer?.sentences?.[0]}
+              />
             </div>
 
-            <Forecast
-              headline={contract!.forecast.headline}
-              interpretation={contract!.forecast.line}
-              contextLine={contract!.language_layer?.sentences?.[0]}
-            />
-
-            <div className="pt-2 border-t border-zinc-400/30">
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-600 mb-2">Guidance</p>
-              <p className="text-sm text-zinc-800">{contract!.guidance.line}</p>
+            {/* Guidance */}
+            <div className="py-5">
+              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 font-mono mb-2">Guidance</p>
+              <p className="text-sm text-zinc-800 leading-relaxed">{contract!.guidance.line}</p>
             </div>
 
-            <div className="pt-2 border-t border-zinc-400/30">
+            {/* Why this today */}
+            <div className="py-5">
               <button
                 onClick={() => setShowWhy(v => !v)}
-                className="text-xs tracking-[0.2em] uppercase text-zinc-500 hover:text-zinc-700 transition-colors"
+                className="text-xs tracking-[0.2em] uppercase text-zinc-400 hover:text-zinc-700 font-mono transition-colors"
               >
                 {showWhy ? "Hide" : "Why this today?"}
               </button>
@@ -141,11 +143,13 @@ export default function CheckInPage() {
               )}
             </div>
 
-            <div className="pt-2 border-t border-zinc-400/30">
+            {/* Reflection */}
+            <div className="py-5">
               <ReflectionCard dayKey={todayKey} />
             </div>
 
-            <div className="pt-2 border-t border-zinc-400/30">
+            {/* Weekly State Path */}
+            <div className="py-5">
               <WeeklyStatePath />
             </div>
 
