@@ -1,6 +1,5 @@
 "use client";
 // apps/web/app/check-in/page.tsx
-// Phase 13 — Weekly State Path added
 
 import { useEffect, useMemo, useState } from "react";
 import ReflectionCard from "../components/ReflectionCard";
@@ -63,14 +62,18 @@ export default function CheckInPage() {
   const [stress, setStress] = useState(3);
   const [notes,  setNotes]  = useState("");
 
-  const [status,    setStatus]    = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [contract,  setContract]  = useState<DecisionContract | null>(null);
+  const [status,        setStatus]        = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [contract,      setContract]      = useState<DecisionContract | null>(null);
   const [contractReady, setContractReady] = useState(false);
-  const [apiError,  setApiError]  = useState(false);
-  const [showWhy,   setShowWhy]   = useState(false);
-  const [dateLabel, setDateLabel] = useState("");
+  const [introPhase,    setIntroPhase]    = useState<"running" | "idle">("running");
+  const [apiError,      setApiError]      = useState(false);
+  const [showWhy,       setShowWhy]       = useState(false);
+  const [dateLabel,     setDateLabel]     = useState("");
 
   const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  // Signals card only mounts when monk intro is done
+  const showSignalsCard = introPhase === "idle";
 
   useEffect(() => {
     setDateLabel(
@@ -137,48 +140,56 @@ export default function CheckInPage() {
           isReading={status === "loading"}
           forecastReady={!!contract}
           dominantPattern={null}
+          onIdleReached={() => setIntroPhase("idle")}
         />
       </div>
 
       <div className="w-full max-w-md px-4 space-y-6 pb-16">
 
-        {/* 3a. API error fallback */}
+        {/* 3a. API error */}
         {apiError && (
           <div className="text-sm text-zinc-500 text-center py-4">
             Could not load today&apos;s forecast. Try again shortly.
           </div>
         )}
 
-        {/* 3b. Loading state */}
+        {/* 3b. Loading */}
         {!contract && !apiError && (
           <div className="text-sm text-zinc-500 text-center py-4 animate-pulse">
             Reading signals...
           </div>
         )}
 
-        {/* 3c. Forecast — decision_v1 only */}
+        {/* 3c. Forecast — fades in after monk sequence */}
         {contractReady && (
-          <div className="space-y-4" style={{ opacity: contractReady ? 1 : 0, transform: contractReady ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 1200ms ease-out, transform 1200ms ease-out' }}>
+          <div className="space-y-4" style={{
+            opacity: 1,
+            transform: 'translateY(0)',
+            animation: 'fadeSlideIn 1200ms ease-out both',
+          }}>
+            <style>{`
+              @keyframes fadeSlideIn {
+                from { opacity: 0; transform: translateY(8px); }
+                to   { opacity: 1; transform: translateY(0);   }
+              }
+            `}</style>
 
-            {/* Label */}
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${dotClass}`} />
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-600">Munk Forecast</p>
             </div>
 
             <Forecast
-              headline={contract.forecast.headline}
-              interpretation={contract.forecast.line}
-              contextLine={contract.language_layer?.sentences?.[0]}
+              headline={contract!.forecast.headline}
+              interpretation={contract!.forecast.line}
+              contextLine={contract!.language_layer?.sentences?.[0]}
             />
 
-            {/* Guidance */}
             <div className="pt-2 border-t border-zinc-400/30">
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-600 mb-2">Guidance</p>
-              <p className="text-sm text-zinc-800">{contract.guidance.line}</p>
+              <p className="text-sm text-zinc-800">{contract!.guidance.line}</p>
             </div>
 
-            {/* Why this today — collapsible */}
             <div className="pt-2 border-t border-zinc-400/30">
               <button
                 onClick={() => setShowWhy(v => !v)}
@@ -186,30 +197,27 @@ export default function CheckInPage() {
               >
                 {showWhy ? "Hide" : "Why this today?"}
               </button>
-
               {showWhy && (
                 <div className="mt-3 space-y-2 text-sm text-zinc-700">
                   <div className="flex gap-2">
                     <span className="text-zinc-400">↑</span>
-                    <span>{contract.explanation.primary_driver}</span>
+                    <span>{contract!.explanation.primary_driver}</span>
                   </div>
                   <div className="flex gap-2">
                     <span className="text-zinc-400">→</span>
-                    <span>{contract.explanation.secondary_driver}</span>
+                    <span>{contract!.explanation.secondary_driver}</span>
                   </div>
                   <p className="text-xs text-zinc-500 pt-1 leading-relaxed">
-                    {contract.explanation.line}
+                    {contract!.explanation.line}
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Reflection */}
             <div className="pt-2 border-t border-zinc-400/30">
               <ReflectionCard dayKey={todayKey} />
             </div>
 
-            {/* Weekly State Path */}
             <div className="pt-2 border-t border-zinc-400/30">
               <WeeklyStatePath />
             </div>
@@ -217,37 +225,39 @@ export default function CheckInPage() {
           </div>
         )}
 
-        
-        <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`} style={{ opacity: contractReady ? 1 : 0, visibility: contractReady ? "visible" : "hidden", maxHeight: contractReady ? "1000px" : "0px", overflow: "hidden", transition: "opacity 1200ms ease-in-out, max-height 0ms" }}>
-          <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
-          {[
-            { label: "Sleep",  value: energy, set: setEnergy },
-            { label: "Mood",   value: mood,   set: setMood   },
-            { label: "Stress", value: stress, set: setStress },
-          ].map(({ label, value, set }) => (
-            <div key={label} className="space-y-1">
-              <div className="flex justify-between text-xs text-zinc-500">
-                <span>{label}</span><span>{value} / 5</span>
+        {/* 4. Signals card — only mounts after monk intro is done */}
+        {showSignalsCard && (
+          <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
+            <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
+            {[
+              { label: "Sleep",  value: energy, set: setEnergy },
+              { label: "Mood",   value: mood,   set: setMood   },
+              { label: "Stress", value: stress, set: setStress },
+            ].map(({ label, value, set }) => (
+              <div key={label} className="space-y-1">
+                <div className="flex justify-between text-xs text-zinc-500">
+                  <span>{label}</span><span>{value} / 5</span>
+                </div>
+                <input type="range" min={1} max={5} value={value}
+                  onChange={e => set(Number(e.target.value))}
+                  className="w-full accent-yellow-400" />
               </div>
-              <input type="range" min={1} max={5} value={value}
-                onChange={e => set(Number(e.target.value))}
-                className="w-full accent-yellow-400" />
+            ))}
+            <div className="space-y-1">
+              <p className="text-xs text-zinc-500">Notes (optional)</p>
+              <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
+                placeholder="Anything worth noting..."
+                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500" />
             </div>
-          ))}
-          <div className="space-y-1">
-            <p className="text-xs text-zinc-500">Notes (optional)</p>
-            <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
-              placeholder="Anything worth noting..."
-              className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500" />
+            <button onClick={submitLog} disabled={status === "loading"}
+              className="w-full py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm tracking-widest uppercase text-zinc-300 transition-colors disabled:opacity-50">
+              {status === "loading" ? "Reading..." : "Send Inn"}
+            </button>
           </div>
-          <button onClick={submitLog} disabled={status === "loading"}
-            className="w-full py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm tracking-widest uppercase text-zinc-300 transition-colors disabled:opacity-50">
-            {status === "loading" ? "Reading..." : "Send Inn"}
-          </button>
-        </div>
+        )}
 
         {/* 5. Longitudinal */}
-        <LongitudinalPanel />
+        {showSignalsCard && <LongitudinalPanel />}
 
       </div>
     </main>

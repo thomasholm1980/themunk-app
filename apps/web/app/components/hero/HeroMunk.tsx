@@ -11,20 +11,23 @@ interface HeroMunkProps {
   isReading?: boolean
   forecastReady?: boolean
   dominantPattern?: string | null
+  onIdleReached?: () => void
 }
 
-export function HeroMunk({ state }: HeroMunkProps) {
+export function HeroMunk({ onIdleReached }: HeroMunkProps) {
   const [step, setStep] = useState<SequenceStep>('INTRO_FADE_IN')
 
   useEffect(() => {
     const t1 = setTimeout(() => setStep('GLOW_BUILD'), 700)
     const t2 = setTimeout(() => setStep('FORECAST_SHOW'), 1600)
     const t3 = setTimeout(() => setStep('SETTLE'), 2800)
-    const t4 = setTimeout(() => setStep('IDLE'), 6000)
+    const t4 = setTimeout(() => {
+      setStep('IDLE')
+      onIdleReached?.()
+    }, 6000)
     return () => { [t1,t2,t3,t4].forEach(clearTimeout) }
   }, [])
 
-  // Chest position — brystsprekken er ca 46% ned
   const chestTop = '46%'
   const transition = step === 'SETTLE' ? 'all 3200ms ease-in-out' : 'all 1800ms ease-in-out'
 
@@ -98,7 +101,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           <Image src="/assets/munk-hero-v7.png" alt="The Munk" fill priority className="object-contain object-bottom" />
         </div>
 
-        {/* Chest glow — liten og intens, sitter i brystsprekken */}
+        {/* Chest glow */}
         <div className="absolute pointer-events-none" style={{
           top: chestTop, left: '50%',
           width: '36px', height: '36px',
