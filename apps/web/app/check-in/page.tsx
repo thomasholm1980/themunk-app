@@ -90,7 +90,7 @@ export default function CheckInPage() {
       if (json.contract) {
         setContract(json.contract);
         setApiError(false);
-        setTimeout(() => setContractReady(true), 50);
+        setTimeout(() => setContractReady(true), 150);
       }
     } catch {
       setApiError(true);
