@@ -3,6 +3,7 @@ import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { computePatterns } from '@themunk/core/state/pattern'
+import { buildSignalExplanation } from '@themunk/core/state/signal-explanation'
 import { computeStableState } from '@themunk/core/state/stability'
 import { buildReflectionWindow } from '@themunk/core/state/reflection-history'
 import { getPatternContext } from '@themunk/core/state/pattern-context'
@@ -157,6 +158,18 @@ export async function GET() {
     contract.state = stability.stable_state
     contract.protocol_id = stability.stable_state === 'GREEN' ? 'deep_work' : stability.stable_state === 'YELLOW' ? 'balanced_day' : 'recovery'
 
+    // Phase 20: build signal explanation for Why This Today?
+    const signal_explanation = buildSignalExplanation({
+      stable_state:     stability.stable_state,
+      dominant_pattern: pattern_engine_v2.dominant_pattern,
+      hints: {
+        sleep_reduced:   false,
+        hrv_low:         false,
+        resting_hr_high: false,
+        strain_elevated: stability.was_stabilized,
+      },
+    })
+
     // Phase 17: inject dominant pattern into contract guidance
     contract.guidance.pattern_context = getPatternContext(pattern_engine_v2.dominant_pattern)
 
@@ -184,6 +197,7 @@ export async function GET() {
         pattern_engine_v2,
         reflection_window,
         stability,
+        signal_explanation,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )

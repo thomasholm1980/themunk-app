@@ -16,6 +16,7 @@
     "./state/patterns-v2": "./state/patterns-v2.ts",
     "./state/pattern-context": "./state/pattern-context.ts",
     "./state/reflection-history": "./state/reflection-history.ts",
-    "./state/stability": "./state/stability.ts"
+    "./state/stability": "./state/stability.ts",
+    "./state/signal-explanation": "./state/signal-explanation.ts"
   }
 }
