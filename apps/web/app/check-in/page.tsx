@@ -36,6 +36,7 @@ interface StateResponse {
 export default function CheckInPage() {
   const [contract,    setContract]    = useState<DecisionContract | null>(null);
   const [explanation, setExplanation] = useState<{ line_1: string; line_2: string | null } | null>(null);
+  const [introIdle, setIntroIdle] = useState(false);
   const [apiError,    setApiError]    = useState(false);
   const [dateLabel,   setDateLabel]   = useState("");
 
@@ -67,7 +68,7 @@ export default function CheckInPage() {
   useEffect(() => { fetchState(); }, []);
 
   const dotClass    = contract ? (STATE_DOT[contract.state] ?? "bg-zinc-500") : "bg-zinc-500";
-  const showContent = !!contract;
+  const showContent = !!contract && introIdle;
 
   return (
     <main className="min-h-screen flex flex-col items-center" style={{ background: "#e9e6e0" }}>
@@ -85,7 +86,7 @@ export default function CheckInPage() {
           isReading={false}
           forecastReady={!!contract}
           dominantPattern={null}
-          onIdleReached={() => {}}
+          onIdleReached={() => setIntroIdle(true)}
         />
       </div>
 

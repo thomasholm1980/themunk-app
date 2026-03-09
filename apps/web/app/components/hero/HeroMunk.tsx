@@ -1,19 +1,23 @@
 'use client'
 
 /**
- * HeroMunk — Phase 16: Monk Presence Engine
+ * HeroMunk — Phase 21.5: Monk Arrival Intro
  *
- * State-driven breathing + glow. No intro choreography.
- * Breathing model: inhale → hold → exhale, continuous loop.
+ * Intro sequence (~1.4s total):
+ *   0ms    — Monk hidden
+ *   0ms    — fade-in starts (600ms)
+ *   400ms  — glow expands
+ *   1000ms — glow settles into breathing loop
+ *   1400ms — onIdleReached() → Forecast becomes visible
  *
- * GREEN:  ~8s cycle, soft glow
- * YELLOW: ~6s cycle, medium glow
- * RED:    ~4s cycle, stronger glow
+ * After intro: state-driven breathing + glow loop (Phase 16).
  */
 
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 type RegulationState = 'GREEN' | 'YELLOW' | 'RED' | null
+type IntroStep = 'hidden' | 'arriving' | 'settling' | 'idle'
 
 interface HeroMunkProps {
   state: RegulationState
@@ -23,59 +27,68 @@ interface HeroMunkProps {
   onIdleReached?: () => void
 }
 
-// ─── State config ─────────────────────────────────────────────────────────────
-
 const STATE_CONFIG: Record<string, {
-  breathDuration: number   // total cycle seconds
-  glowScale: number        // peak chest glow scale
-  glowOpacity: number      // peak glow opacity
-  haloOpacity: number      // ambient halo opacity
+  breathDuration: number
+  glowScale:      number
+  glowOpacity:    number
+  haloOpacity:    number
 }> = {
-  GREEN:  { breathDuration: 8,  glowScale: 1.35, glowOpacity: 0.82, haloOpacity: 0.18 },
-  YELLOW: { breathDuration: 6,  glowScale: 1.55, glowOpacity: 0.90, haloOpacity: 0.26 },
-  RED:    { breathDuration: 4,  glowScale: 1.75, glowOpacity: 0.95, haloOpacity: 0.34 },
-  idle:   { breathDuration: 8,  glowScale: 1.25, glowOpacity: 0.75, haloOpacity: 0.14 },
+  GREEN:  { breathDuration: 8, glowScale: 1.35, glowOpacity: 0.82, haloOpacity: 0.18 },
+  YELLOW: { breathDuration: 6, glowScale: 1.55, glowOpacity: 0.90, haloOpacity: 0.26 },
+  RED:    { breathDuration: 4, glowScale: 1.75, glowOpacity: 0.95, haloOpacity: 0.34 },
+  idle:   { breathDuration: 8, glowScale: 1.25, glowOpacity: 0.75, haloOpacity: 0.14 },
 }
 
-// ─── Glow colors per state ────────────────────────────────────────────────────
-
 const GLOW_COLOR: Record<string, { core: string; halo: string }> = {
-  GREEN:  { core: 'rgba(255,240,140,1.0), rgba(255,200,40,1.0) 45%, rgba(180,255,140,0.4) 75%', halo: 'rgba(120,220,100,0.5)' },
+  GREEN:  { core: 'rgba(255,240,140,1.0), rgba(255,200,40,1.0) 45%, rgba(180,255,140,0.4) 75%', halo: 'rgba(120,220,100,0.5)'  },
   YELLOW: { core: 'rgba(255,240,140,1.0), rgba(255,200,40,1.0) 45%, rgba(255,140,0,0.5) 75%',   halo: 'rgba(255,180,20,0.55)' },
   RED:    { core: 'rgba(255,220,140,1.0), rgba(255,140,80,1.0) 45%, rgba(220,60,40,0.5) 75%',   halo: 'rgba(220,80,60,0.45)'  },
   idle:   { core: 'rgba(255,240,140,1.0), rgba(255,200,40,1.0) 45%, rgba(255,140,0,0.5) 75%',   halo: 'rgba(255,180,20,0.40)' },
 }
 
 export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
+  const [intro, setIntro] = useState<IntroStep>('hidden')
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setIntro('arriving'),  0)
+    const t2 = setTimeout(() => setIntro('settling'),  400)
+    const t3 = setTimeout(() => {
+      setIntro('idle')
+      onIdleReached?.()
+    }, 1400)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [])
+
   const key    = state ?? 'idle'
   const config = STATE_CONFIG[key]
   const colors = GLOW_COLOR[key]
 
-  const breathDur  = config.breathDuration
-  // inhale = 35%, hold = 15%, exhale = 50% of cycle
-  const inhaleEnd  = Math.round(breathDur * 0.35 * 10) / 10
-  const holdEnd    = Math.round(breathDur * 0.50 * 10) / 10
+  const breathDur = config.breathDuration
+  const inhaleP   = 35
+  const holdP     = 50
 
-  const animName   = `breathe_${key}`
-  const glowName   = `glow_${key}`
-  const haloName   = `halo_${key}`
+  const animName = `breathe_${key}`
+  const glowName = `glow_${key}`
+  const haloName = `halo_${key}`
 
-  // % values for keyframes
-  const inhaleP = 35
-  const holdP   = 50
+  const inIntro     = intro !== 'idle'
+  const munkOpacity = intro === 'hidden' ? 0 : 1
+  const glowOpacity = intro === 'hidden' ? 0 : intro === 'arriving' ? 0.4 : config.glowOpacity
+  const introScale  =
+    intro === 'hidden'   ? 0.1 :
+    intro === 'arriving' ? 0.5 :
+    intro === 'settling' ? 1.4 :
+    null
 
   return (
     <>
       <style>{`
-        /* Monk body breathing — scale only, no translate */
         @keyframes ${animName} {
-          0%        { transform: scale(1.000); }
+          0%          { transform: scale(1.000); }
           ${inhaleP}% { transform: scale(1.018); }
           ${holdP}%   { transform: scale(1.018); }
-          100%      { transform: scale(1.000); }
+          100%        { transform: scale(1.000); }
         }
-
-        /* Chest glow pulse synced to breath */
         @keyframes ${glowName} {
           0% {
             transform: translate(-50%, -50%) scale(1.0);
@@ -98,16 +111,12 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
             filter: blur(6px);
           }
         }
-
-        /* Ambient halo — slow, always slightly behind breath */
         @keyframes ${haloName} {
-          0%, 100% { opacity: ${config.haloOpacity * 0.6}; transform: translate(-50%, -50%) scale(1.0); }
-          ${holdP}% { opacity: ${config.haloOpacity};       transform: translate(-50%, -50%) scale(1.15); }
+          0%, 100% { opacity: ${config.haloOpacity * 0.6}; transform: translate(-50%, -50%) scale(1.0);  }
+          ${holdP}% { opacity: ${config.haloOpacity};      transform: translate(-50%, -50%) scale(1.15); }
         }
-
-        /* Slow float — state-independent */
         @keyframes munkFloat {
-          0%, 100% { transform: translateY(0px); }
+          0%, 100% { transform: translateY(0px);  }
           50%       { transform: translateY(-3px); }
         }
       `}</style>
@@ -125,15 +134,17 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
           borderRadius: '50%',
           background: `radial-gradient(circle, ${colors.halo} 0%, transparent 75%)`,
           filter: 'blur(28px)',
-          animation: `${haloName} ${breathDur}s ease-in-out infinite`,
-          transition: 'background 1000ms ease-in-out',
+          opacity: munkOpacity,
+          animation: inIntro ? 'none' : `${haloName} ${breathDur}s ease-in-out infinite`,
+          transition: 'opacity 600ms ease-out',
         }} />
 
         {/* Monk image */}
         <div style={{
           width: '90%', maxWidth: '580px', height: '100%', position: 'relative',
-          animation: `munkFloat 16s ease-in-out infinite, ${animName} ${breathDur}s ease-in-out infinite`,
-          transition: 'animation-duration 1000ms ease-in-out',
+          opacity: munkOpacity,
+          transition: 'opacity 600ms ease-out',
+          animation: inIntro ? 'none' : `munkFloat 16s ease-in-out infinite, ${animName} ${breathDur}s ease-in-out infinite`,
         }}>
           <Image
             src="/assets/munk-hero-v7.png"
@@ -149,8 +160,13 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
           width: '52px', height: '52px',
           borderRadius: '50%',
           background: `radial-gradient(circle, ${colors.core}, transparent 95%)`,
-          animation: `${glowName} ${breathDur}s ease-in-out infinite`,
-          transition: 'background 1000ms ease-in-out',
+          opacity: glowOpacity,
+          transform: introScale !== null
+            ? `translate(-50%, -50%) scale(${introScale})`
+            : undefined,
+          filter: 'blur(6px)',
+          transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+          animation: inIntro ? 'none' : `${glowName} ${breathDur}s ease-in-out infinite`,
         }} />
       </div>
     </>
