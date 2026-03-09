@@ -96,7 +96,7 @@ export default function ReflectionCard({ dayKey }: Props) {
           {(["energy", "stress", "focus"] as Dim[]).map(dim => (
             <div key={dim} className="flex flex-col items-center gap-1">
               <span className="text-xs text-zinc-500">{LABELS[dim]}</span>
-              <span className="text-sm text-zinc-300 font-mono">
+              <span className="text-sm text-zinc-800 font-mono">
                 {SUMMARY_LABELS[saved[dim] as Score]}
               </span>
             </div>

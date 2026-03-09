@@ -130,15 +130,15 @@ export default function CheckInPage() {
             <div className="py-5">
               <button
                 onClick={() => setShowWhy(v => !v)}
-                className="text-xs tracking-[0.2em] uppercase text-zinc-400 hover:text-zinc-700 font-mono transition-colors"
+                className="text-xs tracking-[0.2em] uppercase text-zinc-500 hover:text-zinc-800 font-mono transition-colors"
               >
                 {showWhy ? "Hide" : "Why this today?"}
               </button>
               {showWhy && (
                 <div className="mt-3 space-y-2 text-sm text-zinc-700">
-                  <div className="flex gap-2"><span className="text-zinc-400">↑</span><span>{contract!.explanation.primary_driver}</span></div>
-                  <div className="flex gap-2"><span className="text-zinc-400">→</span><span>{contract!.explanation.secondary_driver}</span></div>
-                  <p className="text-xs text-zinc-500 pt-1 leading-relaxed">{contract!.explanation.line}</p>
+                  <div className="flex gap-2"><span className="text-zinc-500">↑</span><span>{contract!.explanation.primary_driver}</span></div>
+                  <div className="flex gap-2"><span className="text-zinc-500">→</span><span>{contract!.explanation.secondary_driver}</span></div>
+                  <p className="text-xs text-zinc-600 pt-1 leading-relaxed">{contract!.explanation.line}</p>
                 </div>
               )}
             </div>

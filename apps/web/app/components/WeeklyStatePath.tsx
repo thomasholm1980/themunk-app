@@ -62,7 +62,7 @@ export default function WeeklyStatePath() {
           />
         ))}
       </div>
-      <p className="text-xs text-zinc-500 leading-relaxed">
+      <p className="text-xs text-zinc-600 leading-relaxed">
         {INTERPRETATION[trajectory.label]}
       </p>
     </div>
