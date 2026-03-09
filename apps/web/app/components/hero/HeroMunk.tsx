@@ -24,12 +24,10 @@ export function HeroMunk({ state }: HeroMunkProps) {
     return () => { [t1,t2,t3,t4].forEach(clearTimeout) }
   }, [])
 
+  // Chest position — brystsprekken er ca 46% ned
   const chestTop = '46%'
-  const SETTLE_TRANSITION = '3200ms'
-  const INTRO_TRANSITION = '1800ms'
-  const transition = step === 'SETTLE' ? `all ${SETTLE_TRANSITION} ease-in-out` : `all ${INTRO_TRANSITION} ease-in-out`
+  const transition = step === 'SETTLE' ? 'all 3200ms ease-in-out' : 'all 1800ms ease-in-out'
 
-  // Core scale — settles slowly into idle size
   const coreScale =
     step === 'INTRO_FADE_IN' ? 0.1 :
     step === 'GLOW_BUILD'    ? 1.8 :
@@ -37,26 +35,15 @@ export function HeroMunk({ state }: HeroMunkProps) {
     step === 'SETTLE'        ? 0.95 :
     1.0
 
-  // Halo — same transition as core so they fade together
   const haloOpacity =
     step === 'GLOW_BUILD'    ? 0.55 :
     step === 'FORECAST_SHOW' ? 0.75 :
-    step === 'SETTLE'        ? 0.0 :
     0.0
 
   const haloScale =
     step === 'GLOW_BUILD'    ? 1.6 :
     step === 'FORECAST_SHOW' ? 2.0 :
-    step === 'SETTLE'        ? 1.8 :
     1.8
-
-  // Core glow color — warm white/yellow intro → soft amber idle
-  const coreGradient =
-    step === 'FORECAST_SHOW'
-      ? 'radial-gradient(circle, rgba(255,255,180,1.0) 0%, rgba(255,220,60,1.0) 35%, rgba(255,160,10,0.7) 65%, transparent 90%)'
-      : step === 'SETTLE'
-      ? 'radial-gradient(circle, rgba(255,230,100,1.0) 0%, rgba(255,195,30,1.0) 40%, rgba(255,140,0,0.55) 70%, transparent 90%)'
-      : 'radial-gradient(circle, rgba(255,240,120,1.0) 0%, rgba(255,200,40,1.0) 40%, rgba(255,140,0,0.6) 70%, transparent 90%)'
 
   return (
     <>
@@ -71,14 +58,14 @@ export function HeroMunk({ state }: HeroMunkProps) {
         }
         @keyframes chestPulse {
           0%, 100% {
-            opacity: 0.88;
+            opacity: 0.85;
             transform: translate(-50%, -50%) scale(1.0);
-            filter: blur(8px) brightness(138%);
+            filter: blur(6px) brightness(145%);
           }
           50% {
             opacity: 1.0;
-            transform: translate(-50%, -50%) scale(1.45);
-            filter: blur(11px) brightness(172%);
+            transform: translate(-50%, -50%) scale(1.5);
+            filter: blur(9px) brightness(185%);
           }
         }
       `}</style>
@@ -89,7 +76,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
         role="img"
         aria-label="Munk regulation presence"
       >
-        {/* Halo */}
+        {/* Halo — only during intro */}
         <div className="absolute pointer-events-none" style={{
           top: chestTop, left: '50%',
           width: '200px', height: '200px',
@@ -111,17 +98,17 @@ export function HeroMunk({ state }: HeroMunkProps) {
           <Image src="/assets/munk-hero-v7.png" alt="The Munk" fill priority className="object-contain object-bottom" />
         </div>
 
-        {/* Chest glow */}
+        {/* Chest glow — liten og intens, sitter i brystsprekken */}
         <div className="absolute pointer-events-none" style={{
           top: chestTop, left: '50%',
-          width: "38px", height: "38px"',
+          width: '36px', height: '36px',
           borderRadius: '50%',
-          background: coreGradient,
+          background: 'radial-gradient(circle, rgba(255,240,140,1.0) 0%, rgba(255,200,40,1.0) 45%, rgba(255,140,0,0.5) 75%, transparent 95%)',
           opacity: step === 'INTRO_FADE_IN' ? 0 : 1,
           transform: `translate(-50%, -50%) scale(${coreScale})`,
-          filter: 'blur(8px)',
+          filter: 'blur(6px)',
           transition,
-          animation: step === 'IDLE' ? 'chestPulse 5s ease-in-out infinite' : 'none',
+          animation: step === 'IDLE' ? 'chestPulse 4s ease-in-out infinite' : 'none',
         }} />
       </div>
     </>
