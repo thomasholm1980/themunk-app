@@ -218,7 +218,7 @@ export default function CheckInPage() {
         )}
 
         
-        <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`} style={{ opacity: contractReady ? 1 : 0, transition: "opacity 1200ms ease-in-out" }}>
+        <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`} style={{ opacity: contractReady ? 1 : 0, visibility: contractReady ? "visible" : "hidden", maxHeight: contractReady ? "1000px" : "0px", overflow: "hidden", transition: "opacity 1200ms ease-in-out, max-height 0ms" }}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
             { label: "Sleep",  value: energy, set: setEnergy },
