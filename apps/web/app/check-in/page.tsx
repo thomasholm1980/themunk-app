@@ -215,7 +215,7 @@ export default function CheckInPage() {
         )}
 
         {contractReady && (
-        <div id="signals-card" className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
+        <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
             { label: "Sleep",  value: energy, set: setEnergy },
