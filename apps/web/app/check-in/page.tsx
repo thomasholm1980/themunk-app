@@ -81,6 +81,7 @@ export default function CheckInPage() {
   }, []);
 
   async function fetchState() {
+    const startTime = Date.now();
     try {
       const res = await fetch("/api/state/today", {
         headers: { "x-user-id": USER_ID },
@@ -90,7 +91,9 @@ export default function CheckInPage() {
       if (json.contract) {
         setContract(json.contract);
         setApiError(false);
-        setTimeout(() => setContractReady(true), 150);
+        const elapsed = Date.now() - startTime;
+        const wait = Math.max(0, 6200 - elapsed);
+        setTimeout(() => setContractReady(true), wait);
       }
     } catch {
       setApiError(true);
@@ -155,7 +158,7 @@ export default function CheckInPage() {
 
         {/* 3c. Forecast — decision_v1 only */}
         {contractReady && (
-          <div className="space-y-4" style={{ opacity: contractReady ? 1 : 0, transform: contractReady ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 900ms ease-out, transform 900ms ease-out' }}>
+          <div className="space-y-4" style={{ opacity: contractReady ? 1 : 0, transform: contractReady ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 1200ms ease-out, transform 1200ms ease-out' }}>
 
             {/* Label */}
             <div className="flex items-center gap-2">
