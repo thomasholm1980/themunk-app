@@ -1,11 +1,7 @@
-// apps/web/app/components/hero/HeroMunk.tsx
-// Phase 14.5 — Monk Presence System v1
-// Spec: Chief AI Architect (Manju) | Implementation: Aval
-
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type RegulationState = 'GREEN' | 'YELLOW' | 'RED' | null
 type PatternCode =
@@ -22,45 +18,17 @@ interface HeroMunkProps {
   dominantPattern?: PatternCode
 }
 
-// ---------------------------------------------------------------------------
-// Presence presets per state
-// ---------------------------------------------------------------------------
 const PRESETS = {
-  GREEN:   { opacityBase: 1.00,  glowColor: 'rgba(255, 200, 100, 0.75)', glowSize: '80px' },
-  YELLOW:  { opacityBase: 0.88,  glowColor: 'rgba(255, 180, 80, 0.50)',  glowSize: '60px' },
-  RED:     { opacityBase: 0.75,  glowColor: 'rgba(255, 160, 60, 0.35)',  glowSize: '44px' },
-  NEUTRAL: { opacityBase: 0.82,  glowColor: 'rgba(255, 180, 80, 0.42)', glowSize: '52px' },
+  GREEN:   { opacity: 1.00, glowColor: 'rgba(255, 210, 80, 0.95)',  glowSize: '140px', glowColor2: 'rgba(255, 180, 40, 0.6)' },
+  YELLOW:  { opacity: 0.95, glowColor: 'rgba(255, 190, 60, 0.85)',  glowSize: '120px', glowColor2: 'rgba(255, 160, 30, 0.5)' },
+  RED:     { opacity: 0.90, glowColor: 'rgba(255, 140, 40, 0.75)',  glowSize: '100px', glowColor2: 'rgba(255, 100, 20, 0.4)' },
+  NEUTRAL: { opacity: 0.95, glowColor: 'rgba(255, 200, 70, 0.90)',  glowSize: '120px', glowColor2: 'rgba(255, 170, 40, 0.55)' },
 } as const
-
-// ---------------------------------------------------------------------------
-// Pattern modifiers — secondary to daily state
-// ---------------------------------------------------------------------------
-const PATTERN_MODIFIERS: Record<string, {
-  breathScale: number   // multiplier on cycle duration (>1 = slower)
-  glowDim: number       // subtracted from glow opacity peak (0–0.1)
-  floatScale: number    // multiplier on float intensity (0–1)
-}> = {
-  PATTERN_ACCUMULATING_STRAIN: { breathScale: 1.15, glowDim: 0.08, floatScale: 0.6 },
-  PATTERN_RECOVERY_DEBT:       { breathScale: 1.20, glowDim: 0.06, floatScale: 0.3 },
-  PATTERN_SLEEP_INSTABILITY:   { breathScale: 1.05, glowDim: 0.02, floatScale: 1.0 },
-  PATTERN_FRAGMENTED_RECOVERY: { breathScale: 1.08, glowDim: 0.04, floatScale: 1.0 },
-}
 
 export function HeroMunk({ state, isReading = false, forecastReady = false, dominantPattern = null }: HeroMunkProps) {
   const key = state === 'GREEN' || state === 'YELLOW' || state === 'RED' ? state : 'NEUTRAL'
   const preset = PRESETS[key]
 
-  // Temporal smoothing — ramp intensity from 60% to 100% over 15s
-  const [intensity, setIntensity] = useState(0.6)
-  const intensityRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    setIntensity(0.6)
-    intensityRef.current = setTimeout(() => setIntensity(1.0), 15000)
-    return () => { if (intensityRef.current) clearTimeout(intensityRef.current) }
-  }, [state])
-
-  // Forecast acknowledgement state
   const [acknowledging, setAcknowledging] = useState(false)
   useEffect(() => {
     if (!forecastReady) return
@@ -69,44 +37,37 @@ export function HeroMunk({ state, isReading = false, forecastReady = false, domi
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [forecastReady])
 
-  // Pattern modifier
-  const mod = dominantPattern ? (PATTERN_MODIFIERS[dominantPattern] ?? null) : null
-
-  // Breathing parameters
-  const baseCycle = isReading ? 9 : 12
-  const breathCycle = mod ? baseCycle * mod.breathScale : baseCycle
-  const breathScalePeak = acknowledging ? 1.020 : 1.015
-
-  // Glow parameters
-  const glowOpacityMin = 0.88 * intensity
-  const glowOpacityMax = (acknowledging ? 1.10 : 1.00) * intensity - (mod?.glowDim ?? 0)
-  const brightnessPeak = acknowledging ? 110 : 107
-
-  // Float parameters
-  const floatIntensity = isReading ? 0.7 : 1.0
-  const floatMod = mod?.floatScale ?? 1.0
-  const floatPx = 2 * floatIntensity * floatMod
+  const breathCycle = isReading ? '9s' : '12s'
+  const breathPeak = acknowledging ? 1.025 : 1.015
+  const glowPeak = acknowledging ? 1.15 : 1.00
+  const glowMin = acknowledging ? 0.92 : 0.82
+  const brightnessPeak = acknowledging ? 130 : 115
+  const floatPx = isReading ? 1.4 : 2
 
   return (
     <>
       <style>{`
         @keyframes munkBreathe {
           0%   { transform: scale(1); }
-          37%  { transform: scale(${breathScalePeak}); }
-          45%  { transform: scale(${breathScalePeak}); }
+          37%  { transform: scale(${breathPeak}); }
+          46%  { transform: scale(${breathPeak}); }
           100% { transform: scale(1); }
         }
-
         @keyframes munkFloat {
           0%, 100% { transform: translateY(0px); }
           50%       { transform: translateY(-${floatPx}px); }
         }
-
         @keyframes munkGlow {
-          0%   { opacity: ${glowOpacityMin}; filter: blur(10px) brightness(100%); }
-          37%  { opacity: ${glowOpacityMax}; filter: blur(10px) brightness(${brightnessPeak}%); }
-          45%  { opacity: ${glowOpacityMax}; filter: blur(10px) brightness(${brightnessPeak}%); }
-          100% { opacity: ${glowOpacityMin}; filter: blur(10px) brightness(100%); }
+          0%   { opacity: ${glowMin};  filter: blur(18px) brightness(100%); }
+          37%  { opacity: ${glowPeak}; filter: blur(22px) brightness(${brightnessPeak}%); }
+          46%  { opacity: ${glowPeak}; filter: blur(22px) brightness(${brightnessPeak}%); }
+          100% { opacity: ${glowMin};  filter: blur(18px) brightness(100%); }
+        }
+        @keyframes munkGlowOuter {
+          0%   { opacity: 0.4; transform: translate(-50%, -50%) scale(1.0); }
+          37%  { opacity: 0.8; transform: translate(-50%, -50%) scale(1.12); }
+          46%  { opacity: 0.8; transform: translate(-50%, -50%) scale(1.12); }
+          100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.0); }
         }
       `}</style>
 
@@ -116,15 +77,26 @@ export function HeroMunk({ state, isReading = false, forecastReady = false, domi
         role="img"
         aria-label="Munk regulation presence"
       >
-        {/* Floating + breathing wrapper */}
+        {/* Outer ambient glow — large halo */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: '46%', left: '50%',
+            width: '220px', height: '220px',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${preset.glowColor2} 0%, transparent 70%)`,
+            animation: `munkGlowOuter ${breathCycle} ease-in-out infinite`,
+          }}
+        />
+
+        {/* Monk — floating + breathing */}
         <div
           style={{
             width: '95%',
             maxWidth: '660px',
             height: '100%',
             position: 'relative',
-            animation: `munkFloat ${13.5}s ease-in-out infinite, munkBreathe ${breathCycle}s ease-in-out infinite`,
-            transition: 'opacity 1.2s ease-in-out',
+            animation: `munkFloat 13.5s ease-in-out infinite, munkBreathe ${breathCycle} ease-in-out infinite`,
           }}
         >
           <Image
@@ -133,24 +105,21 @@ export function HeroMunk({ state, isReading = false, forecastReady = false, domi
             fill
             priority
             className="object-contain"
-            style={{
-              opacity: preset.opacityBase * intensity,
-              transition: 'opacity 1.2s ease-in-out',
-            }}
+            style={{ opacity: preset.opacity }}
           />
         </div>
 
-        {/* Chest glow */}
+        {/* Chest glow — inner core */}
         <div
           className="absolute pointer-events-none"
           style={{
-            top: '48%', left: '50%',
+            top: '47%', left: '50%',
             transform: 'translate(-50%, -50%)',
             width: preset.glowSize,
             height: preset.glowSize,
             borderRadius: '50%',
-            background: `radial-gradient(circle, ${preset.glowColor} 0%, transparent 70%)`,
-            animation: `munkGlow ${breathCycle}s ease-in-out infinite`,
+            background: `radial-gradient(circle, ${preset.glowColor} 0%, transparent 65%)`,
+            animation: `munkGlow ${breathCycle} ease-in-out infinite`,
           }}
         />
       </div>
