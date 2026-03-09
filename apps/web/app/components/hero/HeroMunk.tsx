@@ -52,7 +52,7 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
     const t3 = setTimeout(() => {
       setIntro('idle')
       onIdleReached?.()
-    }, 2200)
+    }, 3800)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
 
@@ -160,7 +160,7 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
             ? `translate(-50%, -50%) scale(${introScale})`
             : undefined,
           filter: 'blur(6px)',
-          transition: 'opacity 700ms ease-out, transform 1200ms ease-in-out',
+          transition: 'opacity 700ms ease-out, transform 2800ms ease-in-out',
           animation: inIntro ? 'none' : `${glowName} ${breathDur}s ease-in-out infinite`,
         }} />
       </div>
