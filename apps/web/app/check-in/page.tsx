@@ -73,7 +73,8 @@ export default function CheckInPage() {
   const todayKey = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   // Signals card only mounts when monk intro is done
-  const showSignalsCard = introPhase === "idle";
+  const showForecast = !!contract && introPhase === "idle";
+  const showSignalsCard = !!contract && introPhase === "idle";
 
   useEffect(() => {
     setDateLabel(
@@ -161,7 +162,7 @@ export default function CheckInPage() {
         )}
 
         {/* 3c. Forecast — fades in after monk sequence */}
-        {contractReady && (
+        {showForecast && (
           <div className="space-y-4" style={{
             opacity: 1,
             transform: 'translateY(0)',
