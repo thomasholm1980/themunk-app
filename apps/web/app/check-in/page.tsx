@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import ReflectionCard from "../components/ReflectionCard";
 import WeeklyStatePath from "../components/WeeklyStatePath";
-import LongitudinalPanel from "../components/LongitudinalPanel";
 import { HeroMunk } from "../components/hero/HeroMunk";
 import Forecast from "../components/Forecast";
 
@@ -13,12 +12,6 @@ const STATE_DOT: Record<string, string> = {
   GREEN:  "bg-emerald-500",
   YELLOW: "bg-yellow-400",
   RED:    "bg-red-500",
-};
-
-const STATE_BORDER: Record<string, string> = {
-  GREEN:  "border-emerald-700",
-  YELLOW: "border-yellow-700",
-  RED:    "border-red-800",
 };
 
 interface DecisionContract {
@@ -40,12 +33,6 @@ interface StateResponse {
 }
 
 export default function CheckInPage() {
-  const [energy, setEnergy] = useState(3);
-  const [mood,   setMood]   = useState(3);
-  const [stress, setStress] = useState(3);
-  const [notes,  setNotes]  = useState("");
-
-  const [status,    setStatus]    = useState<"idle" | "loading" | "done" | "error">("idle");
   const [contract,  setContract]  = useState<DecisionContract | null>(null);
   const [introIdle, setIntroIdle] = useState(false);
   const [apiError,  setApiError]  = useState(false);
@@ -63,7 +50,6 @@ export default function CheckInPage() {
   }, []);
 
   async function fetchState() {
-    const startTime = Date.now();
     try {
       const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
       if (!res.ok) { setApiError(true); return; }
@@ -79,26 +65,7 @@ export default function CheckInPage() {
 
   useEffect(() => { fetchState(); }, []);
 
-  async function submitLog() {
-    setStatus("loading");
-    try {
-      const logRes = await fetch("/api/logs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-id": USER_ID },
-        body: JSON.stringify({ energy, mood, stress, notes, day_key: todayKey }),
-      });
-      if (!logRes.ok) { setStatus("error"); return; }
-      await fetchState();
-      setStatus("done");
-    } catch {
-      setStatus("error");
-    }
-  }
-
-  const dotClass    = contract ? (STATE_DOT[contract.state]    ?? "bg-zinc-500") : "bg-zinc-500";
-  const borderClass = contract ? (STATE_BORDER[contract.state] ?? "border-zinc-700") : "border-zinc-700";
-
-  // Forecast shows after monk intro is done
+  const dotClass = contract ? (STATE_DOT[contract.state] ?? "bg-zinc-500") : "bg-zinc-500";
   const showForecast = !!contract && introIdle;
 
   return (
@@ -114,7 +81,7 @@ export default function CheckInPage() {
       <div className="w-full max-w-md">
         <HeroMunk
           state={contract?.state ?? null}
-          isReading={status === "loading"}
+          isReading={false}
           forecastReady={!!contract}
           dominantPattern={null}
           onIdleReached={() => setIntroIdle(true)}
@@ -137,7 +104,7 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {/* Forecast — fades in after monk intro */}
+        {/* Forecast — after monk intro */}
         {showForecast && (
           <div className="space-y-4" style={{ animation: 'fadeIn 1200ms ease-out both' }}>
             <style>{`@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }`}</style>
@@ -181,41 +148,9 @@ export default function CheckInPage() {
             <div className="pt-2 border-t border-zinc-400/30">
               <WeeklyStatePath />
             </div>
+
           </div>
         )}
-
-        {/* Signals — always below fold, no animation, mounts only after intro */}
-        {introIdle && (
-          <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
-            <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
-            {[
-              { label: "Sleep",  value: energy, set: setEnergy },
-              { label: "Mood",   value: mood,   set: setMood   },
-              { label: "Stress", value: stress, set: setStress },
-            ].map(({ label, value, set }) => (
-              <div key={label} className="space-y-1">
-                <div className="flex justify-between text-xs text-zinc-500">
-                  <span>{label}</span><span>{value} / 5</span>
-                </div>
-                <input type="range" min={1} max={5} value={value}
-                  onChange={e => set(Number(e.target.value))}
-                  className="w-full accent-yellow-400" />
-              </div>
-            ))}
-            <div className="space-y-1">
-              <p className="text-xs text-zinc-500">Notes (optional)</p>
-              <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
-                placeholder="Anything worth noting..."
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500" />
-            </div>
-            <button onClick={submitLog} disabled={status === "loading"}
-              className="w-full py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-sm tracking-widest uppercase text-zinc-300 transition-colors disabled:opacity-50">
-              {status === "loading" ? "Reading..." : "Send Inn"}
-            </button>
-          </div>
-        )}
-
-        {introIdle && <LongitudinalPanel />}
 
       </div>
     </main>
