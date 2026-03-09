@@ -96,7 +96,6 @@ export default function CheckInPage() {
       setApiError(true);
     }
   }
-  }
 
   useEffect(() => { fetchState(); }, []);
 
