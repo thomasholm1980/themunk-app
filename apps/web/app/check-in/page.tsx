@@ -99,6 +99,19 @@ export default function CheckInPage() {
 
   useEffect(() => { fetchState(); }, []);
 
+  useEffect(() => {
+    if (!contractReady) return;
+    const signalsEl = document.getElementById("signals-card");
+    if (!signalsEl) return;
+    const top = signalsEl.getBoundingClientRect().top + window.scrollY;
+    setTimeout(() => {
+      window.scrollTo({ top, behavior: "smooth" });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 1800);
+    }, 800);
+  }, [contractReady]);
+
 
   async function submitLog() {
     setStatus("loading");
@@ -216,7 +229,7 @@ export default function CheckInPage() {
         )}
 
         {contractReady && (
-        <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
+        <div id="signals-card" className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
             { label: "Sleep",  value: energy, set: setEnergy },
