@@ -108,8 +108,8 @@ export default function CheckInPage() {
       window.scrollTo({ top, behavior: "smooth" });
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }, 3000);
-    }, 6500);
+      }, 1800);
+    }, 7000);
   }, [contractReady]);
 
 
