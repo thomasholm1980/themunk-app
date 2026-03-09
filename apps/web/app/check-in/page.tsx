@@ -109,7 +109,7 @@ export default function CheckInPage() {
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }, 1800);
-    }, 800);
+    }, 1200);
   }, [contractReady]);
 
 
