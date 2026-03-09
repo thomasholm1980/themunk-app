@@ -18,7 +18,7 @@ interface DecisionContract {
   state:           "GREEN" | "YELLOW" | "RED";
   protocol_id:     "deep_work" | "balanced_day" | "recovery";
   forecast: { headline: string; line: string; };
-  guidance: { line: string; };
+  guidance: { line: string; pattern_context?: string | null };
   explanation: { primary_driver: string; secondary_driver: string; line: string; };
   windows: { deep_work: string | null; training: string | null; recovery: string | null; };
   confidence: number;
