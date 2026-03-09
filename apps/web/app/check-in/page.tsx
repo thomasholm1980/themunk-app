@@ -65,6 +65,7 @@ export default function CheckInPage() {
 
   const [status,    setStatus]    = useState<"idle" | "loading" | "done" | "error">("idle");
   const [contract,  setContract]  = useState<DecisionContract | null>(null);
+  const [contractReady, setContractReady] = useState(false);
   const [apiError,  setApiError]  = useState(false);
   const [showWhy,   setShowWhy]   = useState(false);
   const [dateLabel, setDateLabel] = useState("");
@@ -80,6 +81,7 @@ export default function CheckInPage() {
   }, []);
 
   async function fetchState() {
+    const fetchStart = Date.now();
     try {
       const res = await fetch("/api/state/today", {
         headers: { "x-user-id": USER_ID },
@@ -87,9 +89,14 @@ export default function CheckInPage() {
       if (!res.ok) { setApiError(true); return; }
       const json: StateResponse = await res.json();
       if (json.contract) {
-        setContract(json.contract);
-        setTimeout(() => window.scrollBy({ top: 64, behavior: "smooth" }), 1000)
-        setApiError(false);
+        const fetchTime = Date.now() - fetchStart;
+        const remaining = Math.max(0, 1500 - fetchTime);
+        setTimeout(() => {
+          setContract(json.contract);
+          setContractReady(true);
+          setApiError(false);
+          setTimeout(() => window.scrollBy({ top: 96, behavior: "smooth" }), 1200);
+        }, remaining);
       }
     } catch {
       setApiError(true);
@@ -153,8 +160,8 @@ export default function CheckInPage() {
         )}
 
         {/* 3c. Forecast — decision_v1 only */}
-        {contract && (
-          <div className="space-y-4">
+        {contractReady && (
+          <div className="space-y-4" style={{ opacity: contractReady ? 1 : 0, transform: contractReady ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 450ms ease-out, transform 450ms ease-out' }}>
 
             {/* Label */}
             <div className="flex items-center gap-2">
@@ -213,7 +220,7 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {contract && (
+        {contractReady && (
         <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
