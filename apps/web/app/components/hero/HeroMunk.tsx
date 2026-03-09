@@ -1,20 +1,21 @@
 'use client'
 
 /**
- * HeroMunk — Phase 21.5: Monk Arrival Intro
+ * HeroMunk — Phase 21.5 v3: 3-phase glow model
  *
- * Timing:
- *   0ms    — hidden
- *   100ms  — arriving (monk fades in, glow appears small)
- *   800ms  — settling (glow expands to 1.4)
- *   2200ms — idle (breathing loop begins, forecast visible)
+ * Phase 1 — expand:  0ms → 1200ms  (glow grows to peak)
+ * Phase 2 — settle:  1200ms → 4000ms (slow cubic-bezier return)
+ * Phase 3 — idle:    4000ms+ (breathing loop)
+ *
+ * Settle feels like a slow inhale return — not a UI effect.
+ * No snap-back. No flash. Scale only during settle.
  */
 
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 type RegulationState = 'GREEN' | 'YELLOW' | 'RED' | null
-type IntroStep = 'hidden' | 'arriving' | 'settling' | 'idle'
+type IntroStep = 'hidden' | 'expand' | 'settle' | 'idle'
 
 interface HeroMunkProps {
   state: RegulationState
@@ -47,12 +48,15 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
   const [intro, setIntro] = useState<IntroStep>('hidden')
 
   useEffect(() => {
-    const t1 = setTimeout(() => setIntro('arriving'),  100)
-    const t2 = setTimeout(() => setIntro('settling'),  800)
+    // Phase 1: expand starts immediately
+    const t1 = setTimeout(() => setIntro('expand'),  100)
+    // Phase 2: settle — slow return
+    const t2 = setTimeout(() => setIntro('settle'),  1200)
+    // Phase 3: idle breathing loop
     const t3 = setTimeout(() => {
       setIntro('idle')
       onIdleReached?.()
-    }, 3800)
+    }, 4200)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
 
@@ -68,12 +72,27 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
 
   const inIntro     = intro !== 'idle'
   const munkOpacity = intro === 'hidden' ? 0 : 1
-  const glowOpacity = intro === 'hidden' ? 0 : intro === 'arriving' ? 0.35 : config.glowOpacity
-  const introScale  =
-    intro === 'hidden'   ? 0.1 :
-    intro === 'arriving' ? 0.4 :
-    intro === 'settling' ? 1.2 :
-    null
+
+  // Glow scale per phase
+  const introScale =
+    intro === 'hidden' ? 0.05 :
+    intro === 'expand' ? 1.6  :
+    intro === 'settle' ? 1.0  :
+    null  // idle — hand off to CSS animation
+
+  // Opacity per phase — no flash
+  const glowOpacity =
+    intro === 'hidden' ? 0                  :
+    intro === 'expand' ? config.glowOpacity :
+    intro === 'settle' ? config.glowOpacity :
+    config.glowOpacity
+
+  // Transition per phase
+  const glowTransition =
+    intro === 'hidden' ? 'opacity 600ms ease-out, transform 600ms ease-out'          :
+    intro === 'expand' ? 'opacity 600ms ease-out, transform 1000ms ease-out'          :
+    intro === 'settle' ? 'opacity 400ms ease-out, transform 2800ms cubic-bezier(0.4, 0, 0.2, 1)' :
+    'none'
 
   return (
     <>
@@ -149,7 +168,7 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
           />
         </div>
 
-        {/* Chest glow */}
+        {/* Chest glow — scale only during intro */}
         <div className="absolute pointer-events-none" style={{
           top: '38%', left: '50%',
           width: '52px', height: '52px',
@@ -160,7 +179,7 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
             ? `translate(-50%, -50%) scale(${introScale})`
             : undefined,
           filter: 'blur(6px)',
-          transition: 'opacity 700ms ease-out, transform 2800ms ease-in-out',
+          transition: glowTransition,
           animation: inIntro ? 'none' : `${glowName} ${breathDur}s ease-in-out infinite`,
         }} />
       </div>
