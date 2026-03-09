@@ -81,7 +81,6 @@ export default function CheckInPage() {
   }, []);
 
   async function fetchState() {
-    const fetchStart = Date.now();
     try {
       const res = await fetch("/api/state/today", {
         headers: { "x-user-id": USER_ID },
@@ -89,28 +88,18 @@ export default function CheckInPage() {
       if (!res.ok) { setApiError(true); return; }
       const json: StateResponse = await res.json();
       if (json.contract) {
-        const fetchTime = Date.now() - fetchStart;
-        const remaining = Math.max(0, 3500 - fetchTime);
-        setTimeout(() => {
-          setContract(json.contract);
-          setApiError(false);
-        }, remaining);
-        setTimeout(() => {
-          setContractReady(true);
-        }, remaining + 800);
+        setContract(json.contract);
+        setApiError(false);
+        setTimeout(() => setContractReady(true), 50);
       }
     } catch {
       setApiError(true);
     }
   }
+  }
 
   useEffect(() => { fetchState(); }, []);
 
-  useEffect(() => {
-    if (!contractReady) return;
-    const t = setTimeout(() => window.scrollBy({ top: 96, behavior: "smooth" }), 2500);
-    return () => clearTimeout(t);
-  }, [contractReady]);
 
   async function submitLog() {
     setStatus("loading");
