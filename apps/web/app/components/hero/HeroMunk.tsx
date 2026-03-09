@@ -74,7 +74,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           opacity: haloOpacity,
           transform: `translate(-50%, -50%) scale(${haloScale})`,
           filter: 'blur(30px)',
-          transition: 'all 900ms ease-out',
+          transition: 'all 1800ms ease-in-out',
         }} />
 
         {/* Monk */}
@@ -96,7 +96,7 @@ export function HeroMunk({ state }: HeroMunkProps) {
           opacity: step === 'INTRO_FADE_IN' ? 0 : 1,
           transform: `translate(-50%, -50%) scale(${coreScale})`,
           filter: 'blur(8px)',
-          transition: isIntro ? 'all 900ms ease-out' : 'none',
+          transition: isIntro ? 'all 1800ms ease-in-out' : 'none',
           animation: step === 'IDLE' ? 'chestPulse 5s ease-in-out infinite' : 'none',
         }} />
       </div>
