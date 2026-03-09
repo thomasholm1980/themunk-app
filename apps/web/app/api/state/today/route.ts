@@ -3,6 +3,7 @@ import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { computePatterns } from '@themunk/core/state/pattern'
+import { computeStableState } from '@themunk/core/state/stability'
 import { buildReflectionWindow } from '@themunk/core/state/reflection-history'
 import { getPatternContext } from '@themunk/core/state/pattern-context'
 import { computePatternsV2 } from '@themunk/core/state/patterns-v2'
@@ -93,7 +94,7 @@ export async function GET() {
     const normalized = normalizeStateResult(raw)
 
     // 4. Build Decision Contract v1
-    const contract = buildDecisionContract(normalized.state, manualInput, null)
+    const contract = buildDecisionContract(stability.stable_state, manualInput, null)
 
     // 5. Compute patterns
     const pattern_engine = computePatterns(recentDays)
@@ -134,6 +135,14 @@ export async function GET() {
     // 9. Compute Pattern Engine v2
     const pattern_engine_v2 = computePatternsV2(historyEntries)
 
+    // Phase 19: stability layer
+    const yesterdayEntry = historyEntries.find(e => e.day_key !== dayKey) ?? null
+    const stability = computeStableState({
+      today_state:      normalized.state,
+      yesterday_state:  yesterdayEntry?.state ?? null,
+      dominant_pattern: pattern_engine_v2.dominant_pattern,
+    })
+
     // Phase 18: fetch reflection history for Pattern Engine (data layer only)
     const { data: reflectionRows } = await supabase
       .from('reflection_logs')
@@ -170,6 +179,7 @@ export async function GET() {
         day_key: dayKey,
         pattern_engine_v2,
         reflection_window,
+        stability,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
