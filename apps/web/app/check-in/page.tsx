@@ -99,9 +99,6 @@ export default function CheckInPage() {
 
   useEffect(() => { fetchState(); }, []);
 
-  useEffect(() => {
-
-
   async function submitLog() {
     setStatus("loading");
     try {
