@@ -116,6 +116,7 @@ export default function CheckInPage() {
               <Forecast
                 headline={contract!.forecast.headline}
                 interpretation={contract!.forecast.line}
+                patternContext={contract!.guidance.pattern_context}
                 contextLine={contract!.language_layer?.sentences?.[0]}
               />
             </div>

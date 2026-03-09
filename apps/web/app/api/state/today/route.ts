@@ -91,7 +91,7 @@ export async function GET() {
     const normalized = normalizeStateResult(raw)
 
     // 4. Build Decision Contract v1
-    const contract = buildDecisionContract(normalized.state, manualInput)
+    const contract = buildDecisionContract(normalized.state, manualInput, pattern_engine_v2.dominant_pattern)
 
     // 5. Compute patterns
     const pattern_engine = computePatterns(recentDays)
