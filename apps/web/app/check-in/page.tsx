@@ -100,17 +100,6 @@ export default function CheckInPage() {
   useEffect(() => { fetchState(); }, []);
 
   useEffect(() => {
-    if (!contractReady) return;
-    const signalsEl = document.getElementById("signals-card");
-    if (!signalsEl) return;
-    const top = signalsEl.getBoundingClientRect().top + window.scrollY;
-    setTimeout(() => {
-      window.scrollTo({ top, behavior: "smooth" });
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }, 1800);
-    }, 7000);
-  }, [contractReady]);
 
 
   async function submitLog() {
