@@ -217,7 +217,7 @@ export default function CheckInPage() {
           </div>
         )}
 
-        {contractReady && (
+        
         <div className={`border rounded-xl p-6 space-y-5 bg-zinc-900 ${borderClass}`}>
           <p className="text-xs tracking-[0.25em] uppercase text-zinc-500">Today&apos;s signals</p>
           {[
@@ -245,7 +245,6 @@ export default function CheckInPage() {
             {status === "loading" ? "Reading..." : "Send Inn"}
           </button>
         </div>
-        )}
 
         {/* 5. Longitudinal */}
         <LongitudinalPanel />
