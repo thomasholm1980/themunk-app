@@ -19,14 +19,13 @@ interface ForecastProps {
 
 export default function Forecast({ headline, interpretation, contextLine }: ForecastProps) {
   useEffect(() => {
-    // One-time micro scroll cue — reveals continuation below
-    const raf = requestAnimationFrame(() => {
+    const timer = setTimeout(() => {
       window.scrollBy({
-        top: 24,
+        top: 28,
         behavior: 'smooth',
       })
-    })
-    return () => cancelAnimationFrame(raf)
+    }, 400)
+    return () => clearTimeout(timer)
   }, [])
 
   return (
