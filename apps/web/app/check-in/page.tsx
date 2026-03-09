@@ -93,17 +93,25 @@ export default function CheckInPage() {
         const remaining = Math.max(0, 3500 - fetchTime);
         setTimeout(() => {
           setContract(json.contract);
-          setContractReady(true);
           setApiError(false);
-          setTimeout(() => window.scrollBy({ top: 96, behavior: "smooth" }), 2500);
         }, remaining);
+        setTimeout(() => {
+          setContractReady(true);
+        }, remaining + 800);
       }
     } catch {
       setApiError(true);
     }
   }
+  }
 
   useEffect(() => { fetchState(); }, []);
+
+  useEffect(() => {
+    if (!contractReady) return;
+    const t = setTimeout(() => window.scrollBy({ top: 96, behavior: "smooth" }), 2500);
+    return () => clearTimeout(t);
+  }, [contractReady]);
 
   async function submitLog() {
     setStatus("loading");
