@@ -3,6 +3,7 @@ import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { computePatterns } from '@themunk/core/state/pattern'
+import { buildReflectionWindow } from '@themunk/core/state/reflection-history'
 import { getPatternContext } from '@themunk/core/state/pattern-context'
 import { computePatternsV2 } from '@themunk/core/state/patterns-v2'
 import type { StateHistoryEntry } from '@themunk/core/state/patterns-v2'
@@ -133,6 +134,16 @@ export async function GET() {
     // 9. Compute Pattern Engine v2
     const pattern_engine_v2 = computePatternsV2(historyEntries)
 
+    // Phase 18: fetch reflection history for Pattern Engine (data layer only)
+    const { data: reflectionRows } = await supabase
+      .from('reflection_logs')
+      .select('day_key, energy, stress, focus, created_at')
+      .eq('user_id', '00000000-0000-0000-0000-000000000001')
+      .gte('day_key', sevenDaysAgoKey)
+      .order('day_key', { ascending: true })
+
+    const reflection_window = buildReflectionWindow(reflectionRows ?? [])
+
     // Phase 17: inject dominant pattern into contract guidance
     contract.guidance.pattern_context = getPatternContext(pattern_engine_v2.dominant_pattern)
 
@@ -158,6 +169,7 @@ export async function GET() {
         },
         day_key: dayKey,
         pattern_engine_v2,
+        reflection_window,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
