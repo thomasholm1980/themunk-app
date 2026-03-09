@@ -88,7 +88,7 @@ export default function CheckInPage() {
       const json: StateResponse = await res.json();
       if (json.contract) {
         setContract(json.contract);
-        setTimeout(() => window.scrollBy({ top: 28, behavior: "smooth" }), 600)
+        setTimeout(() => window.scrollBy({ top: 64, behavior: "smooth" }), 1000)
         setApiError(false);
       }
     } catch {
@@ -128,7 +128,12 @@ export default function CheckInPage() {
 
       {/* 2. Hero */}
       <div className="w-full max-w-md">
-        <HeroMunk state={contract?.state ?? null} />
+        <HeroMunk
+          state={contract?.state ?? null}
+          isReading={status === "loading"}
+          forecastReady={!!contract}
+          dominantPattern={null}
+        />
       </div>
 
       <div className="w-full max-w-md px-4 space-y-6 pb-16">
