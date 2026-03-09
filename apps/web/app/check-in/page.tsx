@@ -66,7 +66,7 @@ export default function CheckInPage() {
   const [contract,      setContract]      = useState<DecisionContract | null>(null);
   const [contractReady, setContractReady] = useState(false);
   const [introPhase,    setIntroPhase]    = useState<"running" | "idle">("running");
-  const [introComplete, setIntroComplete] = useState(false);
+  
   const [apiError,      setApiError]      = useState(false);
   const [showWhy,       setShowWhy]       = useState(false);
   const [dateLabel,     setDateLabel]     = useState("");
@@ -75,7 +75,7 @@ export default function CheckInPage() {
 
   // Signals card only mounts when monk intro is done
   const showForecast = !!contract && introPhase === "idle";
-  const showSignalsCard = !!contract && introPhase === "idle" && introComplete;
+  const showSignalsCard = !!contract && introPhase === "idle";
 
   useEffect(() => {
     setDateLabel(
@@ -142,7 +142,7 @@ export default function CheckInPage() {
           isReading={status === "loading"}
           forecastReady={!!contract}
           dominantPattern={null}
-          onIdleReached={() => { setIntroPhase("idle"); requestAnimationFrame(() => setIntroComplete(true)); }}
+          onIdleReached={() => { setIntroPhase("idle"); }}
         />
       </div>
 
