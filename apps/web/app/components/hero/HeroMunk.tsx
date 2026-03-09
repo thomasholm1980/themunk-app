@@ -3,14 +3,11 @@
 /**
  * HeroMunk — Phase 21.5: Monk Arrival Intro
  *
- * Intro sequence (~1.4s total):
- *   0ms    — Monk hidden
- *   0ms    — fade-in starts (600ms)
- *   400ms  — glow expands
- *   1000ms — glow settles into breathing loop
- *   1400ms — onIdleReached() → Forecast becomes visible
- *
- * After intro: state-driven breathing + glow loop (Phase 16).
+ * Timing:
+ *   0ms    — hidden
+ *   100ms  — arriving (monk fades in, glow appears small)
+ *   800ms  — settling (glow expands to 1.4)
+ *   2200ms — idle (breathing loop begins, forecast visible)
  */
 
 import Image from 'next/image'
@@ -50,34 +47,32 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
   const [intro, setIntro] = useState<IntroStep>('hidden')
 
   useEffect(() => {
-    const t1 = setTimeout(() => setIntro('arriving'),  0)
-    const t2 = setTimeout(() => setIntro('settling'),  400)
+    const t1 = setTimeout(() => setIntro('arriving'),  100)
+    const t2 = setTimeout(() => setIntro('settling'),  800)
     const t3 = setTimeout(() => {
       setIntro('idle')
       onIdleReached?.()
-    }, 1400)
+    }, 2200)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
 
   const key    = state ?? 'idle'
   const config = STATE_CONFIG[key]
   const colors = GLOW_COLOR[key]
-
   const breathDur = config.breathDuration
-  const inhaleP   = 35
-  const holdP     = 50
-
+  const inhaleP = 35
+  const holdP   = 50
   const animName = `breathe_${key}`
   const glowName = `glow_${key}`
   const haloName = `halo_${key}`
 
   const inIntro     = intro !== 'idle'
   const munkOpacity = intro === 'hidden' ? 0 : 1
-  const glowOpacity = intro === 'hidden' ? 0 : intro === 'arriving' ? 0.4 : config.glowOpacity
+  const glowOpacity = intro === 'hidden' ? 0 : intro === 'arriving' ? 0.35 : config.glowOpacity
   const introScale  =
     intro === 'hidden'   ? 0.1 :
-    intro === 'arriving' ? 0.5 :
-    intro === 'settling' ? 1.4 :
+    intro === 'arriving' ? 0.4 :
+    intro === 'settling' ? 1.2 :
     null
 
   return (
@@ -136,14 +131,14 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
           filter: 'blur(28px)',
           opacity: munkOpacity,
           animation: inIntro ? 'none' : `${haloName} ${breathDur}s ease-in-out infinite`,
-          transition: 'opacity 600ms ease-out',
+          transition: 'opacity 700ms ease-out',
         }} />
 
         {/* Monk image */}
         <div style={{
           width: '90%', maxWidth: '580px', height: '100%', position: 'relative',
           opacity: munkOpacity,
-          transition: 'opacity 600ms ease-out',
+          transition: 'opacity 700ms ease-out',
           animation: inIntro ? 'none' : `munkFloat 16s ease-in-out infinite, ${animName} ${breathDur}s ease-in-out infinite`,
         }}>
           <Image
@@ -165,7 +160,7 @@ export function HeroMunk({ state, onIdleReached }: HeroMunkProps) {
             ? `translate(-50%, -50%) scale(${introScale})`
             : undefined,
           filter: 'blur(6px)',
-          transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+          transition: 'opacity 700ms ease-out, transform 1200ms ease-in-out',
           animation: inIntro ? 'none' : `${glowName} ${breathDur}s ease-in-out infinite`,
         }} />
       </div>
