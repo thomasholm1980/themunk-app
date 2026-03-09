@@ -3,6 +3,7 @@ import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { buildDecisionContract } from '@themunk/core/state/decision'
 import { normalizeStateResult } from '@themunk/core/state/normalize'
 import { computePatterns } from '@themunk/core/state/pattern'
+import { getPatternContext } from '@themunk/core/state/pattern-context'
 import { computePatternsV2 } from '@themunk/core/state/patterns-v2'
 import type { StateHistoryEntry } from '@themunk/core/state/patterns-v2'
 import { computeLanguageLayer } from '@themunk/core/state/language'
@@ -91,7 +92,7 @@ export async function GET() {
     const normalized = normalizeStateResult(raw)
 
     // 4. Build Decision Contract v1
-    const contract = buildDecisionContract(normalized.state, manualInput, pattern_engine_v2.dominant_pattern)
+    const contract = buildDecisionContract(normalized.state, manualInput, null)
 
     // 5. Compute patterns
     const pattern_engine = computePatterns(recentDays)
@@ -131,6 +132,9 @@ export async function GET() {
 
     // 9. Compute Pattern Engine v2
     const pattern_engine_v2 = computePatternsV2(historyEntries)
+
+    // Phase 17: inject dominant pattern into contract guidance
+    contract.guidance.pattern_context = getPatternContext(pattern_engine_v2.dominant_pattern)
 
     if (upsertError) {
       console.error('[state/today] upsert error', { error: upsertError.message })
