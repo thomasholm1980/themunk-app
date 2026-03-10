@@ -78,13 +78,14 @@ export async function GET() {
       .from('daily_state')
       .upsert(
         {
+          user_id: 'thomas',
           day_key,
           state: result.state,
           score: result.final_score,
-          state_trace: result.rationale_code,
+          state_trace: { rationale_code: result.rationale_code },
           updated_at: new Date().toISOString(),
         },
-        { onConflict: 'day_key' }
+        { onConflict: 'user_id,day_key' }
       )
 
     if (upsertError) {
