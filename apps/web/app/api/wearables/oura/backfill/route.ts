@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { OuraAdapter } from '@themunk/core'
 import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
+import { makeOuraTokenStore } from '../../../../../lib/oura-token'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,16 +30,10 @@ function getOsloDayKeys(days: number): string[] {
 
 export async function POST() {
   const start = Date.now()
+  const tokenStore = makeOuraTokenStore()
 
   const adapter = new OuraAdapter({
-    getAccessToken: async (userId: string) => {
-      const { data } = await supabase
-        .from('oura_tokens')
-        .select('access_token')
-        .eq('user_id', userId)
-        .single()
-      return data?.access_token ?? null
-    },
+    getAccessToken: (userId) => tokenStore.getAccessTokenWithRefresh(userId),
   })
 
   const dayKeys = getOsloDayKeys(BACKFILL_DAYS)
