@@ -2,13 +2,8 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 function getOsloDayKey(date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-GB', {
@@ -53,20 +48,25 @@ export async function GET() {
     }
 
     const manualInput = manualLog
-      ? { energy: manualLog.energy, mood: manualLog.mood, stress: manualLog.stress, created_at: manualLog.created_at }
+      ? {
+          energy: manualLog.energy,
+          mood: manualLog.mood,
+          stress: manualLog.stress,
+          created_at: manualLog.created_at,
+        }
       : null
 
     const wearableInput = wearableLog
       ? {
           hrv: wearableLog.hrv_rmssd,
-          source: 'oura' as const,
-          day_key: day_key,
-          synced_at: wearableLog.synced_at ?? new Date().toISOString(),
           resting_hr: wearableLog.resting_hr,
           sleep_score: wearableLog.sleep_score,
           readiness_score: wearableLog.readiness_score,
           activity_score: wearableLog.activity_score,
           sleep_duration_minutes: wearableLog.sleep_duration_hours ? Math.round(wearableLog.sleep_duration_hours * 60) : null,
+          source: 'oura' as const,
+          day_key: day_key,
+          synced_at: wearableLog.synced_at ?? new Date().toISOString(),
         }
       : null
 
