@@ -32,12 +32,14 @@ export async function GET() {
       .from('manual_logs')
       .select('*')
       .eq('day_key', day_key)
+      .eq('user_id', 'thomas')
       .maybeSingle()
 
     const { data: wearableLog } = await supabase
       .from('wearable_logs')
       .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours, synced_at')
       .eq('day_key', day_key)
+      .eq('user_id', 'thomas')
       .maybeSingle()
 
     if (!manualLog && !wearableLog) {
