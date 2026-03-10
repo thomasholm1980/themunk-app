@@ -3,7 +3,7 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { computeStateV2 } from '../../../../../packages/core/state/compute-state-v2'
+import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
