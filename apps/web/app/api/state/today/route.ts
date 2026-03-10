@@ -3,28 +3,46 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { computeStateV2 } from '@the-munk/core/state/computeStateV2'
-import { toOsloDateKey } from '@the-munk/core/utils/dateUtils'
+import { computeStateV2 } from '@the-munk/core/state/compute-state-v2'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+function getOsloDayKey(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Oslo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+
+  const day = parts.find((p) => p.type === 'day')?.value
+  const month = parts.find((p) => p.type === 'month')?.value
+  const year = parts.find((p) => p.type === 'year')?.value
+
+  if (!year || !month || !day) {
+    throw new Error('Failed to generate Oslo day_key')
+  }
+
+  return `${year}-${month}-${day}`
+}
+
 export async function GET() {
   try {
-    const dayKey = toOsloDateKey(new Date())
+    const day_key = getOsloDayKey()
 
     const { data: manualLog } = await supabase
       .from('manual_logs')
       .select('*')
-      .eq('day_key', dayKey)
+      .eq('day_key', day_key)
       .maybeSingle()
 
     const { data: wearableLog } = await supabase
       .from('wearable_logs')
       .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours')
-      .eq('day_key', dayKey)
+      .eq('day_key', day_key)
       .maybeSingle()
 
     if (!manualLog && !wearableLog) {
@@ -55,7 +73,7 @@ export async function GET() {
       .from('daily_state')
       .upsert(
         {
-          day_key: dayKey,
+          day_key,
           state: result.state,
           score: result.score,
           state_trace: result.trace,
@@ -73,7 +91,7 @@ export async function GET() {
     }
 
     console.log('[state/today]', {
-      day_key: dayKey,
+      day_key,
       state: result.state,
       score: result.score,
       has_manual: !!manualInput,
