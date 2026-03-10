@@ -80,6 +80,8 @@ export async function GET() {
     const intervention = computeIntervention(result.state)
     const contract = buildDecisionContract(result, intervention)
 
+    const computed_at = new Date().toISOString()
+
     const { error: upsertError } = await supabase
       .from('daily_state')
       .upsert(
@@ -90,7 +92,12 @@ export async function GET() {
           confidence: result.confidence,
           final_score: result.final_score,
           state_trace: { rationale_code: result.rationale_code },
-          updated_at: new Date().toISOString(),
+          sleep_score: wearableLog?.sleep_score ?? null,
+          recovery_score: wearableLog?.readiness_score ?? null,
+          hrv: wearableLog?.hrv_rmssd ?? null,
+          rhr: wearableLog?.resting_hr ?? null,
+          computed_at,
+          updated_at: computed_at,
         },
         { onConflict: 'user_id,day_key' }
       )
@@ -108,8 +115,11 @@ export async function GET() {
       state: result.state,
       confidence: result.confidence,
       final_score: result.final_score,
-      has_manual: !!manualInput,
-      has_wearable: !!wearableInput,
+      sleep_score: wearableLog?.sleep_score,
+      readiness_score: wearableLog?.readiness_score,
+      hrv: wearableLog?.hrv_rmssd,
+      rhr: wearableLog?.resting_hr,
+      computed_at,
     })
 
     return NextResponse.json(
