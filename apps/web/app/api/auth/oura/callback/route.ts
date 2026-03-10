@@ -1,4 +1,3 @@
-// apps/web/app/api/auth/oura/callback/route.ts
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -56,6 +55,12 @@ export async function GET(req: NextRequest) {
   if (dbError) {
     return NextResponse.json({ error: 'Failed to store tokens', detail: dbError.message }, { status: 500 });
   }
+
+  // Fire-and-forget backfill — do not block redirect
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.themunk.ai'
+  fetch(`${baseUrl}/api/wearables/oura/backfill`, { method: 'POST' }).catch((err) => {
+    console.error('[callback] backfill trigger failed', err)
+  })
 
   return NextResponse.redirect('https://www.themunk.ai/?oura=connected');
 }
