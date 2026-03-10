@@ -58,12 +58,15 @@ export async function GET() {
 
     const wearableInput = wearableLog
       ? {
-          hrv_rmssd: wearableLog.hrv_rmssd,
+          hrv: wearableLog.hrv_rmssd,
+          source: 'oura' as const,
+          day_key: day_key,
+          synced_at: wearableLog.synced_at ?? new Date().toISOString(),
           resting_hr: wearableLog.resting_hr,
           sleep_score: wearableLog.sleep_score,
           readiness_score: wearableLog.readiness_score,
           activity_score: wearableLog.activity_score,
-          sleep_duration_hours: wearableLog.sleep_duration_hours,
+          sleep_duration_minutes: wearableLog.sleep_duration_hours ? Math.round(wearableLog.sleep_duration_hours * 60) : null,
         }
       : null
 
