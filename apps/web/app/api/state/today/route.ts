@@ -41,7 +41,7 @@ export async function GET() {
 
     const { data: wearableLog } = await supabase
       .from('wearable_logs')
-      .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours')
+      .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours, synced_at')
       .eq('day_key', day_key)
       .maybeSingle()
 
