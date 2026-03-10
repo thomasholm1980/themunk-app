@@ -53,7 +53,7 @@ export async function GET() {
     }
 
     const manualInput = manualLog
-      ? { energy: manualLog.energy, mood: manualLog.mood, stress: manualLog.stress }
+      ? { energy: manualLog.energy, mood: manualLog.mood, stress: manualLog.stress, created_at: manualLog.created_at }
       : null
 
     const wearableInput = wearableLog
