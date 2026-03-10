@@ -78,8 +78,8 @@ export async function GET() {
         {
           day_key,
           state: result.state,
-          score: result.score,
-          state_trace: result.trace,
+          score: result.final_score,
+          state_trace: result.rationale_code,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'day_key' }
@@ -96,13 +96,13 @@ export async function GET() {
     console.log('[state/today]', {
       day_key,
       state: result.state,
-      score: result.score,
+      score: result.final_score,
       has_manual: !!manualInput,
       has_wearable: !!wearableInput,
     })
 
     return NextResponse.json(
-      { state: result.state, score: result.score, trace: result.trace },
+      { state: result.state, score: result.final_score },
       { headers: { 'Cache-Control': 'no-store' } }
     )
   } catch (err) {
