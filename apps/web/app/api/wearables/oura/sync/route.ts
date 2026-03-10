@@ -102,3 +102,6 @@ export async function POST() {
     return NextResponse.json({ status: 'error', error: message }, { status: 500 })
   }
 }
+
+// Vercel cron calls GET
+export { POST as GET }
