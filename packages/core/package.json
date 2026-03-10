@@ -7,6 +7,8 @@
   "exports": {
     ".": "./index.ts",
     "./state/compute-state-v2": "./state/compute-state-v2.ts",
+    "./state/intervention": "./state/intervention.ts",
+    "./state/decision-contract": "./state/decision-contract.ts",
     "./state/decision": "./state/decision.ts",
     "./state/normalize": "./state/normalize.ts",
     "./state/pattern": "./state/pattern.ts",

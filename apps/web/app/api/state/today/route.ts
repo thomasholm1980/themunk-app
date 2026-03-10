@@ -4,6 +4,8 @@ export const revalidate = 0
 import { NextResponse } from 'next/server'
 import { supabase } from '../../../../lib/supabase'
 import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
+import { computeIntervention } from '@themunk/core/state/intervention'
+import { buildDecisionContract } from '@themunk/core/state/decision-contract'
 
 function getOsloDayKey(date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-GB', {
@@ -65,7 +67,9 @@ export async function GET() {
           sleep_score: wearableLog.sleep_score,
           readiness_score: wearableLog.readiness_score,
           activity_score: wearableLog.activity_score,
-          sleep_duration_minutes: wearableLog.sleep_duration_hours ? Math.round(wearableLog.sleep_duration_hours * 60) : null,
+          sleep_duration_minutes: wearableLog.sleep_duration_hours
+            ? Math.round(wearableLog.sleep_duration_hours * 60)
+            : null,
           source: 'oura' as const,
           day_key: day_key,
           synced_at: wearableLog.updated_at ?? new Date().toISOString(),
@@ -73,6 +77,8 @@ export async function GET() {
       : null
 
     const result = computeStateV2({ manualInput, wearableInput })
+    const intervention = computeIntervention(result.state)
+    const contract = buildDecisionContract(result, intervention)
 
     const { error: upsertError } = await supabase
       .from('daily_state')
@@ -100,15 +106,20 @@ export async function GET() {
     console.log('[state/today]', {
       day_key,
       state: result.state,
-          confidence: result.confidence,
+      confidence: result.confidence,
       final_score: result.final_score,
       has_manual: !!manualInput,
       has_wearable: !!wearableInput,
     })
 
     return NextResponse.json(
-      { state: result.state,
-          confidence: result.confidence, final_score: result.final_score },
+      {
+        state: result.state,
+        confidence: result.confidence,
+        final_score: result.final_score,
+        intervention,
+        contract,
+      },
       { headers: { 'Cache-Control': 'no-store' } }
     )
   } catch (err) {
