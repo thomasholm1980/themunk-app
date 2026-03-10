@@ -98,6 +98,7 @@ export async function GET() {
           rhr: wearableLog?.resting_hr ?? null,
           computed_at,
           updated_at: computed_at,
+          engine_version: 'compute_state_v2',
         },
         { onConflict: 'user_id,day_key' }
       )
