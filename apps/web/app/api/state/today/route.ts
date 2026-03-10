@@ -37,7 +37,7 @@ export async function GET() {
 
     const { data: wearableLog } = await supabase
       .from('wearable_logs')
-      .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours, synced_at')
+      .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours, updated_at')
       .eq('day_key', day_key)
       .eq('user_id', 'thomas')
       .maybeSingle()
@@ -68,7 +68,7 @@ export async function GET() {
           sleep_duration_minutes: wearableLog.sleep_duration_hours ? Math.round(wearableLog.sleep_duration_hours * 60) : null,
           source: 'oura' as const,
           day_key: day_key,
-          synced_at: wearableLog.synced_at ?? new Date().toISOString(),
+          synced_at: wearableLog.updated_at ?? new Date().toISOString(),
         }
       : null
 
