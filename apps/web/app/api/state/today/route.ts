@@ -1,210 +1,91 @@
-import { createClient } from '@supabase/supabase-js'
-import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
-import { buildDecisionContract } from '@themunk/core/state/decision'
-import { normalizeStateResult } from '@themunk/core/state/normalize'
-import { computePatterns } from '@themunk/core/state/pattern'
-import { buildSignalExplanation } from '@themunk/core/state/signal-explanation'
-import { computeStableState } from '@themunk/core/state/stability'
-import { buildReflectionWindow } from '@themunk/core/state/reflection-history'
-import { getPatternContext } from '@themunk/core/state/pattern-context'
-import { computePatternsV2 } from '@themunk/core/state/patterns-v2'
-import type { StateHistoryEntry } from '@themunk/core/state/patterns-v2'
-import { computeLanguageLayer } from '@themunk/core/state/language'
-import type { DaySignals } from '@themunk/core/state/pattern'
-import { NextResponse } from 'next/server'
-
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!url || !key) throw new Error('Supabase env vars missing')
-  return createClient(url, key)
-}
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { computeStateV2 } from '@the-munk/core/state/computeStateV2'
+import { toOsloDateKey } from '@the-munk/core/utils/dateUtils'
 
-function getOsloDateKey(): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Oslo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date())
-}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET() {
   try {
-    const supabase = getSupabase()
-    const userId = 'thomas'
-    const dayKey = getOsloDateKey()
+    const dayKey = toOsloDateKey(new Date())
 
-    // 1. Fetch today's log
-    const { data: log, error: logError } = await supabase
+    const { data: manualLog } = await supabase
       .from('manual_logs')
       .select('*')
-      .eq('user_id', userId)
       .eq('day_key', dayKey)
-      .order('created_at', { ascending: false })
-      .limit(1)
       .maybeSingle()
 
-    if (logError) {
-      console.error('[state/today] log fetch error', { error: logError.message })
+    const { data: wearableLog } = await supabase
+      .from('wearable_logs')
+      .select('hrv_rmssd, resting_hr, sleep_score, readiness_score, activity_score, sleep_duration_hours')
+      .eq('day_key', dayKey)
+      .maybeSingle()
+
+    if (!manualLog && !wearableLog) {
       return NextResponse.json(
-        { error: 'Failed to fetch log' },
-        { status: 500, headers: { 'Cache-Control': 'no-store' } }
+        { error: 'No data available for today' },
+        { status: 404, headers: { 'Cache-Control': 'no-store' } }
       )
     }
 
-    if (!log) {
-      return NextResponse.json(
-        { state: null, contract: null, pattern_engine: null, day_key: dayKey },
-        { headers: { 'Cache-Control': 'no-store' } }
-      )
-    }
+    const manualInput = manualLog
+      ? { energy: manualLog.energy, mood: manualLog.mood, stress: manualLog.stress }
+      : null
 
-    const manualInput = {
-      energy: log.energy ?? 3,
-      mood: log.mood ?? 3,
-      stress: log.stress ?? 3,
-      notes: log.notes ?? null,
-      created_at: log.created_at ?? new Date().toISOString(),
-    }
+    const wearableInput = wearableLog
+      ? {
+          hrv_rmssd: wearableLog.hrv_rmssd,
+          resting_hr: wearableLog.resting_hr,
+          sleep_score: wearableLog.sleep_score,
+          readiness_score: wearableLog.readiness_score,
+          activity_score: wearableLog.activity_score,
+          sleep_duration_hours: wearableLog.sleep_duration_hours,
+        }
+      : null
 
-    // 2. Fetch recent days for pattern engine (last 7 days)
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    const sevenDaysAgoKey = sevenDaysAgo.toISOString().slice(0, 10)
+    const result = computeStateV2({ manualInput, wearableInput })
 
-    const { data: recentLogs } = await supabase
-      .from('manual_logs')
-      .select('energy, mood, stress, day_key')
-      .eq('user_id', userId)
-      .gte('day_key', sevenDaysAgoKey)
-      .order('day_key', { ascending: true })
-
-    const recentDays: DaySignals[] = (recentLogs ?? []).map((r: DaySignals) => ({
-      energy: r.energy ?? 3,
-      mood: r.mood ?? 3,
-      stress: r.stress ?? 3,
-      day_key: r.day_key,
-    }))
-
-    // 3. Compute state
-    const raw = computeStateV2({ manualInput, wearableInput: null })
-    const normalized = normalizeStateResult(raw)
-
-    // 4. Build Decision Contract v1
-    const contract = buildDecisionContract(normalized.state, manualInput, null)
-
-    // 5. Compute patterns
-    const pattern_engine = computePatterns(recentDays)
-
-    // 6. Compute language layer
-    const language_layer = computeLanguageLayer(pattern_engine.pattern_codes)
-
-    // 7. Upsert to daily_state
     const { error: upsertError } = await supabase
       .from('daily_state')
       .upsert(
         {
-          user_id: userId,
           day_key: dayKey,
-          state: normalized.state,
-          state_trace: normalized.trace,
-          contract_version: 'decision_v1',
+          state: result.state,
+          score: result.score,
+          state_trace: result.trace,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: 'user_id,day_key' }
+        { onConflict: 'day_key' }
       )
-
-    // 8. Fetch daily_state history for Pattern Engine v2
-    const { data: stateHistory } = await supabase
-      .from('daily_state')
-      .select('day_key, state, sleep_score, recovery_score')
-      .eq('user_id', userId)
-      .order('day_key', { ascending: false })
-      .limit(7)
-
-    const historyEntries: StateHistoryEntry[] = (stateHistory ?? []).map((r: StateHistoryEntry) => ({
-      day_key: r.day_key,
-      state: r.state,
-      sleep_score: r.sleep_score ?? null,
-      recovery_score: r.recovery_score ?? null,
-    }))
-
-    // 9. Compute Pattern Engine v2
-    const pattern_engine_v2 = computePatternsV2(historyEntries)
-
-    // Phase 19: stability layer
-    const yesterdayEntry = historyEntries.find(e => e.day_key !== dayKey) ?? null
-    const stability = computeStableState({
-      today_state:      normalized.state,
-      yesterday_state:  yesterdayEntry?.state ?? null,
-      dominant_pattern: pattern_engine_v2.dominant_pattern,
-    })
-
-    // Phase 18: fetch reflection history for Pattern Engine (data layer only)
-    const { data: reflectionRows } = await supabase
-      .from('reflection_logs')
-      .select('day_key, energy, stress, focus, created_at')
-      .eq('user_id', '00000000-0000-0000-0000-000000000001')
-      .gte('day_key', sevenDaysAgoKey)
-      .order('day_key', { ascending: true })
-
-    const reflection_window = buildReflectionWindow(reflectionRows ?? [])
-
-    // Phase 19: apply stable_state to contract
-    contract.state = stability.stable_state
-    contract.protocol_id = stability.stable_state === 'GREEN' ? 'deep_work' : stability.stable_state === 'YELLOW' ? 'balanced_day' : 'recovery'
-
-    // Phase 20: build signal explanation for Why This Today?
-    const signal_explanation = buildSignalExplanation({
-      stable_state:     stability.stable_state,
-      dominant_pattern: pattern_engine_v2.dominant_pattern,
-      hints: {
-        sleep_reduced:   false,
-        hrv_low:         false,
-        resting_hr_high: false,
-        strain_elevated: stability.was_stabilized,
-      },
-    })
-
-    // Phase 17: inject dominant pattern into contract guidance
-    contract.guidance.pattern_context = getPatternContext(pattern_engine_v2.dominant_pattern)
 
     if (upsertError) {
       console.error('[state/today] upsert error', { error: upsertError.message })
+      return NextResponse.json(
+        { error: 'Failed to persist state' },
+        { status: 500, headers: { 'Cache-Control': 'no-store' } }
+      )
     }
 
-    console.info('[state/today] contract built', {
+    console.log('[state/today]', {
       day_key: dayKey,
-      state: contract.state,
-      protocol_id: contract.protocol_id,
-      confidence: contract.confidence,
-      pattern_codes: pattern_engine.pattern_codes,
+      state: result.state,
+      score: result.score,
+      has_manual: !!manualInput,
+      has_wearable: !!wearableInput,
     })
 
     return NextResponse.json(
-      {
-        state: normalized.state,
-        contract: {
-          ...contract,
-          pattern_engine,
-          language_layer,
-        },
-        day_key: dayKey,
-        pattern_engine_v2,
-        reflection_window,
-        stability,
-        signal_explanation,
-      },
+      { state: result.state, score: result.score, trace: result.trace },
       { headers: { 'Cache-Control': 'no-store' } }
     )
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    const stack = err instanceof Error ? err.stack : undefined
-    console.error('[state/today] unexpected error', { message, stack })
+    console.error('[state/today] unexpected error', err)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500, headers: { 'Cache-Control': 'no-store' } }
