@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '../../../../lib/supabase'
 import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 
 function getOsloDayKey(date = new Date()): string {
