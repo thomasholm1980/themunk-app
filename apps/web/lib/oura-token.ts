@@ -1,11 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 async function refreshAccessToken(userId: string): Promise<string | null> {
+  const supabase = getServiceClient()
+
   const { data } = await supabase
     .from('oura_tokens')
     .select('refresh_token')
@@ -47,6 +51,7 @@ async function refreshAccessToken(userId: string): Promise<string | null> {
 export function makeOuraTokenStore() {
   return {
     getAccessToken: async (userId: string): Promise<string | null> => {
+      const supabase = getServiceClient()
       const { data } = await supabase
         .from('oura_tokens')
         .select('access_token')
@@ -56,6 +61,7 @@ export function makeOuraTokenStore() {
     },
 
     getAccessTokenWithRefresh: async (userId: string): Promise<string | null> => {
+      const supabase = getServiceClient()
       const { data } = await supabase
         .from('oura_tokens')
         .select('access_token')
@@ -64,7 +70,6 @@ export function makeOuraTokenStore() {
 
       if (!data?.access_token) return null
 
-      // Test token with a lightweight endpoint
       const testRes = await fetch(
         'https://api.ouraring.com/v2/usercollection/personal_info',
         { headers: { Authorization: `Bearer ${data.access_token}` } }
