@@ -36,6 +36,8 @@ export async function POST() {
   console.log(`[backfill] days=${BACKFILL_DAYS}`)
   console.log(`[env] has_supabase_url=${!!process.env.NEXT_PUBLIC_SUPABASE_URL}`)
   console.log(`[env] has_service_role_key=${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`)
+  console.log(`[env] has_oura_client_id=${!!process.env.OURA_CLIENT_ID}`)
+  console.log(`[env] has_oura_client_secret=${!!process.env.OURA_CLIENT_SECRET}`)
 
   const supabase = getServiceClient()
   const start = Date.now()
