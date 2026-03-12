@@ -10,6 +10,33 @@ function getPrevDayKey(dayKey: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+type SleepSession = {
+  type?: string;
+  bedtime_start?: string;
+  bedtime_end?: string;
+  total_sleep_duration?: number;
+  lowest_heart_rate?: number;
+  average_hrv?: number;
+};
+
+function selectCanonicalSession(sessions: SleepSession[]): SleepSession | null {
+  if (sessions.length === 0) return null;
+
+  // Prefer long_sleep type first, then sort by duration descending, tie-break by latest bedtime_end
+  const candidates = [...sessions].sort((a, b) => {
+    const aIsLong = a.type === 'long_sleep' ? 1 : 0;
+    const bIsLong = b.type === 'long_sleep' ? 1 : 0;
+    if (bIsLong !== aIsLong) return bIsLong - aIsLong;
+
+    const durDiff = (b.total_sleep_duration ?? 0) - (a.total_sleep_duration ?? 0);
+    if (durDiff !== 0) return durDiff;
+
+    return (b.bedtime_end ?? '').localeCompare(a.bedtime_end ?? '');
+  });
+
+  return candidates[0] ?? null;
+}
+
 export class OuraAdapter implements WearableAdapter {
   readonly source = 'oura';
 
@@ -34,28 +61,17 @@ export class OuraAdapter implements WearableAdapter {
     console.log('[OuraAdapter] http_status:', sleepRawRes.status);
 
     const sleepRes = await sleepRawRes.json();
-    const allSessions: Array<{
-      type?: string;
-      bedtime_start?: string;
-      bedtime_end?: string;
-      total_sleep_duration?: number;
-      lowest_heart_rate?: number;
-      average_hrv?: number;
-    }> = sleepRes?.data ?? [];
+    const allSessions: SleepSession[] = sleepRes?.data ?? [];
 
     console.log('[OuraAdapter] sessions_returned:', allSessions.length);
-    if (allSessions.length === 0) {
-      console.log('[OuraAdapter] sessions_returned: 0');
-    } else {
-      allSessions.forEach((s, i) => {
-        console.log(`[OuraAdapter] session ${i}:`, {
-          start_time: s.bedtime_start ?? 'unknown',
-          end_time: s.bedtime_end ?? 'unknown',
-          type: s.type ?? 'unknown',
-          duration_s: s.total_sleep_duration ?? null,
-        });
+    allSessions.forEach((s, i) => {
+      console.log(`[OuraAdapter] session ${i}:`, {
+        type: s.type ?? 'unknown',
+        start_time: s.bedtime_start ?? 'unknown',
+        end_time: s.bedtime_end ?? 'unknown',
+        duration_s: s.total_sleep_duration ?? null,
       });
-    }
+    });
 
     const [readinessRes, dailySleepRes, activityRes] = await Promise.all([
       fetch(`https://api.ouraring.com/v2/usercollection/daily_readiness?start_date=${dayKey}&end_date=${dayKey}`, { headers }).then(r => r.json()),
@@ -67,18 +83,15 @@ export class OuraAdapter implements WearableAdapter {
     const dailySleep = dailySleepRes?.data?.[0];
     const activity = activityRes?.data?.[0];
 
-    const canonicalSession = allSessions
-      .filter(s =>
-        s.type !== 'rest' &&
-        typeof s.bedtime_end === 'string' &&
-        s.bedtime_end.startsWith(dayKey)
-      )
-      .sort((a, b) => (b.total_sleep_duration ?? 0) - (a.total_sleep_duration ?? 0))[0] ?? null;
+    const canonicalSession = selectCanonicalSession(allSessions);
 
     console.log('[OuraAdapter] canonical_session:', canonicalSession ? {
+      type: canonicalSession.type,
       start_time: canonicalSession.bedtime_start,
       end_time: canonicalSession.bedtime_end,
       duration_s: canonicalSession.total_sleep_duration,
+      has_hrv: canonicalSession.average_hrv != null,
+      has_rhr: canonicalSession.lowest_heart_rate != null,
     } : 'none');
 
     if (!readiness && !dailySleep && !canonicalSession) {
