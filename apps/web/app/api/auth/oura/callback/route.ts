@@ -4,10 +4,12 @@ export const revalidate = 0;
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -41,6 +43,8 @@ export async function GET(req: NextRequest) {
 
   const tokens = await tokenRes.json() as Record<string, string>;
 
+  const supabase = getServiceClient();
+
   const { error: dbError } = await supabase
     .from('oura_tokens')
     .upsert({
@@ -55,6 +59,8 @@ export async function GET(req: NextRequest) {
   if (dbError) {
     return NextResponse.json({ error: 'Failed to store tokens', detail: dbError.message }, { status: 500 });
   }
+
+  console.log('[callback] token stored successfully for user=thomas');
 
   // Fire-and-forget backfill — do not block redirect
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.themunk.ai'
