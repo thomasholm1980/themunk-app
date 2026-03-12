@@ -31,9 +31,22 @@ function getOsloDayKeys(days: number): string[] {
 }
 
 export async function POST() {
+  console.log('[backfill] start')
+  console.log('[backfill] user_id=thomas')
+  console.log(`[backfill] days=${BACKFILL_DAYS}`)
+  console.log(`[env] has_supabase_url=${!!process.env.NEXT_PUBLIC_SUPABASE_URL}`)
+  console.log(`[env] has_service_role_key=${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`)
+
   const supabase = getServiceClient()
   const start = Date.now()
+
+  console.log('[backfill] creating token store')
   const tokenStore = makeOuraTokenStore()
+  console.log('[backfill] token store created=true')
+
+  console.log('[backfill] reading token for user=thomas')
+  const tokenCheck = await tokenStore.getAccessTokenWithRefresh(USER_ID).catch(() => null)
+  console.log(`[backfill] token found=${!!tokenCheck}`)
 
   const adapter = new OuraAdapter({
     getAccessToken: (userId) => tokenStore.getAccessTokenWithRefresh(userId),
@@ -44,7 +57,12 @@ export async function POST() {
 
   for (const day_key of dayKeys) {
     try {
+      console.log(`[backfill] processing day=${day_key}`)
+      console.log('[backfill] calling OuraAdapter')
+
       const data = await adapter.fetchDay(USER_ID, day_key)
+
+      console.log(`[backfill] adapter returned has_data=${!!data}`)
 
       if (!data) {
         results.push({ day_key, status: 'no_data' })
