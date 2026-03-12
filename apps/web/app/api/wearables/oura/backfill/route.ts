@@ -7,10 +7,12 @@ import { OuraAdapter } from '@themunk/core'
 import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { makeOuraTokenStore } from '../../../../../lib/oura-token'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 const USER_ID = 'thomas'
 const BACKFILL_DAYS = 7
@@ -29,6 +31,7 @@ function getOsloDayKeys(days: number): string[] {
 }
 
 export async function POST() {
+  const supabase = getServiceClient()
   const start = Date.now()
   const tokenStore = makeOuraTokenStore()
 
