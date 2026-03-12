@@ -41,7 +41,7 @@ export class OuraAdapter implements WearableAdapter {
       : null;
 
     const hrValues = sleepSessions
-      .map((s: { average_heart_rate?: number }) => s.average_heart_rate)
+      .map((s: { lowest_heart_rate?: number }) => s.lowest_heart_rate)
       .filter((v: unknown): v is number => typeof v === 'number' && v > 0);
     const resting_hr = hrValues.length > 0
       ? Math.round(hrValues.reduce((a: number, b: number) => a + b, 0) / hrValues.length)
