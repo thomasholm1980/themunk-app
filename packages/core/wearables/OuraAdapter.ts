@@ -4,6 +4,12 @@ interface OuraTokenStore {
   getAccessToken(userId: string): Promise<string | null>;
 }
 
+function getPrevDayKey(dayKey: string): string {
+  const d = new Date(dayKey + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 export class OuraAdapter implements WearableAdapter {
   readonly source = 'oura';
 
@@ -14,44 +20,48 @@ export class OuraAdapter implements WearableAdapter {
     if (!accessToken) return null;
 
     const headers = { Authorization: `Bearer ${accessToken}` };
+    const prevDayKey = getPrevDayKey(dayKey);
 
     const [readinessRes, dailySleepRes, sleepRes, activityRes] = await Promise.all([
       fetch(`https://api.ouraring.com/v2/usercollection/daily_readiness?start_date=${dayKey}&end_date=${dayKey}`, { headers }).then(r => r.json()),
       fetch(`https://api.ouraring.com/v2/usercollection/daily_sleep?start_date=${dayKey}&end_date=${dayKey}`, { headers }).then(r => r.json()),
-      fetch(`https://api.ouraring.com/v2/usercollection/sleep?start_date=${dayKey}&end_date=${dayKey}`, { headers }).then(r => r.json()),
+      fetch(`https://api.ouraring.com/v2/usercollection/sleep?start_date=${prevDayKey}&end_date=${dayKey}`, { headers }).then(r => r.json()),
       fetch(`https://api.ouraring.com/v2/usercollection/daily_activity?start_date=${dayKey}&end_date=${dayKey}`, { headers }).then(r => r.json()),
     ]);
 
     const readiness = readinessRes?.data?.[0];
     const dailySleep = dailySleepRes?.data?.[0];
-    const sleepSessions = sleepRes?.data ?? [];
     const activity = activityRes?.data?.[0];
 
-    if (!readiness && !dailySleep) return null;
+    const allSessions: Array<{
+      type?: string;
+      bedtime_end?: string;
+      total_sleep_duration?: number;
+      lowest_heart_rate?: number;
+      average_hrv?: number;
+    }> = sleepRes?.data ?? [];
 
-    const totalSleepSeconds = sleepSessions
-      .filter((s: { type?: string }) => s.type !== 'rest')
-      .reduce((sum: number, s: { total_sleep_duration?: number }) => sum + (s.total_sleep_duration ?? 0), 0);
-    const sleep_duration_minutes = totalSleepSeconds > 0
-      ? Math.round(totalSleepSeconds / 60)
+    // Canonical session: longest primary overnight session ending on dayKey
+    const canonicalSession = allSessions
+      .filter(s =>
+        s.type !== 'rest' &&
+        typeof s.bedtime_end === 'string' &&
+        s.bedtime_end.startsWith(dayKey)
+      )
+      .sort((a, b) => (b.total_sleep_duration ?? 0) - (a.total_sleep_duration ?? 0))[0] ?? null;
+
+    if (!readiness && !dailySleep && !canonicalSession) return null;
+
+    const sleep_duration_hours = canonicalSession?.total_sleep_duration
+      ? Math.round((canonicalSession.total_sleep_duration / 3600) * 10) / 10
       : null;
 
-    const sleep_duration_hours = sleep_duration_minutes
-      ? Math.round((sleep_duration_minutes / 60) * 10) / 10
+    const resting_hr = typeof canonicalSession?.lowest_heart_rate === 'number' && canonicalSession.lowest_heart_rate > 0
+      ? canonicalSession.lowest_heart_rate
       : null;
 
-    const hrValues = sleepSessions
-      .map((s: { lowest_heart_rate?: number }) => s.lowest_heart_rate)
-      .filter((v: unknown): v is number => typeof v === 'number' && v > 0);
-    const resting_hr = hrValues.length > 0
-      ? Math.round(hrValues.reduce((a: number, b: number) => a + b, 0) / hrValues.length)
-      : null;
-
-    const hrvValues = sleepSessions
-      .map((s: { average_hrv?: number }) => s.average_hrv)
-      .filter((v: unknown): v is number => typeof v === 'number' && v > 0);
-    const hrv_rmssd = hrvValues.length > 0
-      ? Math.round(hrvValues.reduce((a: number, b: number) => a + b, 0) / hrvValues.length)
+    const hrv_rmssd = typeof canonicalSession?.average_hrv === 'number' && canonicalSession.average_hrv > 0
+      ? Math.round(canonicalSession.average_hrv)
       : null;
 
     return {
@@ -66,7 +76,8 @@ export class OuraAdapter implements WearableAdapter {
       raw_snapshot: {
         readiness,
         sleep: dailySleep,
-        sleep_sessions: sleepSessions,
+        sleep_sessions: allSessions,
+        canonical_session: canonicalSession,
         activity,
       },
       source: this.source,
