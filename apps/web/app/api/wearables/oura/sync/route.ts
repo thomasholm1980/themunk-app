@@ -6,10 +6,12 @@ import { createClient } from '@supabase/supabase-js'
 import { OuraAdapter } from '@themunk/core'
 import { makeOuraTokenStore } from '../../../../../lib/oura-token'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 const WEARABLES_ENABLED = process.env.WEARABLES_ENABLED === 'true'
 const USER_ID = 'thomas'
@@ -28,6 +30,7 @@ export async function POST() {
     )
   }
 
+  const supabase = getServiceClient()
   const start = Date.now()
   const dayKey = todayOslo()
   const tokenStore = makeOuraTokenStore()
@@ -89,7 +92,7 @@ export async function POST() {
     const latency = Date.now() - start
     const message = err instanceof Error ? err.message : 'unknown'
 
-    await supabase.from('wearable_sync_events').insert({
+    await getServiceClient().from('wearable_sync_events').insert({
       user_id: USER_ID,
       day_key: dayKey,
       source: adapter.source,
