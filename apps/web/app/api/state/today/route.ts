@@ -66,6 +66,9 @@ export async function GET() {
       confidence,
       final_score: data.final_score,
       rationale_code: data.state_trace?.rationale_code ?? 'wearable_only',
+      manual_score: null,
+      wearable_score: data.final_score,
+      disagreement_flag: false,
       inputs_used: { manual: false, wearable: true },
       signal_flags: [],
     }
