@@ -75,8 +75,8 @@ export default function CheckInPage() {
 
       {/* Header */}
       <div className="w-full max-w-md text-center pt-10 pb-2 px-4 space-y-1">
-        <p className="text-xs tracking-[0.3em] uppercase text-zinc-500 font-mono">The Munk</p>
-        <p className="text-xs text-zinc-500 font-mono capitalize">{dateLabel}</p>
+        <p className="text-xs tracking-[0.3em] uppercase font-mono" style={{ color: "#6B6B6B" }}>The Munk</p>
+        <p className="text-xs font-mono capitalize" style={{ color: "#5A5A5A" }}>{dateLabel}</p>
       </div>
 
       {/* Monk */}
@@ -93,13 +93,13 @@ export default function CheckInPage() {
       <div className="w-full max-w-md px-4 pb-16 space-y-0">
 
         {apiError && (
-          <div className="text-sm text-zinc-500 text-center py-4">
+          <div className="text-sm text-center py-4" style={{ color: "#6B6B6B" }}>
             Could not load today&apos;s forecast. Try again shortly.
           </div>
         )}
 
         {!contract && !apiError && (
-          <div className="text-sm text-zinc-400 text-center py-4 animate-pulse font-mono text-xs tracking-widest uppercase">
+          <div className="text-center py-4 animate-pulse font-mono text-xs tracking-widest uppercase" style={{ color: "#6B6B6B" }}>
             Reading signals...
           </div>
         )}
@@ -111,7 +111,7 @@ export default function CheckInPage() {
             <div className="py-5">
               <div className="flex items-center gap-2 mb-3">
                 <span className={`w-2 h-2 rounded-full ${dotClass}`} />
-                <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 font-mono">Munk Forecast</p>
+                <p className="text-xs tracking-[0.25em] uppercase font-mono" style={{ color: "#2C2C2C" }}>Munk Forecast</p>
               </div>
               <Forecast
                 headline={contract!.forecast.headline}
@@ -124,27 +124,27 @@ export default function CheckInPage() {
             {/* 2. Explanation — Why This Today */}
             {explanation && (
               <div className="py-5">
-                <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 font-mono mb-2">Why This Today?</p>
-                <p className="text-sm text-zinc-700 leading-relaxed">{explanation.line_1}</p>
+                <p className="text-xs tracking-[0.25em] uppercase font-mono mb-2" style={{ color: "#2C2C2C" }}>Why This Today?</p>
+                <p className="text-sm leading-relaxed" style={{ color: "#3F3F3F" }}>{explanation.line_1}</p>
                 {explanation.line_2 && (
-                  <p className="text-sm text-zinc-600 leading-relaxed mt-1">{explanation.line_2}</p>
+                  <p className="text-sm leading-relaxed mt-1" style={{ color: "#3F3F3F" }}>{explanation.line_2}</p>
                 )}
               </div>
             )}
 
             {/* 3. Guidance */}
             <div className="py-5">
-              <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 font-mono mb-2">Guidance</p>
-              <p className="text-sm text-zinc-800 leading-relaxed">{contract!.guidance.line}</p>
+              <p className="text-xs tracking-[0.25em] uppercase font-mono mb-2" style={{ color: "#2C2C2C" }}>Guidance</p>
+              <p className="text-sm leading-relaxed" style={{ color: "#3F3F3F" }}>{contract!.guidance.line}</p>
             </div>
 
             {/* 4. Reflection */}
-            <div className="py-5">
+            <div className="py-5 mt-3">
               <ReflectionCard dayKey={todayKey} />
             </div>
 
-            {/* 5. Weekly State Path / Signals */}
-            <div className="py-5">
+            {/* 5. Weekly State Path */}
+            <div className="py-5 mt-2">
               <WeeklyStatePath />
             </div>
 
