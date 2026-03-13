@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import ReflectionCard from "../components/ReflectionCard";
+import ContextCard from "../components/ContextCard";
 import WeeklyStatePath from "../components/WeeklyStatePath";
 import { HeroMunk } from "../components/hero/HeroMunk";
 import Forecast from "../components/Forecast";
@@ -136,6 +137,11 @@ export default function CheckInPage() {
             <div className="py-5">
               <p className="text-xs tracking-[0.25em] uppercase font-mono mb-2" style={{ color: "#2C2C2C" }}>Guidance</p>
               <p className="text-sm leading-relaxed" style={{ color: "#3F3F3F" }}>{contract!.guidance.line}</p>
+            </div>
+
+            {/* 3b. Context */}
+            <div className="py-5">
+              <ContextCard dayKey={todayKey} />
             </div>
 
             {/* 4. Reflection */}
