@@ -3,6 +3,9 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { computeIntervention } from '@themunk/core/state/intervention'
+import { buildDecisionContract } from '@themunk/core/state/decision-contract'
+import type { ComputeStateV2Result } from '@themunk/core/state/types'
 
 function getServiceClient() {
   return createClient(
@@ -54,25 +57,42 @@ export async function GET() {
       )
     }
 
+    const state = data.state as 'GREEN' | 'YELLOW' | 'RED'
+    const confidence = data.confidence as 'HIGH' | 'MEDIUM' | 'LOW'
+
+    // Reconstruct minimal ComputeStateV2Result for contract building
+    const result: ComputeStateV2Result = {
+      state,
+      confidence,
+      final_score: data.final_score,
+      rationale_code: data.state_trace?.rationale_code ?? 'wearable_only',
+      inputs_used: { manual: false, wearable: true },
+      signal_flags: [],
+    }
+
+    const intervention = computeIntervention(state)
+    const contract     = buildDecisionContract(result, intervention)
+
     console.log('[state/today] serving from daily_state', {
       day_key: data.day_key,
-      state:   data.state,
-      confidence: data.confidence,
+      state,
+      confidence,
       final_score: data.final_score,
     })
 
     return NextResponse.json(
       {
-        state:       data.state,
-        confidence:  data.confidence,
+        state,
+        confidence,
         final_score: data.final_score,
         day_key:     data.day_key,
-        hrv:         data.hrv,
-        rhr:         data.rhr,
+        hrv_rmssd:   data.hrv,
+        resting_hr:  data.rhr,
         sleep_score: data.sleep_score,
         readiness_score: data.recovery_score,
         computed_at: data.computed_at,
-        updated_at:  data.updated_at,
+        contract,
+        intervention,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
