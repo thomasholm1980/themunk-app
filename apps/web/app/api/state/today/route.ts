@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { computeIntervention } from '@themunk/core/state/intervention'
 import { buildDecisionContract } from '@themunk/core/state/decision-contract'
-import type { ComputeStateV2Result } from '@themunk/core/state/compute-state-v2'
+import type { ComputeStateV2Result } from '@themunk/core'
 
 function getServiceClient() {
   return createClient(
