@@ -97,7 +97,7 @@ export async function POST() {
 
     const result = computeStateV2({ manualInput: null, wearableInput })
 
-    await supabase
+    const { error: stateError } = await supabase
       .from('daily_state')
       .upsert(
         {
@@ -116,6 +116,30 @@ export async function POST() {
         },
         { onConflict: 'user_id,day_key' }
       )
+
+    if (stateError) {
+      console.error('[sync] daily_state write failed', stateError.message)
+      return NextResponse.json(
+        { status: 'error', error: 'daily_state write failed', detail: stateError.message },
+        { status: 500 }
+      )
+    }
+
+    // Self-verify: confirm daily_state row exists
+    const { data: verify } = await supabase
+      .from('daily_state')
+      .select('state, confidence, final_score')
+      .eq('user_id', USER_ID)
+      .eq('day_key', dayKey)
+      .maybeSingle()
+
+    if (!verify) {
+      console.error('[sync] self-verify failed: daily_state row missing after upsert')
+      return NextResponse.json(
+        { status: 'error', error: 'self_verify_failed', detail: 'daily_state row missing after upsert' },
+        { status: 500 }
+      )
+    }
 
     const latency = Date.now() - start
 
@@ -136,6 +160,7 @@ export async function POST() {
       state: result.state,
       confidence: result.confidence,
       final_score: result.final_score,
+      state_verified: true,
       latency_ms: latency,
     })
 
