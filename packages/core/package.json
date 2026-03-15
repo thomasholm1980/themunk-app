@@ -19,6 +19,7 @@
     "./state/pattern-context": "./state/pattern-context.ts",
     "./state/reflection-history": "./state/reflection-history.ts",
     "./state/stability": "./state/stability.ts",
-    "./state/signal-explanation": "./state/signal-explanation.ts"
+    "./state/signal-explanation": "./state/signal-explanation.ts",
+    "./state/guidance-engine": "./state/guidance-engine.ts"
   }
 }

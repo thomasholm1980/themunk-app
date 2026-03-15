@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { computeIntervention } from '@themunk/core/state/intervention'
 import { buildDecisionContract } from '@themunk/core/state/decision-contract'
+import { guidanceEngineV1 } from '@themunk/core/state/guidance-engine'
 import type { ComputeStateV2Result } from '@themunk/core'
 
 function getServiceClient() {
@@ -60,7 +61,6 @@ export async function GET() {
     const state = data.state as 'GREEN' | 'YELLOW' | 'RED'
     const confidence = data.confidence as 'HIGH' | 'MEDIUM' | 'LOW'
 
-    // Reconstruct minimal ComputeStateV2Result for contract building
     const result: ComputeStateV2Result = {
       state,
       confidence,
@@ -75,6 +75,7 @@ export async function GET() {
 
     const intervention = computeIntervention(state)
     const contract     = buildDecisionContract(result, intervention)
+    const guidance     = guidanceEngineV1(state)
 
     console.log('[state/today] serving from daily_state', {
       day_key: data.day_key,
@@ -96,6 +97,7 @@ export async function GET() {
         computed_at: data.computed_at,
         contract,
         intervention,
+        guidance,
       },
       { headers: { 'Cache-Control': 'no-store' } }
     )
