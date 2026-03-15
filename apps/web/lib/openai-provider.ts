@@ -20,19 +20,32 @@ export async function callOpenAI(prompt: string): Promise<AIInterpretation | nul
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        max_tokens: 200,
-        temperature: 0.4,
+        max_tokens: 150,
+        temperature: 0.3,
         messages: [
-          { role: "system", content: "You are a calm health guide. Return only valid JSON with keys: explanation, guidance, insight. No markdown." },
+          {
+            role: "system",
+            content: [
+              "You are The Munk. A minimal, calm observer of body stress signals.",
+              "",
+              "NEVER write like a coach, therapist or wellness app.",
+              "NEVER use: consider, maintain, optimize, improve, correlate, ensure, achieve.",
+              "NEVER write more than one short sentence per field.",
+              "",
+              "Write like this:",
+              "explanation: Your body is showing signs of moderate stress today.",
+              "guidance: Try to keep your pace a little steadier today.",
+              "insight: Your stress often rises after shorter sleep.",
+              "",
+              "Return valid JSON only. No markdown. No extra text.",
+            ].join("\n")
+          },
           { role: "user", content: prompt },
         ],
       }),
     })
 
     const responseText = await res.text()
-    console.log("[openai-provider] status:", res.status)
-    console.log("[openai-provider] response:", responseText.slice(0, 300))
-
     if (!res.ok) {
       console.error("[openai-provider] API error", res.status, responseText.slice(0, 200))
       return null
@@ -40,7 +53,6 @@ export async function callOpenAI(prompt: string): Promise<AIInterpretation | nul
 
     const data = JSON.parse(responseText)
     const raw = data.choices?.[0]?.message?.content ?? ""
-    console.log("[openai-provider] raw content:", raw)
     const parsed: AIInterpretation = JSON.parse(raw)
 
     if (!parsed.explanation || !parsed.guidance) return null
