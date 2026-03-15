@@ -1,8 +1,3 @@
-nano apps/web/app/api/system/smoke/route.ts
-```
-
-Når nano åpner, lim inn hele koden under. Deretter: **Ctrl+O** → Enter → **Ctrl+X**.
-```
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
@@ -46,7 +41,7 @@ export async function GET() {
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.themunk.ai'
-    const res = await fetch(`${baseUrl}/api/state/today`)
+    const res = await fetch(baseUrl + '/api/state/today')
     checks.endpoint_ok = res.ok
   } catch {
     checks.endpoint_ok = false
