@@ -4,6 +4,7 @@ export const revalidate = 0
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { OuraAdapter } from '@themunk/core'
+import { computeStateV2 } from '@themunk/core/state/compute-state-v2'
 import { makeOuraTokenStore } from '../../../../../lib/oura-token'
 
 function getServiceClient() {
@@ -65,26 +66,76 @@ export async function POST() {
         { onConflict: 'user_id,day_key,source' }
       )
 
+    if (error) {
+      const latency = Date.now() - start
+      await supabase.from('wearable_sync_events').insert({
+        user_id: USER_ID,
+        day_key: dayKey,
+        source: adapter.source,
+        success: false,
+        records_upserted: 0,
+        latency_ms: latency,
+        error_code: error.code ?? null,
+      })
+      return NextResponse.json({ status: 'error', error: error.message }, { status: 500 })
+    }
+
+    // Compute state and write to daily_state
+    const wearableInput = {
+      hrv: data.hrv_rmssd,
+      resting_hr: data.resting_hr,
+      sleep_score: data.sleep_score,
+      readiness_score: data.readiness_score,
+      activity_score: data.activity_score,
+      sleep_duration_minutes: data.sleep_duration_hours
+        ? Math.round(data.sleep_duration_hours * 60)
+        : null,
+      source: 'oura' as const,
+      day_key: dayKey,
+      synced_at: new Date().toISOString(),
+    }
+
+    const result = computeStateV2({ manualInput: null, wearableInput })
+
+    await supabase
+      .from('daily_state')
+      .upsert(
+        {
+          user_id: USER_ID,
+          day_key: dayKey,
+          state: result.state,
+          confidence: result.confidence,
+          final_score: result.final_score,
+          state_trace: { rationale_code: result.rationale_code },
+          sleep_score: data.sleep_score,
+          recovery_score: data.readiness_score,
+          hrv: data.hrv_rmssd,
+          rhr: data.resting_hr,
+          computed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,day_key' }
+      )
+
     const latency = Date.now() - start
 
     await supabase.from('wearable_sync_events').insert({
       user_id: USER_ID,
       day_key: dayKey,
       source: adapter.source,
-      success: !error,
-      records_upserted: error ? 0 : 1,
+      success: true,
+      records_upserted: 1,
       latency_ms: latency,
-      error_code: error?.code ?? null,
+      error_code: null,
     })
-
-    if (error) {
-      return NextResponse.json({ status: 'error', error: error.message }, { status: 500 })
-    }
 
     return NextResponse.json({
       status: 'ok',
       day_key: dayKey,
       source: adapter.source,
+      state: result.state,
+      confidence: result.confidence,
+      final_score: result.final_score,
       latency_ms: latency,
     })
 
