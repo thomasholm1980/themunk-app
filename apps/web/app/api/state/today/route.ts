@@ -38,7 +38,7 @@ function getOsloDayKey(date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-async function fetchRecentReflection(supabase: ReturnType<typeof createClient>) {
+async function fetchRecentReflection(supabase: any)
   try {
     const { data } = await supabase
       .from('reflection_logs')
