@@ -24,6 +24,8 @@ function average(values: number[]): number {
   return values.reduce((a, b) => a + b, 0) / values.length
 }
 
+// ─── Canonical engine ────────────────────────────────────────────────────────
+
 export function detectPatterns(
   snapshots: DailyStateSnapshot[]
 ): PatternInsight | null {
@@ -33,8 +35,7 @@ export function detectPatterns(
     a.day_key.localeCompare(b.day_key)
   )
 
-  // --- Rule 1: HRV decline ---
-  // Trigger if HRV drops >= 20% vs 7-day baseline for 3 consecutive days
+  // Rule 1 — HRV decline
   const hrvValues = sorted
     .map(s => s.hrv)
     .filter((v): v is number => v != null)
@@ -52,8 +53,7 @@ export function detectPatterns(
     }
   }
 
-  // --- Rule 2: RHR elevation ---
-  // Trigger if RHR rises >= 5 bpm vs 7-day baseline for 3 consecutive days
+  // Rule 2 — RHR elevation
   const rhrValues = sorted
     .map(s => s.resting_hr)
     .filter((v): v is number => v != null)
@@ -71,8 +71,7 @@ export function detectPatterns(
     }
   }
 
-  // --- Rule 3: Recovery rebound ---
-  // Trigger if sleep score rises >= 15 points after 2 consecutive low days (< 70)
+  // Rule 3 — Recovery rebound
   const sleepValues = sorted
     .map(s => s.sleep_score)
     .filter((v): v is number => v != null)
@@ -92,4 +91,61 @@ export function detectPatterns(
   }
 
   return null
+}
+
+// ─── Legacy compatibility layer ──────────────────────────────────────────────
+
+type LegacyPatternInput = {
+  state: MunkState
+  sleep_score: number | null
+  recent_states: string[]
+  context_tags: string[]
+}
+
+type LegacyPatternResult = {
+  pattern_detected: boolean
+  insight: string
+  pattern_id: string | null
+}
+
+/**
+ * @deprecated Legacy pattern engine. Keep temporarily for interpreter compatibility.
+ * Migrate callers to detectPatterns() when ready.
+ */
+export function patternEngineV1(input: LegacyPatternInput): LegacyPatternResult {
+  const { state, sleep_score, recent_states, context_tags } = input
+
+  // Pattern 1: sleep_score < 70 AND state = YELLOW
+  if (sleep_score !== null && sleep_score < 70 && state === 'YELLOW') {
+    return {
+      pattern_detected: true,
+      insight: 'Your stress often rises after shorter sleep.',
+      pattern_id: 'sleep_stress_link',
+    }
+  }
+
+  // Pattern 2: 3+ stress days in last 5 days
+  const stressDays = recent_states.filter(s => s === 'YELLOW' || s === 'RED').length
+  if (stressDays >= 3) {
+    return {
+      pattern_detected: true,
+      insight: 'Your system has been under steady pressure for several days.',
+      pattern_id: 'sustained_stress',
+    }
+  }
+
+  // Pattern 3: context tag = work_stress AND state = YELLOW
+  if (context_tags.includes('work_stress') && state === 'YELLOW') {
+    return {
+      pattern_detected: true,
+      insight: 'Work pressure often shows up in your stress signals.',
+      pattern_id: 'work_stress_link',
+    }
+  }
+
+  return {
+    pattern_detected: false,
+    insight: '',
+    pattern_id: null,
+  }
 }
