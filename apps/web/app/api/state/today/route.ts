@@ -225,7 +225,7 @@ async function maybeUpdatePatternMemory(
           stability_level:  stability.stability_level,
           confidence:       stability.confidence,
           updated_at:       new Date().toISOString(),
-        },
+        } as any,
         { onConflict: 'user_id,pattern_key,reflection_key' }
       )
 
