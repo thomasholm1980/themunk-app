@@ -38,7 +38,7 @@ function getOsloDayKey(date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-async function fetchRecentReflection(supabase: any)
+async function fetchRecentReflection(supabase: any) {
   try {
     const { data } = await supabase
       .from('reflection_logs')
@@ -50,7 +50,7 @@ async function fetchRecentReflection(supabase: any)
     if (!data || data.length < 2) return null
 
     const avg = (key: 'energy' | 'stress' | 'focus') =>
-      Math.round(data.reduce((sum, r) => sum + (r[key] ?? 0), 0) / data.length)
+      Math.round(data.reduce((sum: number, r: any) => sum + (r[key] ?? 0), 0) / data.length)
 
     return { energy: avg('energy'), stress: avg('stress'), focus: avg('focus') }
   } catch {
@@ -91,7 +91,7 @@ Rules:
 - Return only valid JSON, no markdown, no preamble
 ${lowConfidenceRule}
 
-State: ${input.state} (${stateLabel[input.state]})
+State: ${input.state} (${stateLabel[input.state as keyof typeof stateLabel]})
 HRV: ${input.hrv ?? 'unavailable'}
 Resting HR: ${input.rhr ?? 'unavailable'}
 Sleep score: ${input.sleep_score ?? 'unavailable'}
@@ -132,10 +132,7 @@ Return JSON:
     const clean = text.replace(/```json|```/g, '').trim()
     const parsed = JSON.parse(clean) as ExplanationContract
 
-    // Force deterministic confidence — never trust AI value
     parsed.confidence = input.confidence
-
-    // Low confidence must not include context
     if (input.confidence === 'low') parsed.context = null
 
     return parsed
@@ -150,7 +147,6 @@ export async function GET() {
     const supabase = getServiceClient()
     const day_key  = getOsloDayKey()
 
-    // Fetch today
     const { data, error } = await supabase
       .from('daily_state')
       .select('day_key, state, confidence, final_score, state_trace, sleep_score, recovery_score, hrv, rhr, computed_at, updated_at')
@@ -173,7 +169,6 @@ export async function GET() {
       )
     }
 
-    // Fetch last 8 days for pattern engine
     const { data: history } = await supabase
       .from('daily_state')
       .select('day_key, state, hrv, rhr, sleep_score, recovery_score')
@@ -181,7 +176,7 @@ export async function GET() {
       .order('day_key', { ascending: false })
       .limit(8)
 
-    const snapshots: DailyStateSnapshot[] = (history ?? []).map((row) => ({
+    const snapshots: DailyStateSnapshot[] = (history ?? []).map((row: any) => ({
       day_key:         row.day_key,
       state:           row.state as 'GREEN' | 'YELLOW' | 'RED',
       hrv:             row.hrv ?? null,
@@ -212,7 +207,6 @@ export async function GET() {
     const contract     = buildDecisionContract(result, intervention, morningInsight)
     const guidance     = guidanceEngineV1(state)
 
-    // Explanation Layer v2 — non-blocking
     const reflectionContext = await fetchRecentReflection(supabase)
     const explanationInput  = buildExplanationInput({
       state,
