@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type SystemState = "GREEN" | "YELLOW" | "RED";
 type ReflectionValue = "low" | "mid" | "high" | null;
@@ -26,14 +26,43 @@ const TIMINGS = {
   reflectionMs:  4200,
 };
 
-const STATE_TONE: Record<SystemState, { duration: string }> = {
-  GREEN:  { duration: "6s" },
-  YELLOW: { duration: "6.6s" },
-  RED:    { duration: "7.2s" },
-};
+// State expression variables — Step 1 (GREEN + YELLOW)
+// Same base silhouette, same camera position.
+// No facial expression, no labels, no dramatic motion.
+// GREEN: regulated, steady.
+// YELLOW: heavier, slower. Not distressed.
+// RED: placeholder — Step 2.
+type StateExpression = {
+  breathDuration:  string
+  breathAmplitude: string
+  postureOffset:   string
+  background:      string
+}
+
+const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
+  GREEN: {
+    breathDuration:  "6s",
+    breathAmplitude: "1.012",
+    postureOffset:   "0px",
+    background:      "#ebe7df",
+  },
+  YELLOW: {
+    breathDuration:  "7.2s",
+    breathAmplitude: "1.008",
+    postureOffset:   "2px",
+    background:      "#e8e3d8",
+  },
+  RED: {
+    breathDuration:  "7.2s",
+    breathAmplitude: "1.008",
+    postureOffset:   "2px",
+    background:      "#e8e3d8",
+  },
+}
 
 export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", onReflectionSubmit }: Props) {
   const { state, insight, guidance } = contract;
+  const expr = STATE_EXPRESSION[state];
 
   const [phase, setPhase] = useState<"stillness" | "breathing" | "insight" | "guidance" | "reflection">("stillness");
   const [reflection, setReflection] = useState<ReflectionValue>(null);
@@ -54,7 +83,6 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
     }
   }, [reflection, onReflectionSubmit]);
 
-  const tone = STATE_TONE[state];
   const resolvedInsight = insight ?? DEFAULT_EMPTY_INSIGHT;
 
   const showInsight    = phase === "insight" || phase === "guidance" || phase === "reflection";
@@ -62,12 +90,15 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
   const showReflection = phase === "reflection";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#ebe7df] text-[#2e2b28]">
+    <div
+      className="min-h-screen flex items-center justify-center text-[#2e2b28] transition-colors duration-1000"
+      style={{ background: expr.background }}
+    >
       <style>{`
         @keyframes monkBreath {
-          0%   { transform: scale(1); }
-          50%  { transform: scale(1.012); }
-          100% { transform: scale(1); }
+          0%   { transform: scale(1) translateY(var(--posture)); }
+          50%  { transform: scale(var(--amplitude)) translateY(var(--posture)); }
+          100% { transform: scale(1) translateY(var(--posture)); }
         }
         @keyframes fadeUp {
           0%   { opacity: 0; transform: translateY(8px); }
@@ -80,11 +111,15 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
         <div className="text-xs tracking-[0.45em] uppercase text-[#5f5a54] mb-1">The Munk</div>
         <div className="text-sm text-[#6b655e] mb-10">{dateLabel}</div>
 
-        <div style={{
-          animation: phase === "stillness"
-            ? "none"
-            : `monkBreath ${tone.duration} ease-in-out infinite`,
-        }}>
+        <div
+          style={{
+            "--amplitude": expr.breathAmplitude,
+            "--posture":   expr.postureOffset,
+            animation: phase === "stillness"
+              ? "none"
+              : `monkBreath ${expr.breathDuration} ease-in-out infinite`,
+          } as React.CSSProperties}
+        >
           <img
             src="/assets/munk-transparent.png"
             alt="Munk"
