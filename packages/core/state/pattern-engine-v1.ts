@@ -93,6 +93,39 @@ export function detectPatterns(
   return null
 }
 
+// ─── Insight Frequency Guard ─────────────────────────────────────────────────
+//
+// Rule: only surface an insight on the first day it becomes true.
+// If today's candidate matches yesterday's insight, suppress it.
+//
+// Implementation:
+// - snapshots must be sorted ascending by day_key
+// - "yesterday" = detectPatterns on all snapshots except the last one
+// - if yesterday's insight key === today's insight key → return null
+
+export function applyInsightFrequencyGuard(
+  candidate: PatternInsight | null,
+  snapshots: DailyStateSnapshot[]
+): PatternInsight | null {
+  if (candidate === null) return null
+  if (!snapshots || snapshots.length < 2) return candidate
+
+  const sorted = [...snapshots].sort((a, b) =>
+    a.day_key.localeCompare(b.day_key)
+  )
+
+  // Evaluate pattern on history excluding today (all but last snapshot)
+  const historyWithoutToday = sorted.slice(0, -1)
+  const yesterdayInsight = detectPatterns(historyWithoutToday)
+
+  if (yesterdayInsight !== null && yesterdayInsight.insight === candidate.insight) {
+    // Same insight as yesterday — suppress to avoid fatigue
+    return null
+  }
+
+  return candidate
+}
+
 // ─── Legacy compatibility layer ──────────────────────────────────────────────
 
 type LegacyPatternInput = {
