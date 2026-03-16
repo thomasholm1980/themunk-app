@@ -26,12 +26,9 @@ const TIMINGS = {
   reflectionMs:  4200,
 };
 
-// State expression variables — Step 1 (GREEN + YELLOW)
-// Same base silhouette, same camera position.
-// No facial expression, no labels, no dramatic motion.
-// GREEN: regulated, steady.
-// YELLOW: heavier, slower. Not distressed.
-// RED: placeholder — Step 2.
+// State expression — GREEN is reference identity.
+// Neutral light tone, regulated breath, no posture offset.
+// YELLOW and RED pending Ratna spec.
 type StateExpression = {
   breathDuration:  string
   breathAmplitude: string
@@ -44,19 +41,19 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
     breathDuration:  "6s",
     breathAmplitude: "1.012",
     postureOffset:   "0px",
-    background:      "#ebe7df",
+    background:      "#EEE9E0",
   },
   YELLOW: {
     breathDuration:  "7.2s",
     breathAmplitude: "1.008",
     postureOffset:   "2px",
-    background:      "#e8e3d8",
+    background:      "#E8E3D8",
   },
   RED: {
     breathDuration:  "7.2s",
     breathAmplitude: "1.008",
     postureOffset:   "2px",
-    background:      "#e8e3d8",
+    background:      "#E8E3D8",
   },
 }
 
