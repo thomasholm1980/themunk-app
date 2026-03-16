@@ -15,6 +15,14 @@ const STATE_DOT: Record<string, string> = {
   RED:    "bg-red-500",
 };
 
+// Canonical MorningInsight shape — matches DecisionContract in core
+interface MorningInsight {
+  id: string
+  type: string
+  confidence: "low" | "medium" | "high"
+  message: string
+}
+
 interface DecisionContract {
   state:           "GREEN" | "YELLOW" | "RED";
   protocol_id:     "deep_work" | "balanced_day" | "recovery";
@@ -23,6 +31,7 @@ interface DecisionContract {
   explanation: { primary_driver: string; secondary_driver: string; line: string; };
   windows: { deep_work: string | null; training: string | null; recovery: string | null; };
   confidence: number;
+  morningInsight: MorningInsight | null;
   contract_version: "decision_v1";
   language_layer?: { sentences: string[]; language_version: "language_v1"; };
 }
@@ -122,7 +131,19 @@ export default function CheckInPage() {
               />
             </div>
 
-            {/* 2. Explanation — Why This Today */}
+            {/* 2. Morning Insight — only rendered when present */}
+            {contract!.morningInsight && (
+              <div className="py-5">
+                <p className="text-xs tracking-[0.25em] uppercase font-mono mb-2" style={{ color: "#2C2C2C" }}>
+                  {contract!.morningInsight.type}
+                </p>
+                <p className="text-sm leading-relaxed" style={{ color: "#3F3F3F" }}>
+                  {contract!.morningInsight.message}
+                </p>
+              </div>
+            )}
+
+            {/* 3. Explanation — Why This Today */}
             {explanation && (
               <div className="py-5">
                 <p className="text-xs tracking-[0.25em] uppercase font-mono mb-2" style={{ color: "#2C2C2C" }}>Why This Today?</p>
@@ -133,23 +154,23 @@ export default function CheckInPage() {
               </div>
             )}
 
-            {/* 3. Guidance */}
+            {/* 4. Guidance */}
             <div className="py-5">
               <p className="text-xs tracking-[0.25em] uppercase font-mono mb-2" style={{ color: "#2C2C2C" }}>Guidance</p>
               <p className="text-sm leading-relaxed" style={{ color: "#3F3F3F" }}>{contract!.guidance.line}</p>
             </div>
 
-            {/* 3b. Context */}
+            {/* 5. Context */}
             <div className="py-5">
               <ContextCard dayKey={todayKey} />
             </div>
 
-            {/* 4. Reflection */}
+            {/* 6. Reflection */}
             <div className="py-5 mt-3">
               <ReflectionCard dayKey={todayKey} />
             </div>
 
-            {/* 5. Weekly State Path */}
+            {/* 7. Weekly State Path */}
             <div className="py-5 mt-2">
               <WeeklyStatePath />
             </div>

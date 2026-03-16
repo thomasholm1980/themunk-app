@@ -2,6 +2,31 @@ import type { MunkState, Confidence, ComputeStateV2Result } from './types'
 import type { Intervention } from './intervention'
 import type { PatternInsight } from './pattern-engine-v1'
 
+// Canonical morning insight shape for UI and AI consumption.
+// Pattern detection is deterministic. Frequency guard is deterministic.
+// AI may interpret morningInsight, but never generates it.
+export type MorningInsight = {
+  id: string                          // e.g. "hrv_decline", "rhr_elevation", "recovery_rebound"
+  type: string                        // human-readable category label
+  confidence: 'low' | 'medium' | 'high'
+  message: string
+} | null
+
+function toMorningInsight(p: PatternInsight | null): MorningInsight {
+  if (p === null) return null
+  const TYPE_LABEL: Record<string, string> = {
+    hrv_decline:       'Recovery trend',
+    rhr_elevation:     'Stress signal',
+    recovery_rebound:  'Recovery signal',
+  }
+  return {
+    id:         p.insight,
+    type:       TYPE_LABEL[p.insight] ?? p.insight,
+    confidence: p.confidence,
+    message:    p.message,
+  }
+}
+
 export interface DecisionContract {
   state: MunkState
   protocol_id: 'deep_work' | 'balanced_day' | 'recovery'
@@ -24,7 +49,7 @@ export interface DecisionContract {
     recovery: string | null
   }
   confidence: number
-  morningInsight: PatternInsight | null
+  morningInsight: MorningInsight
   contract_version: 'decision_v1'
 }
 
@@ -102,7 +127,7 @@ function confidenceToNumber(c: Confidence): number {
 export function buildDecisionContract(
   result: ComputeStateV2Result,
   _intervention: Intervention,
-  morningInsight: PatternInsight | null = null
+  morningInsightRaw: PatternInsight | null = null
 ): DecisionContract {
   const { state, confidence } = result
 
@@ -117,7 +142,7 @@ export function buildDecisionContract(
     explanation: resolveExplanation(result),
     windows: WINDOWS[state],
     confidence: confidenceToNumber(confidence),
-    morningInsight,
+    morningInsight: toMorningInsight(morningInsightRaw),
     contract_version: 'decision_v1',
   }
 }
