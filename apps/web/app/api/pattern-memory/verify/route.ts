@@ -18,14 +18,14 @@ export async function GET() {
     )
 
     const { data: memory } = await supabase
-      .from('personal_pattern_memory')
+      .from('personal_pattern_memory' as any)
       .select('pattern_key, reflection_key, occurrence_count, stability_level, confidence, first_seen_at, last_seen_at')
       .eq('user_id', USER_ID_TEXT)
       .order('updated_at', { ascending: false })
       .limit(10)
 
     const { data: log } = await supabase
-      .from('personal_pattern_memory_log')
+      .from('personal_pattern_memory_log' as any)
       .select('pattern_key, reflection_key, day_key, created_at')
       .eq('user_id', USER_ID_TEXT)
       .order('day_key', { ascending: false })

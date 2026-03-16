@@ -161,7 +161,7 @@ async function maybeUpdatePatternMemory(
 
     // Guard 3: same-day idempotency — abort if already logged today
     const { error: logError } = await supabase
-      .from('personal_pattern_memory_log')
+      .from('personal_pattern_memory_log' as any)
       .insert({ user_id: USER_ID_TEXT, pattern_key, reflection_key, day_key })
 
     if (logError) {
@@ -175,7 +175,7 @@ async function maybeUpdatePatternMemory(
     const daysAgo = (n: number) => new Date(now.getTime() - n * 86400000).toISOString().slice(0, 10)
 
     const { data: log60 } = await supabase
-      .from('personal_pattern_memory_log')
+      .from('personal_pattern_memory_log' as any)
       .select('day_key')
       .eq('user_id', USER_ID_TEXT)
       .eq('pattern_key', pattern_key)
@@ -183,7 +183,7 @@ async function maybeUpdatePatternMemory(
       .gte('day_key', daysAgo(60))
 
     const { data: log30 } = await supabase
-      .from('personal_pattern_memory_log')
+      .from('personal_pattern_memory_log' as any)
       .select('day_key')
       .eq('user_id', USER_ID_TEXT)
       .eq('pattern_key', pattern_key)
@@ -191,7 +191,7 @@ async function maybeUpdatePatternMemory(
       .gte('day_key', daysAgo(30))
 
     const { data: log21 } = await supabase
-      .from('personal_pattern_memory_log')
+      .from('personal_pattern_memory_log' as any)
       .select('day_key')
       .eq('user_id', USER_ID_TEXT)
       .eq('pattern_key', pattern_key)
@@ -213,7 +213,7 @@ async function maybeUpdatePatternMemory(
     }
 
     const { error: upsertError } = await supabase
-      .from('personal_pattern_memory')
+      .from('personal_pattern_memory' as any)
       .upsert(
         {
           user_id:          USER_ID_TEXT,
