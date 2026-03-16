@@ -162,7 +162,7 @@ async function maybeUpdatePatternMemory(
     // Guard 3: same-day idempotency — abort if already logged today
     const { error: logError } = await supabase
       .from('personal_pattern_memory_log' as any)
-      .insert({ user_id: USER_ID_TEXT, pattern_key, reflection_key, day_key })
+      .insert({ user_id: USER_ID_TEXT, pattern_key, reflection_key, day_key } as any)
 
     if (logError) {
       // Unique constraint violation = already ran today
