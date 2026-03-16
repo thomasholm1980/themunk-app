@@ -8,6 +8,7 @@ import { buildDecisionContract } from '@themunk/core/state/decision-contract'
 import { guidanceEngineV1 } from '@themunk/core/state/guidance-engine'
 import { detectPatterns, applyInsightFrequencyGuard } from '@themunk/core/state/pattern-engine-v1'
 import { buildExplanationInput } from '@themunk/core/state/explanation'
+import { resolveReflectionKey, resolveStability } from '@themunk/core/state/pattern-memory'
 import type { ExplanationContract } from '@themunk/core/state/explanation'
 import type { ComputeStateV2Result } from '@themunk/core'
 import type { DailyStateSnapshot } from '@themunk/core/state/pattern-engine-v1'
@@ -38,7 +39,7 @@ function getOsloDayKey(date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-async function fetchRecentReflection(supabase: any) {
+async function fetchRecentReflection(supabase: ReturnType<typeof createClient>) {
   try {
     const { data } = await supabase
       .from('reflection_logs')
@@ -50,7 +51,7 @@ async function fetchRecentReflection(supabase: any) {
     if (!data || data.length < 2) return null
 
     const avg = (key: 'energy' | 'stress' | 'focus') =>
-      Math.round(data.reduce((sum: number, r: any) => sum + (r[key] ?? 0), 0) / data.length)
+      Math.round(data.reduce((sum, r) => sum + (r[key] ?? 0), 0) / data.length)
 
     return { energy: avg('energy'), stress: avg('stress'), focus: avg('focus') }
   } catch {
@@ -91,7 +92,7 @@ Rules:
 - Return only valid JSON, no markdown, no preamble
 ${lowConfidenceRule}
 
-State: ${input.state} (${stateLabel[input.state as keyof typeof stateLabel]})
+State: ${input.state} (${stateLabel[input.state]})
 HRV: ${input.hrv ?? 'unavailable'}
 Resting HR: ${input.rhr ?? 'unavailable'}
 Sleep score: ${input.sleep_score ?? 'unavailable'}
@@ -142,6 +143,102 @@ Return JSON:
   }
 }
 
+// Personal Pattern Memory — internal, non-blocking
+async function maybeUpdatePatternMemory(
+  supabase: ReturnType<typeof createClient>,
+  day_key: string,
+  pattern_key: string | null,
+  reflection: { energy: number; stress: number; focus: number } | null
+): Promise<void> {
+  try {
+    // Guard 1: real pattern required
+    if (!pattern_key) return
+
+    // Guard 2: salient reflection required
+    if (!reflection) return
+    const reflection_key = resolveReflectionKey(reflection.energy, reflection.stress, reflection.focus)
+    if (!reflection_key) return
+
+    // Guard 3: same-day idempotency — abort if already logged today
+    const { error: logError } = await supabase
+      .from('personal_pattern_memory_log')
+      .insert({ user_id: USER_ID_TEXT, pattern_key, reflection_key, day_key })
+
+    if (logError) {
+      // Unique constraint violation = already ran today
+      console.log('[pattern-memory] already logged today, skipping:', day_key)
+      return
+    }
+
+    // Count occurrences in rolling windows from log
+    const now = new Date()
+    const daysAgo = (n: number) => new Date(now.getTime() - n * 86400000).toISOString().slice(0, 10)
+
+    const { data: log60 } = await supabase
+      .from('personal_pattern_memory_log')
+      .select('day_key')
+      .eq('user_id', USER_ID_TEXT)
+      .eq('pattern_key', pattern_key)
+      .eq('reflection_key', reflection_key)
+      .gte('day_key', daysAgo(60))
+
+    const { data: log30 } = await supabase
+      .from('personal_pattern_memory_log')
+      .select('day_key')
+      .eq('user_id', USER_ID_TEXT)
+      .eq('pattern_key', pattern_key)
+      .eq('reflection_key', reflection_key)
+      .gte('day_key', daysAgo(30))
+
+    const { data: log21 } = await supabase
+      .from('personal_pattern_memory_log')
+      .select('day_key')
+      .eq('user_id', USER_ID_TEXT)
+      .eq('pattern_key', pattern_key)
+      .eq('reflection_key', reflection_key)
+      .gte('day_key', daysAgo(21))
+
+    const counts = {
+      last21: log21?.length ?? 0,
+      last30: log30?.length ?? 0,
+      last60: log60?.length ?? 0,
+    }
+
+    const stability = resolveStability(counts)
+
+    // Only upsert into personal_pattern_memory if threshold is met
+    if (!stability) {
+      console.log('[pattern-memory] below threshold, log written but no memory record yet:', counts)
+      return
+    }
+
+    const { error: upsertError } = await supabase
+      .from('personal_pattern_memory')
+      .upsert(
+        {
+          user_id:          USER_ID_TEXT,
+          pattern_key,
+          reflection_key,
+          occurrence_count: counts.last60,
+          first_seen_at:    log60?.[log60.length - 1]?.day_key ?? day_key,
+          last_seen_at:     day_key,
+          stability_level:  stability.stability_level,
+          confidence:       stability.confidence,
+          updated_at:       new Date().toISOString(),
+        },
+        { onConflict: 'user_id,pattern_key,reflection_key' }
+      )
+
+    if (upsertError) {
+      console.error('[pattern-memory] upsert error:', upsertError.message)
+    } else {
+      console.log('[pattern-memory] memory updated:', { pattern_key, reflection_key, ...stability })
+    }
+  } catch (err) {
+    console.error('[pattern-memory] unexpected error:', err)
+  }
+}
+
 export async function GET() {
   try {
     const supabase = getServiceClient()
@@ -176,7 +273,7 @@ export async function GET() {
       .order('day_key', { ascending: false })
       .limit(8)
 
-    const snapshots: DailyStateSnapshot[] = (history ?? []).map((row: any) => ({
+    const snapshots: DailyStateSnapshot[] = (history ?? []).map((row) => ({
       day_key:         row.day_key,
       state:           row.state as 'GREEN' | 'YELLOW' | 'RED',
       hrv:             row.hrv ?? null,
@@ -218,6 +315,26 @@ export async function GET() {
       reflection_context: reflectionContext,
     })
     const aiExplanation = await generateExplanation(explanationInput)
+
+    // Pattern memory update — non-blocking, internal only
+    const todayReflection = await (async () => {
+      try {
+        const { data: r } = await supabase
+          .from('reflection_logs')
+          .select('energy, stress, focus')
+          .eq('user_id', USER_ID_UUID)
+          .eq('day_key', day_key)
+          .maybeSingle()
+        return r ?? null
+      } catch { return null }
+    })()
+
+    await maybeUpdatePatternMemory(
+      supabase,
+      day_key,
+      morningInsight?.insight ?? null,
+      todayReflection
+    )
 
     console.log('[state/today] serving from daily_state', {
       day_key:        data.day_key,

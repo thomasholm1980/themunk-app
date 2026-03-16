@@ -22,6 +22,7 @@
     "./state/signal-explanation": "./state/signal-explanation.ts",
     "./state/guidance-engine": "./state/guidance-engine.ts",
     "./state/pattern-engine-v1": "./state/pattern-engine-v1.ts",
-    "./state/explanation": "./state/explanation.ts"
+    "./state/explanation": "./state/explanation.ts",
+    "./state/pattern-memory": "./state/pattern-memory.ts"
   }
 }
