@@ -1,55 +1,95 @@
-export interface PatternInput {
-  state: "GREEN" | "YELLOW" | "RED"
-  sleep_score: number | null
-  recent_states: string[]
-  context_tags?: string[]
+import type { MunkState } from './types'
+
+export type PatternInsightKey =
+  | 'hrv_decline'
+  | 'rhr_elevation'
+  | 'recovery_rebound'
+
+export type PatternInsight = {
+  insight: PatternInsightKey
+  confidence: 'low' | 'medium' | 'high'
+  message: string
 }
 
-export interface PatternResult {
-  pattern_detected: boolean
-  pattern_id: string | null
-  insight: string
+export type DailyStateSnapshot = {
+  day_key: string
+  state: MunkState
+  hrv?: number | null
+  resting_hr?: number | null
+  sleep_score?: number | null
+  readiness_score?: number | null
 }
 
-export function patternEngineV1(input: PatternInput): PatternResult {
-  const none: PatternResult = { pattern_detected: false, pattern_id: null, insight: "" }
+function average(values: number[]): number {
+  return values.reduce((a, b) => a + b, 0) / values.length
+}
 
-  // Pattern 1: low sleep + yellow state
-  if (
-    input.state === "YELLOW" &&
-    input.sleep_score !== null &&
-    input.sleep_score < 70
-  ) {
-    return {
-      pattern_detected: true,
-      pattern_id: "low_sleep_stress",
-      insight: "Your stress often rises after shorter sleep.",
+export function detectPatterns(
+  snapshots: DailyStateSnapshot[]
+): PatternInsight | null {
+  if (!snapshots || snapshots.length < 4) return null
+
+  const sorted = [...snapshots].sort((a, b) =>
+    a.day_key.localeCompare(b.day_key)
+  )
+
+  // --- Rule 1: HRV decline ---
+  // Trigger if HRV drops >= 20% vs 7-day baseline for 3 consecutive days
+  const hrvValues = sorted
+    .map(s => s.hrv)
+    .filter((v): v is number => v != null)
+
+  if (hrvValues.length >= 4) {
+    const baseline = average(hrvValues.slice(0, hrvValues.length - 3))
+    const recent = hrvValues.slice(-3)
+    const allDeclined = recent.every(v => v <= baseline * 0.8)
+    if (allDeclined) {
+      return {
+        insight: 'hrv_decline',
+        confidence: 'medium',
+        message: 'Your recovery signals have been trending lower this week.',
+      }
     }
   }
 
-  // Pattern 2: 3+ stress days in last 5
-  const stressDays = input.recent_states.filter(
-    (s) => s === "YELLOW" || s === "RED"
-  ).length
-  if (stressDays >= 3) {
-    return {
-      pattern_detected: true,
-      pattern_id: "sustained_stress",
-      insight: "Your system has been under steady pressure for several days.",
+  // --- Rule 2: RHR elevation ---
+  // Trigger if RHR rises >= 5 bpm vs 7-day baseline for 3 consecutive days
+  const rhrValues = sorted
+    .map(s => s.resting_hr)
+    .filter((v): v is number => v != null)
+
+  if (rhrValues.length >= 4) {
+    const baseline = average(rhrValues.slice(0, rhrValues.length - 3))
+    const recent = rhrValues.slice(-3)
+    const allElevated = recent.every(v => v >= baseline + 5)
+    if (allElevated) {
+      return {
+        insight: 'rhr_elevation',
+        confidence: 'medium',
+        message: 'Your resting heart rate has been elevated for several days.',
+      }
     }
   }
 
-  // Pattern 3: work stress context tag
-  if (
-    input.state === "YELLOW" &&
-    input.context_tags?.some((t) => t.toLowerCase().includes("work"))
-  ) {
-    return {
-      pattern_detected: true,
-      pattern_id: "work_stress",
-      insight: "Work pressure often shows up in your stress signals.",
+  // --- Rule 3: Recovery rebound ---
+  // Trigger if sleep score rises >= 15 points after 2 consecutive low days (< 70)
+  const sleepValues = sorted
+    .map(s => s.sleep_score)
+    .filter((v): v is number => v != null)
+
+  if (sleepValues.length >= 3) {
+    const prev2 = sleepValues.slice(-3, -1)
+    const latest = sleepValues[sleepValues.length - 1]
+    const bothLow = prev2.every(v => v < 70)
+    const rebounded = latest >= prev2[prev2.length - 1] + 15
+    if (bothLow && rebounded) {
+      return {
+        insight: 'recovery_rebound',
+        confidence: 'medium',
+        message: 'Your system is showing signs of recovery after a difficult stretch.',
+      }
     }
   }
 
-  return none
+  return null
 }

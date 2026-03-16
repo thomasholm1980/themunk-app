@@ -6,7 +6,9 @@ import { createClient } from '@supabase/supabase-js'
 import { computeIntervention } from '@themunk/core/state/intervention'
 import { buildDecisionContract } from '@themunk/core/state/decision-contract'
 import { guidanceEngineV1 } from '@themunk/core/state/guidance-engine'
+import { detectPatterns } from '@themunk/core/state/pattern-engine-v1'
 import type { ComputeStateV2Result } from '@themunk/core'
+import type { DailyStateSnapshot } from '@themunk/core/state/pattern-engine-v1'
 
 function getServiceClient() {
   return createClient(
@@ -36,6 +38,7 @@ export async function GET() {
     const supabase = getServiceClient()
     const day_key  = getOsloDayKey()
 
+    // Fetch today
     const { data, error } = await supabase
       .from('daily_state')
       .select('day_key, state, confidence, final_score, state_trace, sleep_score, recovery_score, hrv, rhr, computed_at, updated_at')
@@ -58,43 +61,63 @@ export async function GET() {
       )
     }
 
-    const state = data.state as 'GREEN' | 'YELLOW' | 'RED'
+    // Fetch last 7 days for pattern engine
+    const { data: history } = await supabase
+      .from('daily_state')
+      .select('day_key, state, hrv, rhr, sleep_score, recovery_score')
+      .eq('user_id', 'thomas')
+      .order('day_key', { ascending: false })
+      .limit(7)
+
+    const snapshots: DailyStateSnapshot[] = (history ?? []).map((row) => ({
+      day_key:        row.day_key,
+      state:          row.state as 'GREEN' | 'YELLOW' | 'RED',
+      hrv:            row.hrv ?? null,
+      resting_hr:     row.rhr ?? null,
+      sleep_score:    row.sleep_score ?? null,
+      readiness_score: row.recovery_score ?? null,
+    }))
+
+    const morningInsight = detectPatterns(snapshots)
+
+    const state      = data.state as 'GREEN' | 'YELLOW' | 'RED'
     const confidence = data.confidence as 'HIGH' | 'MEDIUM' | 'LOW'
 
     const result: ComputeStateV2Result = {
       state,
       confidence,
-      final_score: data.final_score,
-      rationale_code: data.state_trace?.rationale_code ?? 'wearable_only',
-      manual_score: null,
-      wearable_score: data.final_score,
+      final_score:       data.final_score,
+      rationale_code:    data.state_trace?.rationale_code ?? 'wearable_only',
+      manual_score:      null,
+      wearable_score:    data.final_score,
       disagreement_flag: false,
-      inputs_used: { manual: false, wearable: true },
-      signal_flags: [],
+      inputs_used:       { manual: false, wearable: true },
+      signal_flags:      [],
     }
 
     const intervention = computeIntervention(state)
-    const contract     = buildDecisionContract(result, intervention)
+    const contract     = buildDecisionContract(result, intervention, morningInsight)
     const guidance     = guidanceEngineV1(state)
 
     console.log('[state/today] serving from daily_state', {
       day_key: data.day_key,
       state,
       confidence,
-      final_score: data.final_score,
+      final_score:    data.final_score,
+      morningInsight: morningInsight?.insight ?? null,
     })
 
     return NextResponse.json(
       {
         state,
         confidence,
-        final_score: data.final_score,
-        day_key:     data.day_key,
-        hrv_rmssd:   data.hrv,
-        resting_hr:  data.rhr,
-        sleep_score: data.sleep_score,
+        final_score:     data.final_score,
+        day_key:         data.day_key,
+        hrv_rmssd:       data.hrv,
+        resting_hr:      data.rhr,
+        sleep_score:     data.sleep_score,
         readiness_score: data.recovery_score,
-        computed_at: data.computed_at,
+        computed_at:     data.computed_at,
         contract,
         intervention,
         guidance,

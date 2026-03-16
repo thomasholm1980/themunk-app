@@ -1,5 +1,6 @@
 import type { MunkState, Confidence, ComputeStateV2Result } from './types'
 import type { Intervention } from './intervention'
+import type { PatternInsight } from './pattern-engine-v1'
 
 export interface DecisionContract {
   state: MunkState
@@ -23,6 +24,7 @@ export interface DecisionContract {
     recovery: string | null
   }
   confidence: number
+  morningInsight: PatternInsight | null
   contract_version: 'decision_v1'
 }
 
@@ -99,7 +101,8 @@ function confidenceToNumber(c: Confidence): number {
 
 export function buildDecisionContract(
   result: ComputeStateV2Result,
-  _intervention: Intervention
+  _intervention: Intervention,
+  morningInsight: PatternInsight | null = null
 ): DecisionContract {
   const { state, confidence } = result
 
@@ -114,6 +117,7 @@ export function buildDecisionContract(
     explanation: resolveExplanation(result),
     windows: WINDOWS[state],
     confidence: confidenceToNumber(confidence),
+    morningInsight,
     contract_version: 'decision_v1',
   }
 }
