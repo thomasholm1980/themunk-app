@@ -9,6 +9,8 @@ import { guidanceEngineV1 } from '@themunk/core/state/guidance-engine'
 import { detectPatterns, applyInsightFrequencyGuard } from '@themunk/core/state/pattern-engine-v1'
 import { buildExplanationInput } from '@themunk/core/state/explanation'
 import { resolveReflectionKey, resolveStability } from '@themunk/core/state/pattern-memory'
+import { selectLearningMessage, LEARNING_ARC_SUPPRESS_DAYS } from '@themunk/core/state/learning-arc'
+import type { LearningArcResult } from '@themunk/core/state/learning-arc'
 import type { ExplanationContract } from '@themunk/core/state/explanation'
 import type { ComputeStateV2Result } from '@themunk/core'
 import type { DailyStateSnapshot } from '@themunk/core/state/pattern-engine-v1'
@@ -239,6 +241,46 @@ async function maybeUpdatePatternMemory(
   }
 }
 
+
+// Learning Arc resolver — non-blocking, system event only
+async function resolveLearningArc(
+  supabase: any,
+  day_key: string,
+  hasReflectionToday: boolean
+): Promise<LearningArcResult> {
+  try {
+    // Condition: reflection must exist for today
+    if (!hasReflectionToday) return null
+
+    // Fetch last shown_at for this user
+    const { data } = await supabase
+      .from('learning_arc_events' as any)
+      .select('shown_at')
+      .eq('user_id', USER_ID_TEXT)
+      .order('shown_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (data?.shown_at) {
+      const lastShown = new Date(data.shown_at)
+      const daysSince = (Date.now() - lastShown.getTime()) / (1000 * 60 * 60 * 24)
+      if (daysSince < LEARNING_ARC_SUPPRESS_DAYS) return null
+    }
+
+    // Show message and log event
+    const message = selectLearningMessage()
+
+    await supabase
+      .from('learning_arc_events' as any)
+      .insert({ user_id: USER_ID_TEXT } as any)
+
+    return { message }
+  } catch (err) {
+    console.error('[learning-arc] resolver error:', err)
+    return null
+  }
+}
+
 export async function GET() {
   try {
     const supabase = getServiceClient()
@@ -336,6 +378,15 @@ export async function GET() {
       todayReflection
     )
 
+    // Learning Arc — non-blocking
+    const hasReflectionToday = todayReflection !== null
+    let learningArc: LearningArcResult = null
+    try {
+      learningArc = await resolveLearningArc(supabase, day_key, hasReflectionToday)
+    } catch {
+      learningArc = null
+    }
+
     console.log('[state/today] serving from daily_state', {
       day_key:        data.day_key,
       state,
@@ -360,6 +411,7 @@ export async function GET() {
         contract: {
           ...contract,
           explanation: aiExplanation,
+          learning_arc: learningArc,
         },
         intervention,
         guidance,
