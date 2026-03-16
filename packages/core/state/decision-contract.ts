@@ -146,3 +146,8 @@ export function buildDecisionContract(
     contract_version: 'decision_v1',
   }
 }
+
+// Explanation Layer v2 — AI-generated language field
+// Merged into contract after buildDecisionContract() in today/route.ts
+// null if AI call fails or LLM_ENABLED=false
+export type { ExplanationContract } from './explanation'
