@@ -1,0 +1,155 @@
+# 1. Update decision-contract.ts with canonical MorningInsight shape
+contract_content = '''import type { MunkState, Confidence, ComputeStateV2Result } from './types'
+import type { Intervention } from './intervention'
+import type { PatternInsight } from './pattern-engine-v1'
+
+// Canonical morning insight shape for UI and AI consumption.
+// Pattern detection is deterministic. Frequency guard is deterministic.
+// AI may interpret morningInsight, but never generates it.
+export type MorningInsight = {
+  id: string                          // e.g. "hrv_decline", "rhr_elevation", "recovery_rebound"
+  type: string                        // human-readable category label
+  confidence: 'low' | 'medium' | 'high'
+  message: string
+} | null
+
+function toMorningInsight(p: PatternInsight | null): MorningInsight {
+  if (p === null) return null
+  const TYPE_LABEL: Record<string, string> = {
+    hrv_decline:       'Recovery trend',
+    rhr_elevation:     'Stress signal',
+    recovery_rebound:  'Recovery signal',
+  }
+  return {
+    id:         p.insight,
+    type:       TYPE_LABEL[p.insight] ?? p.insight,
+    confidence: p.confidence,
+    message:    p.message,
+  }
+}
+
+export interface DecisionContract {
+  state: MunkState
+  protocol_id: 'deep_work' | 'balanced_day' | 'recovery'
+  forecast: {
+    headline: string
+    line: string
+  }
+  guidance: {
+    line: string
+    pattern_context: string | null
+  }
+  explanation: {
+    primary_driver: string
+    secondary_driver: string
+    line: string
+  }
+  windows: {
+    deep_work: string | null
+    training: string | null
+    recovery: string | null
+  }
+  confidence: number
+  morningInsight: MorningInsight
+  contract_version: 'decision_v1'
+}
+
+const PROTOCOL_MAP: Record<MunkState, 'deep_work' | 'balanced_day' | 'recovery'> = {
+  GREEN: 'deep_work',
+  YELLOW: 'balanced_day',
+  RED: 'recovery',
+}
+
+const FORECAST: Record<MunkState, { headline: string; line: string }> = {
+  GREEN: {
+    headline: 'High physiological readiness',
+    line: 'Your system is well-recovered. Conditions support sustained focus and physical output.',
+  },
+  YELLOW: {
+    headline: 'Moderate physiological readiness',
+    line: 'Your system shows mixed signals. Prioritise lighter cognitive work and monitor energy through the day.',
+  },
+  RED: {
+    headline: 'Low physiological readiness',
+    line: 'Your system needs recovery. Reduce demands and protect your resources today.',
+  },
+}
+
+const GUIDANCE: Record<MunkState, string> = {
+  GREEN: 'Schedule your most demanding cognitive or physical work in the first half of the day.',
+  YELLOW: 'Keep tasks manageable. Avoid high-stakes decisions in the afternoon.',
+  RED: 'Rest is productive today. Protect sleep, reduce stimulation, avoid new stressors.',
+}
+
+const WINDOWS: Record<MunkState, DecisionContract['windows']> = {
+  GREEN: {
+    deep_work: '08:00\u201312:00',
+    training: '12:00\u201314:00',
+    recovery: null,
+  },
+  YELLOW: {
+    deep_work: '09:00\u201311:00',
+    training: null,
+    recovery: '14:00\u201315:00',
+  },
+  RED: {
+    deep_work: null,
+    training: null,
+    recovery: 'Throughout the day',
+  },
+}
+
+function resolveExplanation(result: ComputeStateV2Result): DecisionContract['explanation'] {
+  const { inputs_used, rationale_code, signal_flags } = result
+
+  const primary = inputs_used.wearable
+    ? 'Wearable recovery data'
+    : inputs_used.manual
+    ? 'Self-reported signals'
+    : 'Insufficient data'
+
+  const secondary = signal_flags.length > 0
+    ? `Active flags: ${signal_flags.join(', ')}`
+    : inputs_used.manual && inputs_used.wearable
+    ? 'Manual and wearable signals combined'
+    : 'Single source input'
+
+  const line = `State derived via ${rationale_code}.`
+
+  return { primary_driver: primary, secondary_driver: secondary, line }
+}
+
+function confidenceToNumber(c: Confidence): number {
+  if (c === 'HIGH') return 0.9
+  if (c === 'MEDIUM') return 0.6
+  return 0.3
+}
+
+export function buildDecisionContract(
+  result: ComputeStateV2Result,
+  _intervention: Intervention,
+  morningInsightRaw: PatternInsight | null = null
+): DecisionContract {
+  const { state, confidence } = result
+
+  return {
+    state,
+    protocol_id: PROTOCOL_MAP[state],
+    forecast: FORECAST[state],
+    guidance: {
+      line: GUIDANCE[state],
+      pattern_context: null,
+    },
+    explanation: resolveExplanation(result),
+    windows: WINDOWS[state],
+    confidence: confidenceToNumber(confidence),
+    morningInsight: toMorningInsight(morningInsightRaw),
+    contract_version: 'decision_v1',
+  }
+}
+'''
+
+with open('/Users/thomas/Desktop/The_Munk_Health/themunk_app/packages/core/state/decision-contract.ts', 'w') as f:
+    f.write(contract_content)
+
+print("decision-contract.ts hardened with canonical MorningInsight shape")

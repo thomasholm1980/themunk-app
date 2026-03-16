@@ -1,0 +1,13 @@
+import os
+os.makedirs('apps/web/app/api/system/debug-env', exist_ok=True)
+f = open('apps/web/app/api/system/debug-env/route.ts', 'w')
+f.write('export const dynamic = "force-dynamic"\n')
+f.write('import { NextResponse } from "next/server"\n\n')
+f.write('export async function GET() {\n')
+f.write('  return NextResponse.json({\n')
+f.write('    has_openai_key: !!process.env.OPENAI_API_KEY,\n')
+f.write('    openai_key_length: process.env.OPENAI_API_KEY?.length ?? 0,\n')
+f.write('  })\n')
+f.write('}\n')
+f.close()
+print('written ok')

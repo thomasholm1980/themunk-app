@@ -1,4 +1,4 @@
-"use client";
+content = '''"use client";
 
 import { useEffect, useState } from "react";
 
@@ -20,10 +20,10 @@ type Props = {
 const DEFAULT_EMPTY_INSIGHT = "Your system is stable today.";
 
 const TIMINGS = {
-  breathStartMs: 1400,
-  insightMs:     3200,
-  guidanceMs:    4800,
-  reflectionMs:  6400,
+  breathStartMs: 1200,
+  insightMs:     2400,
+  guidanceMs:    3300,
+  reflectionMs:  4200,
 };
 
 // State expression — all three states complete.
@@ -175,3 +175,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
     </div>
   );
 }
+'''
+
+with open('/Users/thomas/Desktop/The_Munk_Health/themunk_app/apps/web/app/components/MunkDailyBriefRatnaV2.tsx', 'w') as f:
+    f.write(content)
+
+print("RED state implemented: #EAE5DB, breath 8.4s, amplitude 1.005, posture 3px, rotation 0.6deg")

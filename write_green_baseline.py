@@ -1,4 +1,4 @@
-"use client";
+content = '''"use client";
 
 import { useEffect, useState } from "react";
 
@@ -20,21 +20,19 @@ type Props = {
 const DEFAULT_EMPTY_INSIGHT = "Your system is stable today.";
 
 const TIMINGS = {
-  breathStartMs: 1400,
-  insightMs:     3200,
-  guidanceMs:    4800,
-  reflectionMs:  6400,
+  breathStartMs: 1200,
+  insightMs:     2400,
+  guidanceMs:    3300,
+  reflectionMs:  4200,
 };
 
-// State expression — all three states complete.
-// GREEN: reference identity — neutral, regulated, steady.
-// YELLOW: heavier, warmer. Slower breath, slight posture + rotation.
-// RED: slower, more grounded. More contained than YELLOW. Not warmer — softer.
+// State expression — GREEN is reference identity.
+// Neutral light tone, regulated breath, no posture offset.
+// YELLOW and RED pending Ratna spec.
 type StateExpression = {
   breathDuration:  string
   breathAmplitude: string
   postureOffset:   string
-  torsoRotation:   string
   background:      string
 }
 
@@ -43,22 +41,19 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
     breathDuration:  "6s",
     breathAmplitude: "1.012",
     postureOffset:   "0px",
-    torsoRotation:   "0deg",
     background:      "#EEE9E0",
   },
   YELLOW: {
     breathDuration:  "7.2s",
     breathAmplitude: "1.008",
     postureOffset:   "2px",
-    torsoRotation:   "0.2deg",
-    background:      "#EDE4D3",
+    background:      "#E8E3D8",
   },
   RED: {
-    breathDuration:  "8.4s",
-    breathAmplitude: "1.005",
-    postureOffset:   "3px",
-    torsoRotation:   "0.6deg",
-    background:      "#EAE5DB",
+    breathDuration:  "7.2s",
+    breathAmplitude: "1.008",
+    postureOffset:   "2px",
+    background:      "#E8E3D8",
   },
 }
 
@@ -98,9 +93,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
     >
       <style>{`
         @keyframes monkBreath {
-          0%   { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
-          50%  { transform: scale(var(--amplitude)) translateY(var(--posture)) rotate(var(--rotation)); }
-          100% { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
+          0%   { transform: scale(1) translateY(var(--posture)); }
+          50%  { transform: scale(var(--amplitude)) translateY(var(--posture)); }
+          100% { transform: scale(1) translateY(var(--posture)); }
         }
         @keyframes fadeUp {
           0%   { opacity: 0; transform: translateY(8px); }
@@ -117,7 +112,6 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
           style={{
             "--amplitude": expr.breathAmplitude,
             "--posture":   expr.postureOffset,
-            "--rotation":  expr.torsoRotation,
             animation: phase === "stillness"
               ? "none"
               : `monkBreath ${expr.breathDuration} ease-in-out infinite`,
@@ -175,3 +169,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
     </div>
   );
 }
+'''
+
+with open('/Users/thomas/Desktop/The_Munk_Health/themunk_app/apps/web/app/components/MunkDailyBriefRatnaV2.tsx', 'w') as f:
+    f.write(content)
+
+print("GREEN baseline updated: #EEE9E0")
