@@ -242,7 +242,7 @@ export async function GET() {
         computed_at:     data.computed_at,
         contract: {
           ...contract,
-          aiExplanation,
+          explanation: aiExplanation,
         },
         intervention,
         guidance,
