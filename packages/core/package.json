@@ -24,6 +24,7 @@
     "./state/pattern-engine-v1": "./state/pattern-engine-v1.ts",
     "./state/explanation": "./state/explanation.ts",
     "./state/pattern-memory": "./state/pattern-memory.ts",
-    "./state/learning-arc": "./state/learning-arc.ts"
+    "./state/learning-arc": "./state/learning-arc.ts",
+    "./state/personal-insight": "./state/personal-insight.ts"
   }
 }

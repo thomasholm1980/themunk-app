@@ -11,6 +11,8 @@ import { buildExplanationInput } from '@themunk/core/state/explanation'
 import { resolveReflectionKey, resolveStability } from '@themunk/core/state/pattern-memory'
 import { selectLearningMessage, LEARNING_ARC_SUPPRESS_DAYS } from '@themunk/core/state/learning-arc'
 import type { LearningArcResult } from '@themunk/core/state/learning-arc'
+import { buildPersonalInsightMessage, PERSONAL_INSIGHT_SUPPRESS_DAYS } from '@themunk/core/state/personal-insight'
+import type { PersonalInsightResult } from '@themunk/core/state/personal-insight'
 import type { ExplanationContract } from '@themunk/core/state/explanation'
 import type { ComputeStateV2Result } from '@themunk/core'
 import type { DailyStateSnapshot } from '@themunk/core/state/pattern-engine-v1'
@@ -281,6 +283,61 @@ async function resolveLearningArc(
   }
 }
 
+
+// Personal Insight resolver — deterministic, non-blocking
+async function resolvePersonalInsight(
+  supabase: any,
+  today_pattern_key: string | null
+): Promise<PersonalInsightResult> {
+  try {
+    // Rule: no pattern today = no personal insight
+    if (!today_pattern_key) return null
+
+    // Fetch stable high-confidence matches for today's pattern
+    const { data: matches } = await supabase
+      .from('personal_pattern_memory' as any)
+      .select('pattern_key, reflection_key, last_seen_at')
+      .eq('user_id', USER_ID_TEXT)
+      .eq('pattern_key', today_pattern_key)
+      .eq('stability_level', 'stable')
+      .eq('confidence', 'high')
+      .order('last_seen_at', { ascending: false })
+      .limit(1)
+
+    if (!matches || matches.length === 0) return null
+
+    const match = matches[0]
+
+    // Frequency guard: suppress if shown within last 7 days
+    const { data: recentEvent } = await supabase
+      .from('personal_insight_events' as any)
+      .select('shown_at')
+      .eq('user_id', USER_ID_TEXT)
+      .order('shown_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (recentEvent?.shown_at) {
+      const daysSince = (Date.now() - new Date(recentEvent.shown_at).getTime()) / (1000 * 60 * 60 * 24)
+      if (daysSince < PERSONAL_INSIGHT_SUPPRESS_DAYS) return null
+    }
+
+    // Log event and return insight
+    await supabase
+      .from('personal_insight_events' as any)
+      .insert({
+        user_id:        USER_ID_TEXT,
+        pattern_key:    match.pattern_key,
+        reflection_key: match.reflection_key,
+      } as any)
+
+    return buildPersonalInsightMessage(match.pattern_key)
+  } catch (err) {
+    console.error('[personal-insight] resolver error:', err)
+    return null
+  }
+}
+
 export async function GET() {
   try {
     const supabase = getServiceClient()
@@ -387,6 +444,14 @@ export async function GET() {
       learningArc = null
     }
 
+    // Personal Insight — non-blocking
+    let personalInsight: PersonalInsightResult = null
+    try {
+      personalInsight = await resolvePersonalInsight(supabase, morningInsight?.insight ?? null)
+    } catch {
+      personalInsight = null
+    }
+
     console.log('[state/today] serving from daily_state', {
       day_key:        data.day_key,
       state,
@@ -412,6 +477,7 @@ export async function GET() {
           ...contract,
           explanation: aiExplanation,
           learning_arc: learningArc,
+          personal_insight: personalInsight,
         },
         intervention,
         guidance,
