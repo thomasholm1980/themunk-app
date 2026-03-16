@@ -26,10 +26,10 @@ const TIMINGS = {
   reflectionMs:  4200,
 };
 
-// State expression
-// GREEN: reference identity — neutral, regulated, steady
-// YELLOW: heavier, warmer. Slower breath, slight posture shift, warmer background
-// RED: pending Ratna spec (Step 2)
+// State expression — all three states complete.
+// GREEN: reference identity — neutral, regulated, steady.
+// YELLOW: heavier, warmer. Slower breath, slight posture + rotation.
+// RED: slower, more grounded. More contained than YELLOW. Not warmer — softer.
 type StateExpression = {
   breathDuration:  string
   breathAmplitude: string
@@ -54,11 +54,11 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
     background:      "#EDE4D3",
   },
   RED: {
-    breathDuration:  "7.2s",
-    breathAmplitude: "1.008",
-    postureOffset:   "2px",
-    torsoRotation:   "0.2deg",
-    background:      "#EDE4D3",
+    breathDuration:  "8.4s",
+    breathAmplitude: "1.005",
+    postureOffset:   "3px",
+    torsoRotation:   "0.6deg",
+    background:      "#EAE5DB",
   },
 }
 
