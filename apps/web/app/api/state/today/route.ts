@@ -220,7 +220,7 @@ async function maybeUpdatePatternMemory(
           pattern_key,
           reflection_key,
           occurrence_count: counts.last60,
-          first_seen_at:    log60?.[log60.length - 1]?.day_key ?? day_key,
+          first_seen_at:    (log60 as any)?.[log60.length - 1]?.day_key ?? day_key,
           last_seen_at:     day_key,
           stability_level:  stability.stability_level,
           confidence:       stability.confidence,
