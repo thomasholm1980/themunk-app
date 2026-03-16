@@ -39,7 +39,7 @@ function getOsloDayKey(date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-async function fetchRecentReflection(supabase: ReturnType<typeof createClient>) {
+async function fetchRecentReflection(supabase: any) {
   try {
     const { data } = await supabase
       .from('reflection_logs')
@@ -145,7 +145,7 @@ Return JSON:
 
 // Personal Pattern Memory — internal, non-blocking
 async function maybeUpdatePatternMemory(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   day_key: string,
   pattern_key: string | null,
   reflection: { energy: number; stress: number; focus: number } | null
