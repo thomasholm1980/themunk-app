@@ -34,9 +34,9 @@ type StateExpression = {
 };
 
 const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
-  GREEN: { breathDuration: "6s", breathAmplitude: "1.012", postureOffset: "0px", torsoRotation: "0deg", background: "#EEE9E0" },
+  GREEN:  { breathDuration: "6s",   breathAmplitude: "1.012", postureOffset: "0px", torsoRotation: "0deg",   background: "#EEE9E0" },
   YELLOW: { breathDuration: "7.2s", breathAmplitude: "1.008", postureOffset: "2px", torsoRotation: "0.2deg", background: "#EDE4D3" },
-  RED: { breathDuration: "8.4s", breathAmplitude: "1.005", postureOffset: "3px", torsoRotation: "0.6deg", background: "#EAE5DB" },
+  RED:    { breathDuration: "8.4s", breathAmplitude: "1.005", postureOffset: "3px", torsoRotation: "0.6deg", background: "#EAE5DB" },
 };
 
 function useMorningArrival(): { showArrival: boolean; showLine1: boolean; showLine2: boolean } {
@@ -69,9 +69,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase("breathing"), TIMINGS.breathStartMs),
-      window.setTimeout(() => setPhase("insight"), TIMINGS.insightMs),
-      window.setTimeout(() => setPhase("guidance"), TIMINGS.guidanceMs),
+      window.setTimeout(() => setPhase("breathing"),  TIMINGS.breathStartMs),
+      window.setTimeout(() => setPhase("insight"),    TIMINGS.insightMs),
+      window.setTimeout(() => setPhase("guidance"),   TIMINGS.guidanceMs),
       window.setTimeout(() => setPhase("reflection"), TIMINGS.reflectionMs),
     ];
     return () => timers.forEach(clearTimeout);
@@ -82,8 +82,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
   }, [reflection, onReflectionSubmit]);
 
   const resolvedInsight = insight ?? DEFAULT_EMPTY_INSIGHT;
-  const showInsight = phase === "insight" || phase === "guidance" || phase === "reflection";
-  const showGuidance = phase === "guidance" || phase === "reflection";
+  const showInsight    = phase === "insight"  || phase === "guidance" || phase === "reflection";
+  const showGuidance   = phase === "guidance" || phase === "reflection";
   const showReflection = phase === "reflection";
 
   if (showArrival) {
@@ -94,7 +94,13 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
           }
+          @keyframes glowPulse {
+            0%   { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+            50%  { opacity: 0.38; transform: translate(-50%, -50%) scale(1.08); }
+            100% { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+          }
         `}</style>
+
         <div className="relative z-10 w-full flex flex-col items-center pt-[13vh] px-6 text-center min-h-[26vh]">
           {showLine1 && (
             <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 650, fontSize: "clamp(20px, 5vw, 30px)", lineHeight: 1.2, color: "#FFFFFF", letterSpacing: "-0.01em", animation: "fadeUp 700ms ease forwards" }}>
@@ -107,9 +113,28 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
             </p>
           )}
         </div>
-        <div className="relative z-0 w-full flex items-center justify-center">
-          <img src="/assets/hero-monk.png" alt="" draggable={false} style={{ width: "min(100vw, 500px)", height: "auto", display: "block", objectFit: "contain", filter: "contrast(1.04)", userSelect: "none" }} />
+
+        <div className="relative z-0 w-full flex items-center justify-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
+          <img
+            src="/assets/hero-monk.png"
+            alt=""
+            draggable={false}
+            style={{ width: "100%", height: "auto", display: "block", objectFit: "contain", filter: "contrast(1.04)", userSelect: "none" }}
+          />
+          <div style={{
+            position: "absolute",
+            top: "38%",
+            left: "50%",
+            width: "90px",
+            height: "90px",
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
+            animation: "glowPulse 4s ease-in-out infinite",
+            pointerEvents: "none",
+            zIndex: 2,
+          }} />
         </div>
+
         <div style={{ position: "fixed", inset: 0, background: "linear-gradient(to bottom, #0A0C10 0%, transparent 20%, transparent 72%, #0A0C10 100%)", pointerEvents: "none", zIndex: 5 }} />
       </div>
     );
@@ -135,14 +160,10 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
           <img src="/assets/munk-transparent.png" alt="Munk" className="w-[260px] select-none" draggable={false} />
         </div>
         {showInsight && (
-          <div className="mt-10 text-[34px] leading-[1.25] font-medium" style={{ animation: "fadeUp 900ms ease" }}>
-            {resolvedInsight}
-          </div>
+          <div className="mt-10 text-[34px] leading-[1.25] font-medium" style={{ animation: "fadeUp 900ms ease" }}>{resolvedInsight}</div>
         )}
         {showGuidance && (
-          <div className="mt-6 text-[18px] text-[#5a544f] max-w-md" style={{ animation: "fadeUp 900ms ease" }}>
-            {guidance}
-          </div>
+          <div className="mt-6 text-[18px] text-[#5a544f] max-w-md" style={{ animation: "fadeUp 900ms ease" }}>{guidance}</div>
         )}
         {showReflection && (
           <div className="mt-12 w-full" style={{ animation: "fadeUp 900ms ease" }}>
