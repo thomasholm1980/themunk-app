@@ -30,7 +30,6 @@ type StateExpression = {
   breathAmplitude: string;
   postureOffset: string;
   torsoRotation: string;
-
 };
 
 const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
@@ -38,6 +37,8 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
   YELLOW: { breathDuration: "7.2s", breathAmplitude: "1.008", postureOffset: "2px", torsoRotation: "0.2deg" },
   RED:    { breathDuration: "8.4s", breathAmplitude: "1.005", postureOffset: "3px", torsoRotation: "0.6deg" },
 };
+
+const APP_BG = "radial-gradient(ellipse at 35% 25%, #6B6490 0%, #4A4470 25%, #2E2B50 50%, #1A1830 75%, #0F0E1E 100%)";
 
 function useMorningArrival(): { showArrival: boolean; showLine1: boolean; showLine2: boolean } {
   const [showArrival, setShowArrival] = useState(false);
@@ -88,7 +89,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
   if (showArrival) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden bg-transparent" // "radial-gradient(circle at 50% 22%, #3B435C 0%, #2A3145 22%, #1B2130 48%, #141722 100%), linear-gradient(180deg, #2A3145 0%, #1B2130 40%, #141722 100%)" }}>
+      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden" style={{ background: APP_BG }}>
         <style>{`
           @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
@@ -115,33 +116,17 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
         </div>
 
         <div className="relative z-0 w-full flex items-center justify-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
-          <img
-            src="/assets/hero-monk.png"
-            alt=""
-            draggable={false}
-            style={{ width: "100%", height: "auto", display: "block", objectFit: "contain", filter: "contrast(1.04)", userSelect: "none" }}
-          />
-          <div style={{
-            position: "absolute",
-            top: "38%",
-            left: "50%",
-            width: "75px",
-            height: "75px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
-            animation: "glowPulse 5s ease-in-out infinite",
-            pointerEvents: "none",
-            zIndex: 2,
-          }} />
+          <img src="/assets/hero-monk.png" alt="" draggable={false} style={{ width: "100%", height: "auto", display: "block", objectFit: "contain", filter: "contrast(1.04)", userSelect: "none" }} />
+          <div style={{ position: "absolute", top: "38%", left: "50%", width: "75px", height: "75px", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)", animation: "glowPulse 5s ease-in-out infinite", pointerEvents: "none", zIndex: 2 }} />
         </div>
 
-        <div style={{ position: "fixed", inset: 0, background: "linear-gradient(to bottom, #0A0C10 0%, transparent 20%, transparent 72%, #0A0C10 100%)", pointerEvents: "none", zIndex: 5 }} />
+        <div style={{ position: "fixed", inset: 0, background: "linear-gradient(to bottom, rgba(15,14,30,0.6) 0%, transparent 20%, transparent 72%, rgba(15,14,30,0.8) 100%)", pointerEvents: "none", zIndex: 5 }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-white transition-colors duration-1000 bg-transparent">
+    <div className="min-h-screen flex items-center justify-center text-white transition-colors duration-1000" style={{ background: APP_BG }}>
       <style>{`
         @keyframes monkBreath {
           0%   { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
@@ -154,24 +139,24 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
         }
       `}</style>
       <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
-        <div className="text-xs tracking-[0.45em] uppercase text-[#5f5a54] mb-1">The Munk</div>
-        <div className="text-sm text-[#6b655e] mb-10">{dateLabel}</div>
+        <div className="text-xs tracking-[0.45em] uppercase text-[#C7C7CC] mb-1">The Munk</div>
+        <div className="text-sm text-[#6E6E73] mb-10">{dateLabel}</div>
         <div style={{ "--amplitude": expr.breathAmplitude, "--posture": expr.postureOffset, "--rotation": expr.torsoRotation, animation: phase === "stillness" ? "none" : `monkBreath ${expr.breathDuration} ease-in-out infinite` } as React.CSSProperties}>
           <img src="/assets/munk-transparent.png" alt="Munk" className="w-[260px] select-none" draggable={false} />
         </div>
         {showInsight && (
-          <div className="mt-10 text-[34px] leading-[1.25] font-medium" style={{ animation: "fadeUp 900ms ease" }}>{resolvedInsight}</div>
+          <div className="mt-10 text-[34px] leading-[1.25] font-medium text-white" style={{ animation: "fadeUp 900ms ease" }}>{resolvedInsight}</div>
         )}
         {showGuidance && (
-          <div className="mt-6 text-[18px] text-[#5a544f] max-w-md" style={{ animation: "fadeUp 900ms ease" }}>{guidance}</div>
+          <div className="mt-6 text-[18px] text-[#C7C7CC] max-w-md" style={{ animation: "fadeUp 900ms ease" }}>{guidance}</div>
         )}
         {showReflection && (
           <div className="mt-12 w-full" style={{ animation: "fadeUp 900ms ease" }}>
-            <div className="text-xs tracking-[0.35em] uppercase text-[#6b655e] mb-4">Reflection</div>
-            <div className="text-lg mb-6">How does your body feel today?</div>
+            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Reflection</div>
+            <div className="text-lg mb-6 text-white">How does your body feel today?</div>
             <div className="flex gap-3 justify-center">
               {(["low", "mid", "high"] as const).map((val) => (
-                <button key={val} onClick={() => setReflection(val)} className={`px-6 py-3 rounded-xl border capitalize transition-all ${reflection === val ? "bg-[#f6f1e8] border-[#b9ae9c]" : "bg-white/40 border-[#d8d0c5]"}`}>
+                <button key={val} onClick={() => setReflection(val)} className={`px-6 py-3 rounded-xl border capitalize transition-all ${reflection === val ? "bg-white/20 border-white/40" : "bg-white/10 border-white/20"}`}>
                   {val.charAt(0).toUpperCase() + val.slice(1)}
                 </button>
               ))}
