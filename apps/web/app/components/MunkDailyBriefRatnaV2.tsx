@@ -95,9 +95,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
             to   { opacity: 1; transform: translateY(0); }
           }
           @keyframes glowPulse {
-            0%   { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
-            50%  { opacity: 0.38; transform: translate(-50%, -50%) scale(1.08); }
-            100% { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+            0%   { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+            50%  { opacity: 0.28; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
           }
         `}</style>
 
@@ -125,11 +125,11 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
             position: "absolute",
             top: "38%",
             left: "50%",
-            width: "90px",
-            height: "90px",
+            width: "75px",
+            height: "75px",
             borderRadius: "50%",
             background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
-            animation: "glowPulse 4s ease-in-out infinite",
+            animation: "glowPulse 5s ease-in-out infinite",
             pointerEvents: "none",
             zIndex: 2,
           }} />
