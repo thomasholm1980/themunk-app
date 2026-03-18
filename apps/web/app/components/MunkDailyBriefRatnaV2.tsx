@@ -138,8 +138,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
         }
       `}</style>
       <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
-        <div className="text-xs tracking-[0.45em] uppercase text-[#C7C7CC] mb-1">The Munk</div>
-        <div className="text-sm text-[#6E6E73] mb-10">{dateLabel}</div>
+        <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-2">The Munk</div>
+        <div className="text-base text-[#C7C7CC] mb-10">{dateLabel}</div>
         <div style={{ "--amplitude": expr.breathAmplitude, "--posture": expr.postureOffset, "--rotation": expr.torsoRotation, animation: phase === "stillness" ? "none" : `monkBreath ${expr.breathDuration} ease-in-out infinite` } as React.CSSProperties}>
           <img src="/assets/munk-transparent.png" alt="Munk" className="w-[260px] select-none" draggable={false} />
         </div>
