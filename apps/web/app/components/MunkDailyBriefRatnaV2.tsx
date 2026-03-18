@@ -30,13 +30,13 @@ type StateExpression = {
   breathAmplitude: string;
   postureOffset: string;
   torsoRotation: string;
-  background: string;
+
 };
 
 const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
-  GREEN:  { breathDuration: "6s",   breathAmplitude: "1.012", postureOffset: "0px", torsoRotation: "0deg",   background: "#EEE9E0" },
-  YELLOW: { breathDuration: "7.2s", breathAmplitude: "1.008", postureOffset: "2px", torsoRotation: "0.2deg", background: "#EDE4D3" },
-  RED:    { breathDuration: "8.4s", breathAmplitude: "1.005", postureOffset: "3px", torsoRotation: "0.6deg", background: "#EAE5DB" },
+  GREEN:  { breathDuration: "6s",   breathAmplitude: "1.012", postureOffset: "0px", torsoRotation: "0deg",   // background removed },
+  YELLOW: { breathDuration: "7.2s", breathAmplitude: "1.008", postureOffset: "2px", torsoRotation: "0.2deg", // background removed },
+  RED:    { breathDuration: "8.4s", breathAmplitude: "1.005", postureOffset: "3px", torsoRotation: "0.6deg", // background removed },
 };
 
 function useMorningArrival(): { showArrival: boolean; showLine1: boolean; showLine2: boolean } {
@@ -88,7 +88,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
   if (showArrival) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden" style={{ background: "radial-gradient(circle at 50% 22%, #3B435C 0%, #2A3145 22%, #1B2130 48%, #141722 100%), linear-gradient(180deg, #2A3145 0%, #1B2130 40%, #141722 100%)" }}>
+      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden bg-transparent" // "radial-gradient(circle at 50% 22%, #3B435C 0%, #2A3145 22%, #1B2130 48%, #141722 100%), linear-gradient(180deg, #2A3145 0%, #1B2130 40%, #141722 100%)" }}>
         <style>{`
           @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
@@ -141,7 +141,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-[#2e2b28] transition-colors duration-1000" style={{ background: expr.background }}>
+    <div className="min-h-screen flex items-center justify-center text-white transition-colors duration-1000 bg-transparent">
       <style>{`
         @keyframes monkBreath {
           0%   { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }

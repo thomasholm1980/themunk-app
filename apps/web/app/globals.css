@@ -17,8 +17,10 @@
 
 body {
   background:
-    radial-gradient(circle at 50% 22%, #3B435C 0%, #2A3145 22%, #1B2130 48%, #141722 100%),
-    linear-gradient(180deg, #2A3145 0%, #1B2130 40%, #141722 100%);
+    radial-gradient(circle at 50% 30%, #2A2F45 0%, #1E2336 28%, #141827 55%, #0A0C10 100%),
+    linear-gradient(180deg, #1E2336 0%, #141827 45%, #0A0C10 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: "Georgia", serif;
   min-height: 100vh;
