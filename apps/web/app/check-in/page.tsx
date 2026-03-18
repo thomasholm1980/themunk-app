@@ -30,6 +30,45 @@ const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
   high: 9,
 };
 
+function WaitingState() {
+  return (
+    <main className="min-h-screen flex items-center justify-center px-6 text-center">
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .waiting-title {
+          animation: fadeUp 700ms ease forwards;
+          animation-delay: 1000ms;
+          opacity: 0;
+        }
+        .waiting-body {
+          animation: fadeUp 700ms ease forwards;
+          animation-delay: 1800ms;
+          opacity: 0;
+        }
+        .waiting-small {
+          animation: fadeUp 700ms ease forwards;
+          animation-delay: 2600ms;
+          opacity: 0;
+        }
+      `}</style>
+      <div className="max-w-md">
+        <h1 className="waiting-title text-4xl md:text-5xl leading-tight text-white mb-4">
+          Your system is still updating.
+        </h1>
+        <p className="waiting-body text-lg text-white/80 mb-3">
+          We&apos;re waiting for your body to report in.
+        </p>
+        <p className="waiting-small text-sm text-white/55">
+          This usually completes later in the morning.
+        </p>
+      </div>
+    </main>
+  );
+}
+
 export default function CheckInPage() {
   const [ratnaContract, setRatnaContract] = useState<RatnaContract | null>(null);
   const [dayKey, setDayKey] = useState<string>("");
@@ -80,41 +119,8 @@ export default function CheckInPage() {
     }
   }
 
-  if (apiError) {
-    return (
-      <main className="min-h-screen flex items-center justify-center px-6 text-center">
-        <div className="max-w-md">
-          <h1 className="text-4xl md:text-5xl leading-tight text-white mb-4">
-            Your system is still updating.
-          </h1>
-          <p className="text-lg text-white/80 mb-3">
-            We&apos;re waiting for your body to report in.
-          </p>
-          <p className="text-sm text-white/55">
-            This usually completes later in the morning.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!ratnaContract) {
-    return (
-      <main className="min-h-screen flex items-center justify-center px-6 text-center">
-        <div className="max-w-md">
-          <h1 className="text-4xl md:text-5xl leading-tight text-white mb-4">
-            Your system is still updating.
-          </h1>
-          <p className="text-lg text-white/80 mb-3">
-            We&apos;re waiting for your body to report in.
-          </p>
-          <p className="text-sm text-white/55">
-            This usually completes later in the morning.
-          </p>
-        </div>
-      </main>
-    );
-  }
+  if (apiError) return <WaitingState />;
+  if (!ratnaContract) return <WaitingState />;
 
   return (
     <MunkDailyBriefRatnaV2
