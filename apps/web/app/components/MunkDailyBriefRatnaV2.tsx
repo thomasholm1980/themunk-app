@@ -88,7 +88,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
   if (showArrival) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden" style={{ background: "#0A0C10" }}>
+      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden" style={{ background: "radial-gradient(circle at 50% 22%, #3B435C 0%, #2A3145 22%, #1B2130 48%, #141722 100%), linear-gradient(180deg, #2A3145 0%, #1B2130 40%, #141722 100%)" }}>
         <style>{`
           @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
