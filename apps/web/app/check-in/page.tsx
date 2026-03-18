@@ -80,21 +80,39 @@ export default function CheckInPage() {
     }
   }
 
-  // Error state — dark background matches hero
   if (apiError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "transparent" }}>
-        <p className="text-sm" style={{ color: "#6b655e" }}>Could not load today&apos;s brief. Try again shortly.</p>
-      </div>
+      <main className="min-h-screen flex items-center justify-center px-6 text-center">
+        <div className="max-w-md">
+          <h1 className="text-4xl md:text-5xl leading-tight text-white mb-4">
+            Your system is still updating.
+          </h1>
+          <p className="text-lg text-white/80 mb-3">
+            We&apos;re waiting for your body to report in.
+          </p>
+          <p className="text-sm text-white/55">
+            This usually completes later in the morning.
+          </p>
+        </div>
+      </main>
     );
   }
 
-  // Loading state — dark background, no white flash
   if (!ratnaContract) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "transparent" }}>
-        <p className="text-xs tracking-widest uppercase font-mono animate-pulse" style={{ color: "#6b655e" }}>Reading signals...</p>
-      </div>
+      <main className="min-h-screen flex items-center justify-center px-6 text-center">
+        <div className="max-w-md">
+          <h1 className="text-4xl md:text-5xl leading-tight text-white mb-4">
+            Your system is still updating.
+          </h1>
+          <p className="text-lg text-white/80 mb-3">
+            We&apos;re waiting for your body to report in.
+          </p>
+          <p className="text-sm text-white/55">
+            This usually completes later in the morning.
+          </p>
+        </div>
+      </main>
     );
   }
 
