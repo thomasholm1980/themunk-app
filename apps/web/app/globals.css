@@ -6,19 +6,13 @@
   --green:          #4ade80;
   --yellow:         #facc15;
   --red:            #f87171;
-  --bg:             #1A1830;
-  --surface:        #2E2B50;
-  --elevated:       #4A4470;
   --text:           #FFFFFF;
   --text-secondary: #C7C7CC;
   --muted:          #6E6E73;
 }
 
 body {
-  background:
-    radial-gradient(ellipse at 35% 25%, #6B6490 0%, #4A4470 25%, #2E2B50 50%, #1A1830 75%, #0F0E1E 100%),
-    linear-gradient(180deg, #4A4470 0%, #2E2B50 35%, #1A1830 70%, #0F0E1E 100%);
-  background-attachment: fixed;
+  background-color: #2E2B50;
   color: var(--text);
   font-family: "Georgia", serif;
   min-height: 100vh;
