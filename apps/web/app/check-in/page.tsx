@@ -31,37 +31,37 @@ const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
 };
 
 function WaitingState() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setVisible(true));
+  }, []);
+
   return (
     <main className="min-h-screen flex items-center justify-center px-6 text-center">
       <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .waiting-title {
-          animation: fadeUp 700ms ease forwards;
-          animation-delay: 600ms;
+        .munk-fade {
           opacity: 0;
+          transform: translateY(6px);
+          transition: opacity 600ms ease-out, transform 600ms ease-out;
+          will-change: opacity, transform;
         }
-        .waiting-body {
-          animation: fadeUp 700ms ease forwards;
-          animation-delay: 800ms;
-          opacity: 0;
+        .munk-fade.visible {
+          opacity: 1;
+          transform: translateY(0);
         }
-        .waiting-small {
-          animation: fadeUp 700ms ease forwards;
-          animation-delay: 1000ms;
-          opacity: 0;
-        }
+        .munk-title  { transition-delay: 120ms; }
+        .munk-body   { transition-delay: 180ms; }
+        .munk-small  { transition-delay: 240ms; }
       `}</style>
       <div className="max-w-md">
-        <h1 className="waiting-title text-4xl md:text-5xl leading-tight text-white mb-4">
+        <h1 className={`munk-fade munk-title text-4xl md:text-5xl leading-tight text-white mb-4${visible ? " visible" : ""}`}>
           Your system is still updating.
         </h1>
-        <p className="waiting-body text-lg text-white/80 mb-3">
+        <p className={`munk-fade munk-body text-lg text-white/80 mb-3${visible ? " visible" : ""}`}>
           We&apos;re waiting for your body to report in.
         </p>
-        <p className="waiting-small text-sm text-white/55">
+        <p className={`munk-fade munk-small text-sm text-white/55${visible ? " visible" : ""}`}>
           This usually completes later in the morning.
         </p>
       </div>
