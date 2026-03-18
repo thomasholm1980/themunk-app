@@ -40,17 +40,17 @@ function WaitingState() {
         }
         .waiting-title {
           animation: fadeUp 700ms ease forwards;
-          animation-delay: 1000ms;
+          animation-delay: 600ms;
           opacity: 0;
         }
         .waiting-body {
           animation: fadeUp 700ms ease forwards;
-          animation-delay: 1800ms;
+          animation-delay: 800ms;
           opacity: 0;
         }
         .waiting-small {
           animation: fadeUp 700ms ease forwards;
-          animation-delay: 2600ms;
+          animation-delay: 1000ms;
           opacity: 0;
         }
       `}</style>
