@@ -17,9 +17,8 @@
 
 body {
   background:
-    radial-gradient(ellipse at 60% 30%, #1C2A3A 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 80%, #111827 0%, transparent 55%),
-    #0A0C10;
+    radial-gradient(circle at 50% 28%, #161C24 0%, #11151B 24%, #0A0C10 52%, #07090D 100%),
+    linear-gradient(180deg, #11151B 0%, #0A0C10 38%, #07090D 100%);
   color: var(--text);
   font-family: "Georgia", serif;
   min-height: 100vh;
