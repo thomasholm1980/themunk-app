@@ -83,7 +83,7 @@ export default function CheckInPage() {
   // Error state — dark background matches hero
   if (apiError) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0C10" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "transparent" }}>
         <p className="text-sm" style={{ color: "#6b655e" }}>Could not load today&apos;s brief. Try again shortly.</p>
       </div>
     );
@@ -92,7 +92,7 @@ export default function CheckInPage() {
   // Loading state — dark background, no white flash
   if (!ratnaContract) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0C10" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "transparent" }}>
         <p className="text-xs tracking-widest uppercase font-mono animate-pulse" style={{ color: "#6b655e" }}>Reading signals...</p>
       </div>
     );
