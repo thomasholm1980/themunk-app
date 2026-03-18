@@ -17,8 +17,18 @@
 
 body {
   background:
-    radial-gradient(circle at 50% 30%, #2A2F45 0%, #1E2336 28%, #141827 55%, #0A0C10 100%),
-    linear-gradient(180deg, #1E2336 0%, #141827 45%, #0A0C10 100%);
+    radial-gradient(circle at 50% 30%,
+      #2A2F45 0%,
+      #1E2336 28%,
+      #141827 55%,
+      #0A0C10 100%
+    ),
+    linear-gradient(
+      180deg,
+      #1E2336 0%,
+      #141827 45%,
+      #0A0C10 100%
+    );
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);

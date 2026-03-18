@@ -38,7 +38,6 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
   RED:    { breathDuration: "8.4s", breathAmplitude: "1.005", postureOffset: "3px", torsoRotation: "0.6deg" },
 };
 
-const APP_BG = "radial-gradient(ellipse at 35% 25%, #6B6490 0%, #4A4470 25%, #2E2B50 50%, #1A1830 75%, #0F0E1E 100%)";
 
 function useMorningArrival(): { showArrival: boolean; showLine1: boolean; showLine2: boolean } {
   const [showArrival, setShowArrival] = useState(false);
@@ -89,7 +88,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
   if (showArrival) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden" style={{ background: APP_BG }}>
+      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden bg-transparent">
         <style>{`
           @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
@@ -126,7 +125,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-white transition-colors duration-1000" style={{ background: APP_BG }}>
+    <div className="min-h-screen flex items-center justify-center text-white transition-colors duration-1000 bg-transparent">
       <style>{`
         @keyframes monkBreath {
           0%   { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
