@@ -25,9 +25,7 @@ interface StateResponse {
 }
 
 const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
-  low: 1,
-  mid: 5,
-  high: 9,
+  low: 1, mid: 5, high: 9,
 };
 
 function WaitingState() {
@@ -40,28 +38,27 @@ function WaitingState() {
   return (
     <main className="min-h-screen flex items-center justify-center px-6 text-center">
       <style>{`
-        .munk-fade {
+        .mf {
           opacity: 0;
-          transform: translateY(6px);
-          transition: opacity 600ms ease-out, transform 600ms ease-out;
+          transform: translateY(8px);
+          transition:
+            opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+            transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
           will-change: opacity, transform;
         }
-        .munk-fade.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .munk-title  { transition-delay: 120ms; }
-        .munk-body   { transition-delay: 180ms; }
-        .munk-small  { transition-delay: 240ms; }
+        .mf.v { opacity: 1; transform: translateY(0); }
+        .mf-title { transition-delay: 120ms; }
+        .mf-body  { transition-delay: 180ms; }
+        .mf-small { transition-delay: 240ms; }
       `}</style>
       <div className="max-w-md">
-        <h1 className={`munk-fade munk-title text-4xl md:text-5xl leading-tight text-white mb-4${visible ? " visible" : ""}`}>
+        <h1 className={`mf mf-title text-4xl md:text-5xl leading-tight text-white mb-4${visible ? " v" : ""}`}>
           Your system is still updating.
         </h1>
-        <p className={`munk-fade munk-body text-lg text-white/80 mb-3${visible ? " visible" : ""}`}>
+        <p className={`mf mf-body text-lg text-white/80 mb-3${visible ? " v" : ""}`}>
           We&apos;re waiting for your body to report in.
         </p>
-        <p className={`munk-fade munk-small text-sm text-white/55${visible ? " visible" : ""}`}>
+        <p className={`mf mf-small text-sm text-white/55${visible ? " v" : ""}`}>
           This usually completes later in the morning.
         </p>
       </div>
@@ -76,13 +73,7 @@ export default function CheckInPage() {
   const [dateLabel, setDateLabel] = useState("");
 
   useEffect(() => {
-    setDateLabel(
-      new Date().toLocaleDateString("no-NO", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      })
-    );
+    setDateLabel(new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" }));
   }, []);
 
   useEffect(() => {
@@ -99,9 +90,7 @@ export default function CheckInPage() {
           guidance: json.contract.guidance.line,
         });
         setApiError(false);
-      } catch {
-        setApiError(true);
-      }
+      } catch { setApiError(true); }
     }
     fetchState();
   }, []);
@@ -114,9 +103,7 @@ export default function CheckInPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ day_key: dayKey, energy: score, stress: score, focus: score }),
       });
-    } catch (err) {
-      console.error("[check-in] reflection submit error", err);
-    }
+    } catch (err) { console.error("[check-in] reflection submit error", err); }
   }
 
   if (apiError) return <WaitingState />;
