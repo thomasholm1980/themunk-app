@@ -6,10 +6,9 @@
   --green:          #4ade80;
   --yellow:         #facc15;
   --red:            #f87171;
-
-  --bg:             #1B2130;
-  --surface:        #2A3145;
-  --elevated:       #3B435C;
+  --bg:             #1A1830;
+  --surface:        #2E2B50;
+  --elevated:       #4A4470;
   --text:           #FFFFFF;
   --text-secondary: #C7C7CC;
   --muted:          #6E6E73;
@@ -17,20 +16,9 @@
 
 body {
   background:
-    radial-gradient(circle at 50% 30%,
-      #2A2F45 0%,
-      #1E2336 28%,
-      #141827 55%,
-      #0A0C10 100%
-    ),
-    linear-gradient(
-      180deg,
-      #1E2336 0%,
-      #141827 45%,
-      #0A0C10 100%
-    );
+    radial-gradient(ellipse at 35% 25%, #6B6490 0%, #4A4470 25%, #2E2B50 50%, #1A1830 75%, #0F0E1E 100%),
+    linear-gradient(180deg, #4A4470 0%, #2E2B50 35%, #1A1830 70%, #0F0E1E 100%);
   background-attachment: fixed;
-  background-repeat: no-repeat;
   color: var(--text);
   font-family: "Georgia", serif;
   min-height: 100vh;
