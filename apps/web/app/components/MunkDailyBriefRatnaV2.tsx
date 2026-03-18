@@ -114,15 +114,15 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
       <style>{`
         .ease-spring {
           transition:
-            opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
-            transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+            opacity 900ms cubic-bezier(0.25, 0.9, 0.3, 1),
+            transform 900ms cubic-bezier(0.25, 0.9, 0.3, 1);
           will-change: opacity, transform;
         }
 
         /* Monk */
         .monk-wrap {
           opacity: 0;
-          transform: translateY(10px) scale(0.985);
+          transform: translateY(4px) scale(0.99);
         }
         .monk-wrap.in {
           opacity: 1;
@@ -133,45 +133,45 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
         /* Header */
         .brief-header {
           opacity: 0;
-          transform: translateY(8px);
+          transform: translateY(4px);
         }
         .brief-header.in {
           opacity: 1;
           transform: translateY(0);
-          transition-delay: 80ms;
+          transition-delay: 60ms;
         }
 
         /* Insight */
         .brief-insight {
           opacity: 0;
-          transform: translateY(8px);
+          transform: translateY(4px);
         }
         .brief-insight.in {
           opacity: 1;
           transform: translateY(0);
-          transition-delay: 600ms;
+          transition-delay: 500ms;
         }
 
         /* Guidance */
         .brief-guidance {
           opacity: 0;
-          transform: translateY(8px);
+          transform: translateY(4px);
         }
         .brief-guidance.in {
           opacity: 1;
           transform: translateY(0);
-          transition-delay: 900ms;
+          transition-delay: 700ms;
         }
 
         /* Reflection */
         .brief-reflection {
           opacity: 0;
-          transform: translateY(8px);
+          transform: translateY(4px);
         }
         .brief-reflection.in {
           opacity: 1;
           transform: translateY(0);
-          transition-delay: 1400ms;
+          transition-delay: 1100ms;
         }
 
         /* Breath animation */
