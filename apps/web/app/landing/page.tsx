@@ -14,14 +14,8 @@ export default function LandingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-      if (res.ok) {
-        setStatus('success')
-      } else {
-        setStatus('error')
-      }
-    } catch {
-      setStatus('error')
-    }
+      if (res.ok) { setStatus('success') } else { setStatus('error') }
+    } catch { setStatus('error') }
   }
 
   return (
@@ -34,6 +28,7 @@ export default function LandingPage() {
           --ink-mid:rgba(42,42,42,0.62);--ink-muted:rgba(42,42,42,0.38);--ink-faint:rgba(42,42,42,0.08);
           --brief-bg:#243d2e;--brief-text:rgba(240,235,224,0.88);--brief-muted:rgba(240,235,224,0.45);
           --brief-dim:rgba(240,235,224,0.28);--brief-faint:rgba(240,235,224,0.12);
+          --dark-end:#1a2e22;
         }
         html{scroll-behavior:smooth;}
         body{background:var(--cream);font-family:'Outfit',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
@@ -50,26 +45,47 @@ export default function LandingPage() {
         h1 em{color:var(--green);font-style:italic;}
         .sub{font-size:16px;line-height:1.72;color:var(--ink-mid);font-weight:300;}
         .hero-right{padding-top:8px;}
-        .form-panel{background:var(--cream-card);border:0.5px solid rgba(42,42,42,0.1);border-radius:8px;padding:32px 28px;}
-        .form-panel-title{font-family:'Lora',serif;font-size:20px;color:var(--ink);margin-bottom:8px;font-weight:600;}
-        .form-panel-invite{font-size:13px;color:var(--green);margin-bottom:24px;font-weight:400;}
+
+        /* ── FORM PANEL ── */
+        .form-panel{
+          background:var(--cream-card);
+          border:0.5px solid rgba(42,42,42,0.12);
+          border-radius:8px;
+          padding:36px 32px;
+          box-shadow: 0 2px 16px rgba(42,42,42,0.06);
+        }
+        .form-panel-title{font-family:'Lora',serif;font-size:21px;color:var(--ink);margin-bottom:6px;font-weight:600;}
+        .form-panel-invite{font-size:13px;color:var(--ink-muted);margin-bottom:28px;font-weight:300;line-height:1.5;}
         .form-row{display:flex;flex-direction:column;gap:10px;}
-        .email-input{width:100%;padding:13px 16px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:300;color:var(--ink);background:var(--cream);border:0.5px solid rgba(42,42,42,0.18);border-radius:2px;outline:none;transition:border-color 0.2s;}
+        .email-input{width:100%;padding:14px 16px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:300;color:var(--ink);background:var(--cream);border:0.5px solid rgba(42,42,42,0.18);border-radius:2px;outline:none;transition:border-color 0.2s;}
         .email-input:focus{border-color:var(--green);}
         .email-input::placeholder{color:var(--ink-muted);}
-        .btn-primary{width:100%;background:var(--green);color:#f0ece2;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;padding:14px 24px;border:none;border-radius:2px;cursor:pointer;transition:background 0.2s;}
+        .btn-primary{width:100%;background:var(--green);color:#f0ece2;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;padding:15px 24px;border:none;border-radius:2px;cursor:pointer;transition:background 0.2s;letter-spacing:0.3px;}
         .btn-primary:hover{background:var(--green-light);}
         .btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
-        .form-trust{font-size:11px;color:var(--ink-muted);margin-top:12px;line-height:1.6;}
-        .success-state{text-align:center;padding:16px 0;}
-        .success-title{font-family:'Lora',serif;font-size:22px;color:var(--green);margin-bottom:8px;font-weight:600;}
-        .success-sub{font-size:14px;color:var(--ink-mid);line-height:1.6;}
+        .form-trust{font-size:11px;color:var(--ink-muted);margin-top:14px;line-height:1.6;padding-top:14px;border-top:0.5px solid var(--ink-faint);}
+
+        /* ── SUCCESS STATE ── */
+        .success-state{padding:20px 0 8px;}
+        .success-marker{
+          display:inline-flex;align-items:center;gap:8px;
+          font-size:11px;letter-spacing:2px;text-transform:uppercase;
+          color:var(--green);font-weight:500;margin-bottom:16px;
+        }
+        .success-marker-dot{
+          width:8px;height:8px;border-radius:50%;
+          background:var(--green);flex-shrink:0;
+        }
+        .success-title{font-family:'Lora',serif;font-size:24px;color:var(--ink);margin-bottom:10px;font-weight:600;line-height:1.2;}
+        .success-sub{font-size:14px;color:var(--ink-mid);line-height:1.7;font-weight:300;}
         .error-msg{font-size:12px;color:#b94040;margin-top:8px;}
+
         .divider{border:none;border-top:0.5px solid var(--ink-faint);margin:0 48px 48px;}
         .cards{padding:0 48px 52px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
         .card{background:var(--cream-card);border:0.5px solid rgba(42,42,42,0.09);border-radius:6px;padding:22px 20px;}
         .card-title{font-family:'Lora',serif;font-size:15px;color:var(--ink);margin-bottom:8px;font-weight:600;}
         .card-body{font-size:13px;color:rgba(42,42,42,0.56);line-height:1.65;font-weight:300;}
+
         .brief-section{background:var(--brief-bg);padding:52px 48px;margin-bottom:0;}
         .brief-inner{max-width:560px;}
         .brief-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--brief-dim);margin-bottom:16px;}
@@ -81,16 +97,32 @@ export default function LandingPage() {
         .signal{font-size:12px;color:var(--brief-muted);}
         .signal strong{display:block;font-size:15px;color:rgba(240,235,224,0.78);font-weight:500;margin-bottom:2px;font-family:'Outfit',sans-serif;}
         .brief-sig{font-size:11px;color:var(--brief-dim);letter-spacing:1px;margin-top:18px;}
-        .price-section{padding:56px 48px;background:var(--cream);}
-        .price-title{font-family:'Lora',serif;font-size:34px;color:var(--green);margin-bottom:6px;font-weight:400;}
-        .price-note{font-size:13px;color:var(--ink-muted);margin-bottom:26px;}
-        .btn-outline{display:inline-block;background:transparent;color:var(--green);font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;padding:13px 28px;border:1px solid var(--green);border-radius:2px;cursor:pointer;text-decoration:none;transition:background 0.2s,color 0.2s;}
-        .btn-outline:hover{background:var(--green);color:#f0ece2;}
-        .social-section{padding:32px 48px 56px;border-top:0.5px solid var(--ink-faint);}
-        .social-text{font-size:13px;color:var(--ink-muted);line-height:1.7;font-weight:300;max-width:380px;}
-        .social-text strong{display:block;color:var(--ink);font-weight:500;margin-bottom:4px;font-size:14px;}
-        .social-link{display:inline-block;margin-top:10px;font-size:12px;color:var(--green);text-decoration:none;border-bottom:1px solid rgba(45,90,61,0.25);padding-bottom:1px;transition:border-color 0.2s;}
-        .social-link:hover{border-color:var(--green);}
+
+        /* ── DARK END SECTION ── */
+        .end-section{
+          background:var(--dark-end);
+          padding:60px 48px 52px;
+        }
+        .end-title{font-family:'Lora',serif;font-size:32px;color:rgba(240,235,224,0.92);margin-bottom:8px;font-weight:400;}
+        .end-note{font-size:13px;color:rgba(240,235,224,0.45);margin-bottom:32px;font-weight:300;}
+        .btn-end{
+          display:inline-block;background:transparent;
+          color:rgba(240,235,224,0.88);
+          font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;
+          padding:13px 28px;
+          border:0.5px solid rgba(240,235,224,0.3);
+          border-radius:2px;cursor:pointer;text-decoration:none;
+          transition:background 0.2s,border-color 0.2s;
+        }
+        .btn-end:hover{background:rgba(240,235,224,0.08);border-color:rgba(240,235,224,0.5);}
+
+        /* ── SOCIAL ── */
+        .social-section{padding:28px 48px 48px;background:var(--dark-end);border-top:0.5px solid rgba(240,235,224,0.08);}
+        .social-text{font-size:13px;color:rgba(240,235,224,0.38);line-height:1.7;font-weight:300;max-width:380px;}
+        .social-text strong{display:block;color:rgba(240,235,224,0.6);font-weight:500;margin-bottom:4px;font-size:13px;}
+        .social-link{display:inline-block;margin-top:10px;font-size:12px;color:rgba(240,235,224,0.45);text-decoration:none;border-bottom:1px solid rgba(240,235,224,0.15);padding-bottom:1px;transition:color 0.2s,border-color 0.2s;}
+        .social-link:hover{color:rgba(240,235,224,0.7);border-color:rgba(240,235,224,0.35);}
+
         @media(max-width:720px){
           .nav{padding:18px 20px;}
           .hero{padding:48px 20px 40px;grid-template-columns:1fr;gap:32px;}
@@ -98,8 +130,8 @@ export default function LandingPage() {
           .divider{margin:0 20px 40px;}
           .cards{padding:0 20px 40px;grid-template-columns:1fr;}
           .brief-section{padding:40px 20px;}
-          .price-section{padding:40px 20px;}
-          .social-section{padding:28px 20px 48px;}
+          .end-section{padding:48px 20px 40px;}
+          .social-section{padding:24px 20px 40px;}
         }
       `}</style>
 
@@ -123,6 +155,10 @@ export default function LandingPage() {
               <div className="form-panel-invite">Vi inviterer nå et begrenset antall til å teste The Munk.</div>
               {status === 'success' ? (
                 <div className="success-state">
+                  <div className="success-marker">
+                    <span className="success-marker-dot"></span>
+                    Registrert
+                  </div>
                   <div className="success-title">Takk — du er med.</div>
                   <div className="success-sub">Vi åpner gradvis for testbrukere.<br />Du får beskjed når vi er klare.</div>
                 </div>
@@ -167,10 +203,10 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="price-section">
-          <div className="price-title">Gratis i testperioden</div>
-          <div className="price-note">Begrenset antall plasser. Ingen binding.</div>
-          <a href="#signup" className="btn-outline">Bli med i testen</a>
+        <div className="end-section">
+          <div className="end-title">Gratis i testperioden</div>
+          <div className="end-note">Begrenset antall plasser. Ingen binding.</div>
+          <a href="#signup" className="btn-end">Bli med i testen</a>
         </div>
 
         <div className="social-section">
