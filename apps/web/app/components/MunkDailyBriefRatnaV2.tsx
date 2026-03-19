@@ -61,7 +61,6 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
   const [mounted, setMounted] = useState(false);
   const { showArrival, showLine1, showLine2 } = useMorningArrival();
 
-  // Single mount trigger — no repeated state phases
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
@@ -72,189 +71,185 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
   const resolvedInsight = insight ?? DEFAULT_EMPTY_INSIGHT;
 
-  // ─── Morning Arrival ───────────────────────────────────────────────────
-  if (showArrival) {
-    return (
-      <div className="min-h-screen w-full flex flex-col items-center overflow-hidden" style={{ background: APP_BG }}>
-        <style>{`
-          @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes glowPulse {
-            0%   { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
-            50%  { opacity: 0.28; transform: translate(-50%, -50%) scale(1.05); }
-            100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
-          }
-        `}</style>
-        <div className="relative z-10 w-full flex flex-col items-center pt-[13vh] px-6 text-center min-h-[26vh]">
-          {showLine1 && (
-            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 650, fontSize: "clamp(20px, 5vw, 30px)", lineHeight: 1.2, color: "#FFFFFF", letterSpacing: "-0.01em", animation: "fadeUp 700ms ease forwards" }}>
-              Are you tracking everything...
-            </p>
-          )}
-          {showLine2 && (
-            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 420, fontSize: "clamp(18px, 4.5vw, 26px)", lineHeight: 1.2, color: "#C7C7CC", letterSpacing: "-0.01em", marginTop: "10px", animation: "fadeUp 700ms ease forwards" }}>
-              ...except your stress?
-            </p>
-          )}
-        </div>
-        <div className="relative z-0 w-full flex items-center justify-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
-          <img src="/assets/hero-monk.png" alt="" draggable={false} style={{ width: "100%", height: "auto", display: "block", objectFit: "contain", filter: "contrast(1.04)", userSelect: "none" }} />
-          <div style={{ position: "absolute", top: "38%", left: "50%", width: "75px", height: "75px", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)", animation: "glowPulse 5s ease-in-out infinite", pointerEvents: "none", zIndex: 2 }} />
-        </div>
-        <div style={{ position: "fixed", inset: 0, background: "linear-gradient(to bottom, rgba(15,20,15,0.6) 0%, transparent 20%, transparent 72%, rgba(10,15,10,0.8) 100%)", pointerEvents: "none", zIndex: 5 }} />
-      </div>
-    );
-  }
-
-  // ─── Daily Brief — CSS-driven, no JS phase switching ──────────────────
   return (
-    <div className="min-h-screen flex items-center justify-center text-white" style={{ background: APP_BG }}>
+    <div
+      className="min-h-screen w-full relative overflow-hidden"
+      style={{ background: APP_BG }}
+    >
       <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes glowPulse {
+          0%   { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+          50%  { opacity: 0.28; transform: translate(-50%, -50%) scale(1.05); }
+          100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes monkBreath {
+          0%   { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
+          50%  { transform: scale(var(--amplitude)) translateY(var(--posture)) rotate(var(--rotation)); }
+          100% { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
+        }
         .ease-spring {
           transition:
             opacity 900ms cubic-bezier(0.25, 0.9, 0.3, 1),
             transform 900ms cubic-bezier(0.25, 0.9, 0.3, 1);
           will-change: opacity, transform;
         }
-
-        /* Monk */
-        .monk-wrap {
-          opacity: 0;
-          transform: translateY(4px) scale(0.99);
-        }
-        .monk-wrap.in {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-          transition-delay: 0ms;
-        }
-
-        /* Header */
-        .brief-header {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-        .brief-header.in {
-          opacity: 1;
-          transform: translateY(0);
-          transition-delay: 60ms;
-        }
-
-        /* Insight */
-        .brief-insight {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-        .brief-insight.in {
-          opacity: 1;
-          transform: translateY(0);
-          transition-delay: 500ms;
-        }
-
-        /* Guidance */
-        .brief-guidance {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-        .brief-guidance.in {
-          opacity: 1;
-          transform: translateY(0);
-          transition-delay: 700ms;
-        }
-
-        /* Reflection */
-        .brief-reflection {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-        .brief-reflection.in {
-          opacity: 1;
-          transform: translateY(0);
-          transition-delay: 1100ms;
-        }
-
-        /* Breath animation */
-        @keyframes monkBreath {
-          0%   { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
-          50%  { transform: scale(var(--amplitude)) translateY(var(--posture)) rotate(var(--rotation)); }
-          100% { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
-        }
-
-        @keyframes glowPulse {
-          0%   { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
-          50%  { opacity: 0.28; transform: translate(-50%, -50%) scale(1.05); }
-          100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
-        }
+        .monk-wrap  { opacity: 0; transform: translateY(4px) scale(0.99); }
+        .monk-wrap.in { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0ms; }
+        .brief-header  { opacity: 0; transform: translateY(4px); }
+        .brief-header.in { opacity: 1; transform: translateY(0); transition-delay: 60ms; }
+        .brief-insight  { opacity: 0; transform: translateY(4px); }
+        .brief-insight.in { opacity: 1; transform: translateY(0); transition-delay: 500ms; }
+        .brief-guidance  { opacity: 0; transform: translateY(4px); }
+        .brief-guidance.in { opacity: 1; transform: translateY(0); transition-delay: 700ms; }
+        .brief-reflection  { opacity: 0; transform: translateY(4px); }
+        .brief-reflection.in { opacity: 1; transform: translateY(0); transition-delay: 1100ms; }
       `}</style>
 
-      <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
+      {/* ── MORNING ARRIVAL OVERLAY ───────────────────────────────────────
+          Rendres oppå bakgrunnen — bakgrunn er alltid synlig fra frame 1.
+          Fades ut etter 4 sekunder via opacity-overgang.
+      ─────────────────────────────────────────────────────────────────── */}
+      <div
+        className="absolute inset-0 flex flex-col items-center z-20"
+        style={{
+          opacity: showArrival ? 1 : 0,
+          pointerEvents: showArrival ? "auto" : "none",
+          transition: "opacity 600ms ease-out",
+        }}
+      >
+        {/* Overlay-dimmer */}
+        <div style={{
+          position: "fixed", inset: 0,
+          background: "linear-gradient(to bottom, rgba(15,20,15,0.6) 0%, transparent 20%, transparent 72%, rgba(10,15,10,0.8) 100%)",
+          pointerEvents: "none", zIndex: 5,
+        }} />
 
-        {/* Header */}
-        <div className={`brief-header ease-spring w-full mb-10${mounted ? " in" : ""}`}>
-          <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-2">The Munk</div>
-          <div className="text-base text-[#C7C7CC]">{dateLabel}</div>
+        {/* Tekst */}
+        <div className="relative z-10 w-full flex flex-col items-center pt-[13vh] px-6 text-center min-h-[26vh]">
+          <p style={{
+            fontFamily: "'Inter', sans-serif", fontWeight: 650,
+            fontSize: "clamp(20px, 5vw, 30px)", lineHeight: 1.2,
+            color: "#FFFFFF", letterSpacing: "-0.01em",
+            opacity: showLine1 ? 1 : 0,
+            transform: showLine1 ? "translateY(0)" : "translateY(10px)",
+            transition: "opacity 700ms ease, transform 700ms ease",
+          }}>
+            Are you tracking everything...
+          </p>
+          <p style={{
+            fontFamily: "'Inter', sans-serif", fontWeight: 420,
+            fontSize: "clamp(18px, 4.5vw, 26px)", lineHeight: 1.2,
+            color: "#C7C7CC", letterSpacing: "-0.01em", marginTop: "10px",
+            opacity: showLine2 ? 1 : 0,
+            transform: showLine2 ? "translateY(0)" : "translateY(10px)",
+            transition: "opacity 700ms ease, transform 700ms ease",
+          }}>
+            ...except your stress?
+          </p>
         </div>
 
-        {/* Monk + glow */}
-        <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`}>
+        {/* Munk + glow */}
+        <div className="relative z-0 w-full flex items-center justify-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
+          <img
+            src="/assets/hero-monk.png"
+            alt=""
+            draggable={false}
+            style={{
+              width: "100%", height: "auto", display: "block",
+              objectFit: "contain", filter: "contrast(1.04)", userSelect: "none",
+              opacity: showArrival ? 1 : 0,
+              transition: "opacity 500ms ease-out",
+            }}
+          />
           <div style={{
-            "--amplitude": expr.breathAmplitude,
-            "--posture": expr.postureOffset,
-            "--rotation": expr.torsoRotation,
-            animation: mounted ? `monkBreath ${expr.breathDuration} ease-in-out infinite` : "none",
-            animationDelay: "1200ms",
-          } as React.CSSProperties}>
-            <img
-              src="/assets/munk-transparent.png"
-              alt="Munk"
-              style={{ width: "320px" }}
-              className="select-none"
-              draggable={false}
-            />
-          </div>
-          <div style={{
-            position: "absolute",
-            top: "42%",
-            left: "50%",
-            width: "75px",
-            height: "75px",
-            borderRadius: "50%",
+            position: "absolute", top: "38%", left: "50%",
+            width: "75px", height: "75px", borderRadius: "50%",
             background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
             animation: "glowPulse 5s ease-in-out infinite",
-            pointerEvents: "none",
+            pointerEvents: "none", zIndex: 2,
           }} />
         </div>
+      </div>
 
-        {/* Insight */}
-        <div className={`brief-insight ease-spring mt-10 text-[34px] leading-[1.25] font-medium${mounted ? " in" : ""}`}>
-          {resolvedInsight}
-        </div>
+      {/* ── DAILY BRIEF ──────────────────────────────────────────────────
+          Alltid i DOM — fades inn når showArrival er false.
+      ─────────────────────────────────────────────────────────────────── */}
+      <div
+        className="w-full flex items-center justify-center text-white"
+        style={{
+          minHeight: "100vh",
+          opacity: showArrival ? 0 : 1,
+          transition: "opacity 600ms ease-out",
+        }}
+      >
+        <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
-        {/* Guidance */}
-        <div className={`brief-guidance ease-spring mt-6 text-[18px] text-[#C7C7CC] max-w-md${mounted ? " in" : ""}`}>
-          {guidance}
-        </div>
-
-        {/* Reflection */}
-        <div className={`brief-reflection ease-spring mt-12 w-full${mounted ? " in" : ""}`}>
-          <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Reflection</div>
-          <div className="text-lg mb-6 text-white">How does your body feel today?</div>
-          <div className="flex gap-3 justify-center">
-            {(["low", "mid", "high"] as const).map((val) => (
-              <button
-                key={val}
-                onClick={() => setReflection(val)}
-                className={`px-6 py-3 rounded-xl border capitalize transition-all ${
-                  reflection === val ? "bg-white/20 border-white/40" : "bg-white/10 border-white/20"
-                }`}
-              >
-                {val.charAt(0).toUpperCase() + val.slice(1)}
-              </button>
-            ))}
+          {/* Header */}
+          <div className={`brief-header ease-spring w-full mb-10${mounted ? " in" : ""}`}>
+            <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-2">The Munk</div>
+            <div className="text-base text-[#C7C7CC]">{dateLabel}</div>
           </div>
-        </div>
 
+          {/* Monk + glow */}
+          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`}>
+            <div style={{
+              "--amplitude": expr.breathAmplitude,
+              "--posture": expr.postureOffset,
+              "--rotation": expr.torsoRotation,
+              animation: mounted ? `monkBreath ${expr.breathDuration} ease-in-out infinite` : "none",
+              animationDelay: "1200ms",
+            } as React.CSSProperties}>
+              <img
+                src="/assets/munk-transparent.png"
+                alt="Munk"
+                style={{ width: "320px" }}
+                className="select-none"
+                draggable={false}
+              />
+            </div>
+            <div style={{
+              position: "absolute", top: "42%", left: "50%",
+              width: "75px", height: "75px", borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
+              animation: "glowPulse 5s ease-in-out infinite",
+              pointerEvents: "none",
+            }} />
+          </div>
+
+          {/* Insight */}
+          <div className={`brief-insight ease-spring mt-10 text-[34px] leading-[1.25] font-medium${mounted ? " in" : ""}`}>
+            {resolvedInsight}
+          </div>
+
+          {/* Guidance */}
+          <div className={`brief-guidance ease-spring mt-6 text-[18px] text-[#C7C7CC] max-w-md${mounted ? " in" : ""}`}>
+            {guidance}
+          </div>
+
+          {/* Reflection */}
+          <div className={`brief-reflection ease-spring mt-12 w-full${mounted ? " in" : ""}`}>
+            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Reflection</div>
+            <div className="text-lg mb-6 text-white">How does your body feel today?</div>
+            <div className="flex gap-3 justify-center">
+              {(["low", "mid", "high"] as const).map((val) => (
+                <button
+                  key={val}
+                  onClick={() => setReflection(val)}
+                  className={`px-6 py-3 rounded-xl border capitalize transition-all ${
+                    reflection === val ? "bg-white/20 border-white/40" : "bg-white/10 border-white/20"
+                  }`}
+                >
+                  {val.charAt(0).toUpperCase() + val.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );
