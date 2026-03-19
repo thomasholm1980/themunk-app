@@ -31,6 +31,12 @@ export default function LandingPage() {
           -webkit-font-smoothing: antialiased;
         }
 
+        .page-shell {
+          max-width: 720px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
         .nav {
           padding: 22px 44px;
           display: flex;
@@ -78,7 +84,6 @@ export default function LandingPage() {
 
         .hero {
           padding: 72px 44px 52px;
-          max-width: 700px;
         }
 
         .kicker {
@@ -163,7 +168,6 @@ export default function LandingPage() {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 12px;
-          max-width: 620px;
         }
 
         .card {
@@ -193,7 +197,6 @@ export default function LandingPage() {
           background: var(--brief-bg);
           border-radius: 8px;
           padding: 32px 36px;
-          max-width: 580px;
         }
 
         .brief-label {
@@ -298,7 +301,6 @@ export default function LandingPage() {
           text-decoration: none;
           border-bottom: 1px solid rgba(45,90,61,0.25);
           padding-bottom: 1px;
-          letter-spacing: 0.2px;
           transition: border-color 0.2s;
         }
 
@@ -310,7 +312,7 @@ export default function LandingPage() {
           h1 { font-size: 34px; }
           .sub { font-size: 16px; }
           .divider { margin: 0 20px 40px; }
-          .cards { padding: 0 20px 40px; grid-template-columns: 1fr; max-width: 100%; }
+          .cards { padding: 0 20px 40px; grid-template-columns: 1fr; }
           .brief-wrap { margin: 0 20px 40px; padding: 24px 22px; }
           .brief-signals { gap: 16px; }
           .price-section { padding: 0 20px 48px; }
@@ -320,72 +322,76 @@ export default function LandingPage() {
 
       <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
 
-      <nav className="nav">
-        <div className="logo">The Munk<span className="logo-ai">AI</span></div>
-        <a href="#signup" className="nav-cta">Bli med i testen</a>
-      </nav>
+      <div className="page-shell">
 
-      <div className="hero">
-        <div className="kicker">
-          <span className="dot"></span>
-          Stress-forståelse for norske menn
-        </div>
-        <h1>Du er mer<br />stresset enn<br /><em>du tror.</em></h1>
-        <p className="sub">The Munk AI leser dine teknologiske bærbare enheter (klokke, ring eller armbånd) og forteller deg — på vanlig norsk — hva stresset gjør i kroppen din. Hver dag. Ikke tall. Ikke grafer. Bare forståelse.</p>
-        <p className="hero-invite">Vi inviterer nå et begrenset antall til å teste The Munk.</p>
-        <a href="#signup" className="btn-primary">Bli med i testen</a>
-        <div className="btn-note">Gratis i testperioden · Ingen betalingskort nødvendig</div>
-      </div>
+        <nav className="nav">
+          <div className="logo">The Munk<span className="logo-ai">AI</span></div>
+          <a href="#signup" className="nav-cta">Bli med i testen</a>
+        </nav>
 
-      <hr className="divider" />
+        <div className="hero">
+          <div className="kicker">
+            <span className="dot"></span>
+            Stress-forståelse for norske menn
+          </div>
+          <h1>Du er mer<br />stresset enn<br /><em>du tror.</em></h1>
+          <p className="sub">The Munk AI leser dine teknologiske bærbare enheter (klokke, ring eller armbånd) og forteller deg — på vanlig norsk — hva stresset gjør i kroppen din. Hver dag. Ikke tall. Ikke grafer. Bare forståelse.</p>
+          <p className="hero-invite">Vi inviterer nå et begrenset antall til å teste The Munk.</p>
+          <a href="#signup" className="btn-primary">Bli med i testen</a>
+          <div className="btn-note">Gratis i testperioden · Ingen betalingskort nødvendig</div>
+        </div>
 
-      <div className="cards">
-        <div className="card">
-          <div className="card-title">Leser din wearable</div>
-          <div className="card-body">Oura, Apple Watch, Garmin eller Whoop (støtte utvides fortløpende).</div>
-        </div>
-        <div className="card">
-          <div className="card-title">Én brief per dag</div>
-          <div className="card-body">En kort forklaring på vanlig norsk, hver morgen.</div>
-        </div>
-        <div className="card">
-          <div className="card-title">Ser mønstrene dine</div>
-          <div className="card-body">Over tid ser The Munk hvordan stresset ditt bygger seg opp — og hva kroppen din prøver å si.</div>
-        </div>
-        <div className="card">
-          <div className="card-title">Ingen optimalisering</div>
-          <div className="card-body">Vi forteller deg ikke hva du skal prestere. Vi hjelper deg å forstå hva som skjer.</div>
-        </div>
-      </div>
+        <hr className="divider" />
 
-      <div className="brief-wrap">
-        <div className="brief-label">Eksempel — daglig brief</div>
-        <div className="brief-state">Moderat stress</div>
-        <div className="brief-lines">
-          <div className="brief-line">Moderat stress i dag.</div>
-          <div className="brief-line">Lav HRV og forhøyet hvilepuls — kroppen er ikke ferdig restituert.</div>
-          <div className="brief-line">Kroppen ber om lavere tempo i dag.</div>
+        <div className="cards">
+          <div className="card">
+            <div className="card-title">Leser din wearable</div>
+            <div className="card-body">Oura, Apple Watch, Garmin eller Whoop (støtte utvides fortløpende).</div>
+          </div>
+          <div className="card">
+            <div className="card-title">Én brief per dag</div>
+            <div className="card-body">En kort forklaring på vanlig norsk, hver morgen.</div>
+          </div>
+          <div className="card">
+            <div className="card-title">Ser mønstrene dine</div>
+            <div className="card-body">Over tid ser The Munk hvordan stresset ditt bygger seg opp — og hva kroppen din prøver å si.</div>
+          </div>
+          <div className="card">
+            <div className="card-title">Ingen optimalisering</div>
+            <div className="card-body">Vi forteller deg ikke hva du skal prestere. Vi hjelper deg å forstå hva som skjer.</div>
+          </div>
         </div>
-        <div className="brief-signals">
-          <div className="signal"><strong>38 ms</strong>HRV · lav</div>
-          <div className="signal"><strong>5 t 42 min</strong>Søvn · lett</div>
-          <div className="signal"><strong>62 bpm</strong>Hvilepuls · høyere enn normalt</div>
-        </div>
-        <div className="brief-sig">The Munk · Onsdag 06:47</div>
-      </div>
 
-      <div className="price-section" id="signup">
-        <div className="price-title">Gratis i testperioden</div>
-        <div className="price-note">Begrenset antall plasser. Ingen binding.</div>
-        <a href="#signup" className="btn-primary">Bli med i testen</a>
-      </div>
-
-      <div className="social-section">
-        <div className="social-text">
-          <strong>Følg utviklingen av The Munk</strong>
-          Jeg deler hvordan stress faktisk ser ut i kroppen — hver dag.
+        <div className="brief-wrap">
+          <div className="brief-label">Eksempel — daglig brief</div>
+          <div className="brief-state">Moderat stress</div>
+          <div className="brief-lines">
+            <div className="brief-line">Moderat stress i dag.</div>
+            <div className="brief-line">Lav HRV og forhøyet hvilepuls — kroppen er ikke ferdig restituert.</div>
+            <div className="brief-line">Kroppen ber om lavere tempo i dag.</div>
+          </div>
+          <div className="brief-signals">
+            <div className="signal"><strong>38 ms</strong>HRV · lav</div>
+            <div className="signal"><strong>5 t 42 min</strong>Søvn · lett</div>
+            <div className="signal"><strong>62 bpm</strong>Hvilepuls · høyere enn normalt</div>
+          </div>
+          <div className="brief-sig">The Munk · Onsdag 06:47</div>
         </div>
-        <a href="https://x.com/themunk_ai" target="_blank" rel="noopener" className="social-link">→ Følg på X</a>
+
+        <div className="price-section" id="signup">
+          <div className="price-title">Gratis i testperioden</div>
+          <div className="price-note">Begrenset antall plasser. Ingen binding.</div>
+          <a href="#signup" className="btn-primary">Bli med i testen</a>
+        </div>
+
+        <div className="social-section">
+          <div className="social-text">
+            <strong>Følg utviklingen av The Munk</strong>
+            Jeg deler hvordan stress faktisk ser ut i kroppen — hver dag.
+          </div>
+          <a href="https://x.com/themunk_ai" target="_blank" rel="noopener" className="social-link">→ Følg på X</a>
+        </div>
+
       </div>
     </>
   )
