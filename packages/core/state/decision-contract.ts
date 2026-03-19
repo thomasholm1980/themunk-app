@@ -63,7 +63,7 @@ const FORECAST: Record<MunkState, { headline: string; line: string }> = {
   },
   YELLOW: {
     headline: 'Moderat stress i dag.',
-    line:     'Restitusjon er delvis. Stressnivået er forhøyet. Ikke tøm det du ikke har bygget opp.',
+    line:     'Lav HRV og forhøyet hvilepuls viser at kroppen ikke er fullt restituert.',
   },
   RED: {
     headline: 'Kroppen er i underskudd. Hvil.',
