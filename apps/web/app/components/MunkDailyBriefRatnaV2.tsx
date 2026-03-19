@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { UI } from "../lib/ui-strings";
 
 type SystemState = "GREEN" | "YELLOW" | "RED";
 type ReflectionValue = "low" | "mid" | "high" | null;
@@ -15,8 +16,6 @@ type Props = {
   dateLabel?: string;
   onReflectionSubmit?: (value: ReflectionValue) => void;
 };
-
-const DEFAULT_EMPTY_INSIGHT = "Your system is stable today.";
 
 type StateExpression = {
   breathDuration: string;
@@ -54,7 +53,7 @@ function useMorningArrival(): { showArrival: boolean; showLine1: boolean; showLi
   return { showArrival, showLine1, showLine2 };
 }
 
-export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", onReflectionSubmit }: Props) {
+export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onReflectionSubmit }: Props) {
   const { state, insight, guidance } = contract;
   const expr = STATE_EXPRESSION[state];
   const [reflection, setReflection] = useState<ReflectionValue>(null);
@@ -69,13 +68,10 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
     if (reflection && onReflectionSubmit) onReflectionSubmit(reflection);
   }, [reflection, onReflectionSubmit]);
 
-  const resolvedInsight = insight ?? DEFAULT_EMPTY_INSIGHT;
+  const resolvedInsight = insight ?? UI.defaultInsight;
 
   return (
-    <div
-      className="min-h-screen w-full relative overflow-hidden"
-      style={{ background: APP_BG }}
-    >
+    <div className="min-h-screen w-full relative overflow-hidden" style={{ background: APP_BG }}>
       <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(10px); }
@@ -92,27 +88,22 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
           100% { transform: scale(1) translateY(var(--posture)) rotate(var(--rotation)); }
         }
         .ease-spring {
-          transition:
-            opacity 900ms cubic-bezier(0.25, 0.9, 0.3, 1),
-            transform 900ms cubic-bezier(0.25, 0.9, 0.3, 1);
+          transition: opacity 900ms cubic-bezier(0.25, 0.9, 0.3, 1), transform 900ms cubic-bezier(0.25, 0.9, 0.3, 1);
           will-change: opacity, transform;
         }
-        .monk-wrap  { opacity: 0; transform: translateY(4px) scale(0.99); }
+        .monk-wrap { opacity: 0; transform: translateY(4px) scale(0.99); }
         .monk-wrap.in { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0ms; }
-        .brief-header  { opacity: 0; transform: translateY(4px); }
+        .brief-header { opacity: 0; transform: translateY(4px); }
         .brief-header.in { opacity: 1; transform: translateY(0); transition-delay: 60ms; }
-        .brief-insight  { opacity: 0; transform: translateY(4px); }
+        .brief-insight { opacity: 0; transform: translateY(4px); }
         .brief-insight.in { opacity: 1; transform: translateY(0); transition-delay: 500ms; }
-        .brief-guidance  { opacity: 0; transform: translateY(4px); }
+        .brief-guidance { opacity: 0; transform: translateY(4px); }
         .brief-guidance.in { opacity: 1; transform: translateY(0); transition-delay: 700ms; }
-        .brief-reflection  { opacity: 0; transform: translateY(4px); }
+        .brief-reflection { opacity: 0; transform: translateY(4px); }
         .brief-reflection.in { opacity: 1; transform: translateY(0); transition-delay: 1100ms; }
       `}</style>
 
-      {/* ── MORNING ARRIVAL OVERLAY ───────────────────────────────────────
-          Rendres oppå bakgrunnen — bakgrunn er alltid synlig fra frame 1.
-          Fades ut etter 4 sekunder via opacity-overgang.
-      ─────────────────────────────────────────────────────────────────── */}
+      {/* ── MORNING ARRIVAL OVERLAY ── */}
       <div
         className="absolute inset-0 flex flex-col items-center z-20"
         style={{
@@ -121,14 +112,11 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
           transition: "opacity 600ms ease-out",
         }}
       >
-        {/* Overlay-dimmer */}
         <div style={{
           position: "fixed", inset: 0,
           background: "linear-gradient(to bottom, rgba(15,20,15,0.6) 0%, transparent 20%, transparent 72%, rgba(10,15,10,0.8) 100%)",
           pointerEvents: "none", zIndex: 5,
         }} />
-
-        {/* Tekst */}
         <div className="relative z-10 w-full flex flex-col items-center pt-[13vh] px-6 text-center min-h-[26vh]">
           <p style={{
             fontFamily: "'Inter', sans-serif", fontWeight: 650,
@@ -138,7 +126,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
             transform: showLine1 ? "translateY(0)" : "translateY(10px)",
             transition: "opacity 700ms ease, transform 700ms ease",
           }}>
-            Are you tracking everything...
+            {UI.arrivalLine1}
           </p>
           <p style={{
             fontFamily: "'Inter', sans-serif", fontWeight: 420,
@@ -148,11 +136,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
             transform: showLine2 ? "translateY(0)" : "translateY(10px)",
             transition: "opacity 700ms ease, transform 700ms ease",
           }}>
-            ...except your stress?
+            {UI.arrivalLine2}
           </p>
         </div>
-
-        {/* Munk + glow */}
         <div className="relative z-0 w-full flex items-center justify-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
           <img
             src="/assets/hero-monk.png"
@@ -175,26 +161,20 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
         </div>
       </div>
 
-      {/* ── DAILY BRIEF ──────────────────────────────────────────────────
-          Alltid i DOM — fades inn når showArrival er false.
-      ─────────────────────────────────────────────────────────────────── */}
+      {/* ── DAILY BRIEF ── */}
       <div
         className="w-full flex items-center justify-center text-white"
-        style={{
-          minHeight: "100vh",
-          opacity: showArrival ? 0 : 1,
-          transition: "opacity 600ms ease-out",
-        }}
+        style={{ minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
       >
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
           {/* Header */}
           <div className={`brief-header ease-spring w-full mb-10${mounted ? " in" : ""}`}>
-            <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-2">The Munk</div>
+            <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-2">{UI.appName}</div>
             <div className="text-base text-[#C7C7CC]">{dateLabel}</div>
           </div>
 
-          {/* Monk + glow */}
+          {/* Munk + glow */}
           <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`}>
             <div style={{
               "--amplitude": expr.breathAmplitude,
@@ -232,8 +212,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
 
           {/* Reflection */}
           <div className={`brief-reflection ease-spring mt-12 w-full${mounted ? " in" : ""}`}>
-            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Reflection</div>
-            <div className="text-lg mb-6 text-white">How does your body feel today?</div>
+            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">{UI.sectionReflection}</div>
+            <div className="text-lg mb-6 text-white">{UI.reflectionQuestion}</div>
             <div className="flex gap-3 justify-center">
               {(["low", "mid", "high"] as const).map((val) => (
                 <button
@@ -243,7 +223,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "Today", o
                     reflection === val ? "bg-white/20 border-white/40" : "bg-white/10 border-white/20"
                   }`}
                 >
-                  {val.charAt(0).toUpperCase() + val.slice(1)}
+                  {UI.reflectionOptions[val]}
                 </button>
               ))}
             </div>
