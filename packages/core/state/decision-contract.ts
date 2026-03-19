@@ -2,12 +2,9 @@ import type { MunkState, Confidence, ComputeStateV2Result } from './types'
 import type { Intervention } from './intervention'
 import type { PatternInsight } from './pattern-engine-v1'
 
-// Canonical morning insight shape for UI and AI consumption.
-// Pattern detection is deterministic. Frequency guard is deterministic.
-// AI may interpret morningInsight, but never generates it.
 export type MorningInsight = {
-  id: string                          // e.g. "hrv_decline", "rhr_elevation", "recovery_rebound"
-  type: string                        // human-readable category label
+  id: string
+  type: string
   confidence: 'low' | 'medium' | 'high'
   message: string
 } | null
@@ -54,47 +51,47 @@ export interface DecisionContract {
 }
 
 const PROTOCOL_MAP: Record<MunkState, 'deep_work' | 'balanced_day' | 'recovery'> = {
-  GREEN: 'deep_work',
+  GREEN:  'deep_work',
   YELLOW: 'balanced_day',
-  RED: 'recovery',
+  RED:    'recovery',
 }
 
 const FORECAST: Record<MunkState, { headline: string; line: string }> = {
   GREEN: {
-    headline: 'High physiological readiness',
-    line: 'Your system is well-recovered. Conditions support sustained focus and physical output.',
+    headline: 'Systemet er restituert. Klar til å yte.',
+    line:     'HRV og søvn er sterke. Kroppen er ladet — bruk morgenen.',
   },
   YELLOW: {
-    headline: 'Moderate physiological readiness',
-    line: 'Your system shows mixed signals. Prioritise lighter cognitive work and monitor energy through the day.',
+    headline: 'Moderat stress i dag.',
+    line:     'Restitusjon er delvis. Stressnivået er forhøyet. Ikke tøm det du ikke har bygget opp.',
   },
   RED: {
-    headline: 'Low physiological readiness',
-    line: 'Your system needs recovery. Reduce demands and protect your resources today.',
+    headline: 'Kroppen er i underskudd. Hvil.',
+    line:     'HRV er lav og søvnen var utilstrekkelig. Output koster mer enn det gir i dag.',
   },
 }
 
 const GUIDANCE: Record<MunkState, string> = {
-  GREEN: 'Schedule your most demanding cognitive or physical work in the first half of the day.',
-  YELLOW: 'Keep tasks manageable. Avoid high-stakes decisions in the afternoon.',
-  RED: 'Rest is productive today. Protect sleep, reduce stimulation, avoid new stressors.',
+  GREEN:  'Legg de tyngste oppgavene til morgenen. 08:00–12:00 er ditt toppvindu.',
+  YELLOW: 'Hold kontrollen på dagen. Beskytt ettermiddagen.',
+  RED:    'Gjør mindre. Hvile er jobben i dag.',
 }
 
 const WINDOWS: Record<MunkState, DecisionContract['windows']> = {
   GREEN: {
     deep_work: '08:00–12:00',
-    training: '12:00–14:00',
-    recovery: null,
+    training:  '12:00–14:00',
+    recovery:  null,
   },
   YELLOW: {
     deep_work: '09:00–11:00',
-    training: null,
-    recovery: '14:00–15:00',
+    training:  null,
+    recovery:  '14:00–15:00',
   },
   RED: {
     deep_work: null,
-    training: null,
-    recovery: 'Throughout the day',
+    training:  null,
+    recovery:  'Hele dagen',
   },
 }
 
@@ -133,21 +130,18 @@ export function buildDecisionContract(
 
   return {
     state,
-    protocol_id: PROTOCOL_MAP[state],
-    forecast: FORECAST[state],
+    protocol_id:     PROTOCOL_MAP[state],
+    forecast:        FORECAST[state],
     guidance: {
-      line: GUIDANCE[state],
+      line:            GUIDANCE[state],
       pattern_context: null,
     },
-    explanation: resolveExplanation(result),
-    windows: WINDOWS[state],
-    confidence: confidenceToNumber(confidence),
-    morningInsight: toMorningInsight(morningInsightRaw),
+    explanation:     resolveExplanation(result),
+    windows:         WINDOWS[state],
+    confidence:      confidenceToNumber(confidence),
+    morningInsight:  toMorningInsight(morningInsightRaw),
     contract_version: 'decision_v1',
   }
 }
 
-// Explanation Layer v2 — AI-generated language field
-// Merged into contract after buildDecisionContract() in today/route.ts
-// null if AI call fails or LLM_ENABLED=false
 export type { ExplanationContract } from './explanation'
