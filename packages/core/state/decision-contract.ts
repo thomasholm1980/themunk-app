@@ -58,16 +58,16 @@ const PROTOCOL_MAP: Record<MunkState, 'deep_work' | 'balanced_day' | 'recovery'>
 
 const FORECAST: Record<MunkState, { headline: string; line: string }> = {
   GREEN: {
-    headline: 'Systemet er restituert. Klar til å yte.',
-    line:     'HRV er sterk og hvilepulsen er normal — kroppen er fullt restituert.',
+    headline: 'Lavt stress i dag.',
+    line:     'Kroppen er i balanse og godt restituert.',
   },
   YELLOW: {
     headline: 'Moderat stress i dag.',
-    line:     'Lav HRV og forhøyet hvilepuls — kroppen er ikke ferdig restituert.',
+    line:     'Kroppen har ikke hentet seg helt inn.',
   },
   RED: {
-    headline: 'Kroppen er i underskudd. Hvil.',
-    line:     'HRV er lav og søvnen var utilstrekkelig — kroppen er i underskudd.',
+    headline: 'Høyt stress i dag.',
+    line:     'Kroppen er tydelig belastet og trenger ro.',
   },
 }
 
