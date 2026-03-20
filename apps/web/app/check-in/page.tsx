@@ -13,6 +13,7 @@ interface MorningInsight {
 }
 
 interface DecisionContract {
+  forecast?: { headline: string; line: string } | null;
   state: "GREEN" | "YELLOW" | "RED";
   guidance: { line: string; pattern_context?: string | null };
   morningInsight: MorningInsight | null;
