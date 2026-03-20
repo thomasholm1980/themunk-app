@@ -64,7 +64,6 @@ const FORECAST: Record<MunkState, { headline: string; line: string }> = {
   YELLOW: {
     headline: 'Moderat stress i dag.',
     line:     'Kroppen din er ikke ferdig med å hente seg inn.',
-    guidance: 'Hold stressnivået lavt i dag.',
   },
   RED: {
     headline: 'Høyt stress i dag.',
