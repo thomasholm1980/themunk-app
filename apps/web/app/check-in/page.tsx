@@ -1,9 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MunkDailyBriefRatnaV2 from "../components/MunkDailyBriefRatnaV2";
 import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
 
 const USER_ID = "thomas";
+const POLL_INTERVAL_MS = 2 * 60 * 1000;
+const POLL_MAX_MS = 60 * 60 * 1000;
 
 interface MorningInsight {
   id: string;
@@ -29,71 +31,107 @@ const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
   low: 1, mid: 5, high: 9,
 };
 
+function getOsloDateKey(): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Oslo" }).format(new Date());
+}
+
 function WaitingState() {
   const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-  }, []);
-
+  useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
   return (
     <main className="min-h-screen flex items-center justify-center px-6 text-center">
       <style>{`
-        .mf {
-          opacity: 0;
-          transform: translateY(8px);
-          transition:
-            opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
-            transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
-          will-change: opacity, transform;
-        }
-        .mf.v { opacity: 1; transform: translateY(0); }
-        .mf-title { transition-delay: 120ms; }
-        .mf-body  { transition-delay: 180ms; }
-        .mf-small { transition-delay: 240ms; }
+        .mf { opacity:0; transform:translateY(8px); transition:opacity 800ms cubic-bezier(.22,1,.36,1),transform 800ms cubic-bezier(.22,1,.36,1); will-change:opacity,transform; }
+        .mf.v { opacity:1; transform:translateY(0); }
+        .mf-title { transition-delay:120ms; }
+        .mf-body  { transition-delay:180ms; }
+        .mf-small { transition-delay:240ms; }
       `}</style>
       <div className="max-w-md">
         <h1 className={`mf mf-title text-4xl md:text-5xl leading-tight text-white mb-4${visible ? " v" : ""}`}>
-          Dataene er ikke klare ennå.
+          Stress i dag
         </h1>
         <p className={`mf mf-body text-lg text-white/80 mb-3${visible ? " v" : ""}`}>
-          Vi venter på signal fra kroppen din.
+          Vi venter på nattens Oura-data.
         </p>
         <p className={`mf mf-small text-sm text-white/55${visible ? " v" : ""}`}>
-          Dette er vanligvis klart utpå morgenen.
+          Du får beskjed når dagens stress er klar.
         </p>
       </div>
     </main>
   );
 }
 
+function ReadyBanner({ onDismiss }: { onDismiss: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDismiss, 5000);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
+  return (
+    <div className="fixed top-4 left-0 right-0 flex justify-center z-50 px-4">
+      <div className="bg-white/10 backdrop-blur text-white text-sm px-5 py-3 rounded-full">
+        Dagens stress er klar.
+      </div>
+    </div>
+  );
+}
+
 export default function CheckInPage() {
   const [ratnaContract, setRatnaContract] = useState<RatnaContract | null>(null);
-  const [dayKey, setDayKey] = useState<string>("");
-  const [apiError, setApiError] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
   const [dateLabel, setDateLabel] = useState("");
+  const [dayKey, setDayKey] = useState<string>("");
+  const pollStartRef = useRef<number | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setDateLabel(new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" }));
   }, []);
 
-  useEffect(() => {
-    async function fetchState() {
-      try {
-        const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
-        if (!res.ok) { setApiError(true); return; }
-        const json: StateResponse = await res.json();
-        if (!json.contract || !json.state) { setApiError(true); return; }
-        setDayKey(json.day_key);
-        setRatnaContract({
-          state: json.contract.state,
-          insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
-          guidance: json.contract.guidance.line,
-        });
-        setApiError(false);
-      } catch { setApiError(true); }
+  async function fetchState(isPolling = false): Promise<boolean> {
+    try {
+      const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
+      if (!res.ok) { if (!isPolling) setWaiting(true); return false; }
+      const json: StateResponse = await res.json();
+      const todayKey = getOsloDateKey();
+      if (!json.contract || !json.state || json.day_key !== todayKey) {
+        if (!isPolling) setWaiting(true);
+        return false;
+      }
+      setDayKey(json.day_key);
+      setRatnaContract({
+        state: json.contract.state,
+        insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
+        guidance: json.contract.guidance.line,
+      });
+      if (isPolling) setShowBanner(true);
+      setWaiting(false);
+      return true;
+    } catch {
+      if (!isPolling) setWaiting(true);
+      return false;
     }
-    fetchState();
+  }
+
+  function startPolling() {
+    if (pollTimerRef.current) return;
+    pollStartRef.current = Date.now();
+    pollTimerRef.current = setInterval(async () => {
+      const elapsed = Date.now() - (pollStartRef.current ?? 0);
+      if (elapsed >= POLL_MAX_MS) { stopPolling(); return; }
+      const found = await fetchState(true);
+      if (found) stopPolling();
+    }, POLL_INTERVAL_MS);
+  }
+
+  function stopPolling() {
+    if (pollTimerRef.current) { clearInterval(pollTimerRef.current); pollTimerRef.current = null; }
+  }
+
+  useEffect(() => {
+    fetchState(false).then((found) => { if (!found) startPolling(); });
+    return () => stopPolling();
   }, []);
 
   async function handleReflectionSubmit(value: "low" | "mid" | "high") {
@@ -107,14 +145,16 @@ export default function CheckInPage() {
     } catch (err) { console.error("[check-in] reflection submit error", err); }
   }
 
-  if (apiError) return <WaitingState />;
-  if (!ratnaContract) return <WaitingState />;
+  if (waiting || !ratnaContract) return <WaitingState />;
 
   return (
-    <MunkDailyBriefRatnaV2
-      contract={ratnaContract}
-      dateLabel={dateLabel}
-      onReflectionSubmit={handleReflectionSubmit}
-    />
+    <>
+      {showBanner && <ReadyBanner onDismiss={() => setShowBanner(false)} />}
+      <MunkDailyBriefRatnaV2
+        contract={ratnaContract}
+        dateLabel={dateLabel}
+        onReflectionSubmit={handleReflectionSubmit}
+      />
+    </>
   );
 }
