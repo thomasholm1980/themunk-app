@@ -164,7 +164,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
       {/* ── DAILY BRIEF ── */}
       <div
         className="w-full flex items-start justify-center text-white"
-        style={{ paddingTop: "48px", minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
+        style={{ paddingTop: "24px", minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
       >
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
@@ -186,7 +186,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               <img
                 src="/assets/munk-transparent.png"
                 alt="Munk"
-                style={{ width: "240px" }}
+                style={{ width: "200px" }}
                 className="select-none"
                 draggable={false}
               />
