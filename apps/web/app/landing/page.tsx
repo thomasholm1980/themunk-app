@@ -192,7 +192,7 @@ export default function LandingPage() {
             <div className="brief-lines">
               <div className="brief-line">Moderat stress i dag.</div>
               <div className="brief-line">Lav HRV og forhøyet hvilepuls — kroppen er ikke ferdig restituert.</div>
-              <div className="brief-line">Kroppen ber om lavere tempo i dag.</div>
+              <div className="brief-line">Hold stressnivået lavt i dag.</div>
             </div>
             <div className="brief-signals">
               <div className="signal"><strong>38 ms</strong>HRV · lav</div>
