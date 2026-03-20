@@ -163,8 +163,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
       {/* ── DAILY BRIEF ── */}
       <div
-        className="w-full flex items-center justify-center text-white"
-        style={{ minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
+        className="w-full flex items-start justify-center text-white"
+        style={{ paddingTop: "48px", minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
       >
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
