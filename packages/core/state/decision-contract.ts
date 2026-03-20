@@ -73,7 +73,7 @@ const FORECAST: Record<MunkState, { headline: string; line: string }> = {
 
 const GUIDANCE: Record<MunkState, string> = {
   GREEN:  'Kroppen er klar — tempoet kan holdes høyt i dag.',
-  YELLOW: 'Kroppen ber om lavere tempo i dag.',
+  YELLOW: 'Hold stressnivået lavt i dag.',
   RED:    'Kroppen er ikke ferdig restituert — dagen krever mindre av deg.',
 }
 
