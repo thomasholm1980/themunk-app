@@ -86,7 +86,7 @@ export default function CheckInPage() {
         setDayKey(json.day_key);
         setRatnaContract({
           state: json.contract.state,
-          insight: json.contract.morningInsight?.message ?? null,
+          insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
           guidance: json.contract.guidance.line,
         });
         setApiError(false);
