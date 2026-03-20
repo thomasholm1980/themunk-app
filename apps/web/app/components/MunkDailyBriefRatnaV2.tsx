@@ -186,7 +186,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               <img
                 src="/assets/munk-transparent.png"
                 alt="Munk"
-                style={{ width: "320px" }}
+                style={{ width: "240px" }}
                 className="select-none"
                 draggable={false}
               />
