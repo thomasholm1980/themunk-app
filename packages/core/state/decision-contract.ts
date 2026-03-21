@@ -58,23 +58,23 @@ const PROTOCOL_MAP: Record<MunkState, 'deep_work' | 'balanced_day' | 'recovery'>
 
 const FORECAST: Record<MunkState, { headline: string; line: string }> = {
   GREEN: {
-    headline: 'Lavt stress i dag.',
-    line:     'Kroppen er i balanse og godt restituert.',
+    headline: 'Lavt stress i dag',
+    line:     'Kroppen er i balanse og godt restituert',
   },
   YELLOW: {
-    headline: 'Moderat stress i dag.',
-    line:     'Kroppen din er ikke ferdig med å hente seg inn.',
+    headline: 'Moderat stress i dag',
+    line:     'Kroppen din er ikke ferdig med å hente seg inn',
   },
   RED: {
-    headline: 'Høyt stress i dag.',
-    line:     'Kroppen er tydelig belastet og trenger ro.',
+    headline: 'Høyt stress i dag',
+    line:     'Kroppen er tydelig belastet og trenger ro',
   },
 }
 
 const GUIDANCE: Record<MunkState, string> = {
-  GREEN:  'Kroppen er klar — tempoet kan holdes høyt i dag.',
-  YELLOW: 'Hold stressnivået lavt i dag.',
-  RED:    'Du tåler mindre stress i dag — prioriter det viktigste først.',
+  GREEN:  'Kroppen er klar — tempoet kan holdes høyt i dag',
+  YELLOW: 'Hold stressnivået lavt i dag',
+  RED:    'Du tåler mindre stress i dag — prioriter det viktigste først',
 }
 
 const WINDOWS: Record<MunkState, DecisionContract['windows']> = {

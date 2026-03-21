@@ -7,7 +7,7 @@ export const UI = {
   appName: 'The Munk',
 
   // Daglig status
-  defaultInsight: 'Systemet ditt er stabilt i dag.',
+  defaultInsight: 'Systemet ditt er stabilt i dag',
 
   // Seksjonsoverskrifter
   sectionReflection: 'Kort sjekk',
@@ -23,7 +23,7 @@ export const UI = {
 
   // Ventetilstand
   waitingTitle: 'Vi gjør klar dagens stressnivå',
-  waitingBody:  'Data fra natten behandles nå — du får beskjed når det er klart.',
+  waitingBody:  'Data fra natten behandles nå — du får beskjed når det er klart',
   waitingHint:  '',
 
   // Morning Arrival (deaktivert)

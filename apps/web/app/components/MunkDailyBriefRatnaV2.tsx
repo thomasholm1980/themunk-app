@@ -70,6 +70,12 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
   const resolvedInsight = insight ?? UI.defaultInsight;
 
+  const osloHour = parseInt(
+    new Intl.DateTimeFormat("no-NO", { timeZone: "Europe/Oslo", hour: "numeric", hour12: false }).format(new Date()),
+    10
+  );
+  const isMorning = osloHour < 10;
+
   return (
     <div className="min-h-screen w-full relative overflow-hidden" style={{ background: APP_BG }}>
       <style>{`
@@ -201,9 +207,11 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* Insight */}
+          {isMorning && (
           <div className={`brief-insight ease-spring mt-4 text-[16px] uppercase tracking-[0.2em] text-[#C7C7CC]${mounted ? " in" : ""}`}>
             Kroppen din er analysert i natt
           </div>
+          )}
           <div className={`brief-insight ease-spring mt-2 text-[34px] leading-[1.25] font-medium${mounted ? " in" : ""}`}>
             {resolvedInsight}
           </div>
