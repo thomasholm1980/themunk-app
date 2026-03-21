@@ -41,6 +41,29 @@ export async function POST() {
   })
 
   try {
+    console.log(`[sync] cron start — day_key: ${dayKey}`)
+
+    // Idempotent guard: skip if fresh daily_state already exists for today
+    const { data: existingState } = await supabase
+      .from('daily_state')
+      .select('state, computed_at')
+      .eq('user_id', USER_ID)
+      .eq('day_key', dayKey)
+      .maybeSingle()
+
+    if (existingState?.computed_at) {
+      const ageMinutes = (Date.now() - new Date(existingState.computed_at).getTime()) / 60000
+      if (ageMinutes < 60) {
+        console.log(`[sync] skipped — fresh daily_state exists (${Math.round(ageMinutes)}min old, state: ${existingState.state})`)
+        return NextResponse.json({
+          status: 'skipped',
+          reason: 'fresh_state_exists',
+          state: existingState.state,
+          age_minutes: Math.round(ageMinutes),
+        })
+      }
+    }
+
     const data = await adapter.fetchDay(USER_ID, dayKey)
 
     if (!data) {

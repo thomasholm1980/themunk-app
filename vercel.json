@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/wearables/oura/sync",
-      "schedule": "0 6 * * *"
+      "schedule": "0 4,5,6,7,8 * * *"
     }
   ]
 }
