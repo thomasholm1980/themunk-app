@@ -21,201 +21,139 @@ export default function LandingPage() {
   return (
     <>
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-          --green:#2d5a3d;--green-light:#3a7050;--gold:#c8a84b;--gold-light:#e8c97a;
-          --cream:#faf8f4;--cream-card:#ffffff;--ink:#1a1a1a;
-          --ink-mid:rgba(42,42,42,0.62);--ink-muted:rgba(42,42,42,0.38);--ink-faint:rgba(42,42,42,0.08);
-          --brief-bg:#243d2e;--brief-text:rgba(240,235,224,0.88);--brief-muted:rgba(240,235,224,0.45);
-          --brief-dim:rgba(240,235,224,0.28);--brief-faint:rgba(240,235,224,0.12);
-          --dark-end:#1a2e22;
-        }
-        html{scroll-behavior:smooth;}
-        body{background:var(--cream);font-family:'Outfit',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
-        .page-shell{max-width:960px;margin:0 auto;width:100%;}
-        .nav{padding:22px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--ink-faint);position:sticky;top:0;background:var(--cream);z-index:100;}
-        .logo{font-family:'Lora',serif;font-size:16px;font-weight:600;letter-spacing:3px;color:var(--green);text-transform:uppercase;}
-        .logo-ai{font-size:10px;color:var(--gold);letter-spacing:2px;margin-left:5px;font-family:'Outfit',sans-serif;font-weight:400;}
-        .nav-cta{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);font-weight:500;cursor:pointer;text-decoration:none;border-bottom:1px solid rgba(45,90,61,0.25);padding-bottom:1px;transition:border-color 0.2s;}
-        .nav-cta:hover{border-color:var(--green);}
-        .hero{padding:72px 48px 60px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
-        .kicker{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green);font-weight:500;margin-bottom:28px;letter-spacing:0.5px;}
-        .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;}
-        h1{font-family:'Lora',serif;font-size:clamp(34px,4vw,48px);line-height:1.15;color:var(--ink);margin-bottom:20px;font-weight:400;}
-        h1 em{color:var(--green);font-style:italic;}
-        .sub{font-size:16px;line-height:1.72;color:var(--ink-mid);font-weight:300;}
-        .hero-right{padding-top:8px;}
-
-        /* ── FORM PANEL ── */
-        .form-panel{
-          background:var(--cream-card);
-          border:0.5px solid rgba(42,42,42,0.12);
-          border-radius:8px;
-          padding:36px 32px;
-          box-shadow: 0 2px 16px rgba(42,42,42,0.06);
-        }
-        .form-panel-title{font-family:'Lora',serif;font-size:21px;color:var(--ink);margin-bottom:6px;font-weight:600;}
-        .form-panel-invite{font-size:13px;color:var(--ink-muted);margin-bottom:28px;font-weight:300;line-height:1.5;}
-        .form-row{display:flex;flex-direction:column;gap:10px;}
-        .email-input{width:100%;padding:14px 16px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:300;color:var(--ink);background:var(--cream);border:0.5px solid rgba(42,42,42,0.18);border-radius:2px;outline:none;transition:border-color 0.2s;}
-        .email-input:focus{border-color:var(--green);}
-        .email-input::placeholder{color:var(--ink-muted);}
-        .btn-primary{width:100%;background:var(--green);color:#f0ece2;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;padding:15px 24px;border:none;border-radius:2px;cursor:pointer;transition:background 0.2s;letter-spacing:0.3px;}
-        .btn-primary:hover{background:var(--green-light);}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{background:#faf8f4;font-family:"Outfit",sans-serif;color:#2a2a2a;}
+        .nav{padding:16px 44px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid rgba(42,42,42,0.08);}
+        .nav-logo{height:52px;width:52px;object-fit:contain;border-radius:50%;}
+        .nav-wordmark{font-family:"Lora",serif;font-size:15px;font-weight:600;letter-spacing:3px;color:#1a1a1a;text-transform:uppercase;margin-left:12px;}
+        .nav-wordmark span{font-size:9px;color:#c8a84b;letter-spacing:2px;font-family:"Outfit",sans-serif;font-weight:400;}
+        .nav-left{display:flex;align-items:center;}
+        .nav-link{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(42,42,42,0.5);cursor:pointer;font-family:"Outfit",sans-serif;font-weight:500;}
+        .hero-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:64px 44px 56px;align-items:start;max-width:1100px;}
+        .kicker{display:flex;align-items:center;gap:8px;font-size:12px;color:#2d5a3d;font-weight:500;margin-bottom:24px;letter-spacing:0.5px;}
+        .dot{width:7px;height:7px;border-radius:50%;background:#c8a84b;flex-shrink:0;display:inline-block;}
+        h1{font-family:"Lora",serif;font-size:46px;line-height:1.15;color:#1a1a1a;margin-bottom:20px;font-weight:400;}
+        h1 em{color:#2d5a3d;font-style:italic;}
+        .sub{font-size:15px;line-height:1.7;color:rgba(42,42,42,0.62);font-weight:300;margin-bottom:0;}
+        .signup-box{background:#fff;border:0.5px solid rgba(42,42,42,0.1);border-radius:8px;padding:32px 28px;}
+        .signup-title{font-family:"Lora",serif;font-size:20px;color:#1a1a1a;margin-bottom:8px;font-weight:600;}
+        .signup-sub{font-size:13px;color:rgba(42,42,42,0.5);margin-bottom:24px;font-weight:300;}
+        .signup-input{width:100%;border:0.5px solid rgba(42,42,42,0.2);border-radius:4px;padding:12px 16px;font-family:"Outfit",sans-serif;font-size:14px;color:#2a2a2a;background:#faf8f4;margin-bottom:12px;outline:none;}
+        .signup-input:focus{border-color:#2d5a3d;}
+        .btn-primary{width:100%;background:#2d5a3d;color:#f0ece2;font-family:"Outfit",sans-serif;font-size:14px;font-weight:500;padding:14px 30px;border:none;border-radius:4px;cursor:pointer;display:block;}
+        .btn-primary:hover{background:#3a7050;}
         .btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
-        .form-trust{font-size:11px;color:var(--ink-muted);margin-top:14px;line-height:1.6;padding-top:14px;border-top:0.5px solid var(--ink-faint);}
-
-        /* ── SUCCESS STATE ── */
+        .signup-note{font-size:11px;color:rgba(42,42,42,0.38);margin-top:14px;line-height:1.6;}
         .success-state{padding:20px 0 8px;}
-        .success-marker{
-          display:inline-flex;align-items:center;gap:8px;
-          font-size:11px;letter-spacing:2px;text-transform:uppercase;
-          color:var(--green);font-weight:500;margin-bottom:16px;
-        }
-        .success-marker-dot{
-          width:8px;height:8px;border-radius:50%;
-          background:var(--green);flex-shrink:0;
-        }
-        .success-title{font-family:'Lora',serif;font-size:24px;color:var(--ink);margin-bottom:10px;font-weight:600;line-height:1.2;}
-        .success-sub{font-size:14px;color:var(--ink-mid);line-height:1.7;font-weight:300;}
+        .success-marker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#2d5a3d;font-weight:500;margin-bottom:16px;}
+        .success-marker-dot{width:8px;height:8px;border-radius:50%;background:#2d5a3d;flex-shrink:0;}
+        .success-title{font-family:"Lora",serif;font-size:24px;color:#1a1a1a;margin-bottom:10px;font-weight:600;line-height:1.2;}
+        .success-sub{font-size:14px;color:rgba(42,42,42,0.62);line-height:1.7;font-weight:300;}
         .error-msg{font-size:12px;color:#b94040;margin-top:8px;}
-
-        .divider{border:none;border-top:0.5px solid var(--ink-faint);margin:0 48px 48px;}
-        .cards{padding:0 48px 52px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-        .card{background:var(--cream-card);border:0.5px solid rgba(42,42,42,0.09);border-radius:6px;padding:22px 20px;}
-        .card-title{font-family:'Lora',serif;font-size:15px;color:var(--ink);margin-bottom:8px;font-weight:600;}
-        .card-body{font-size:13px;color:rgba(42,42,42,0.56);line-height:1.65;font-weight:300;}
-
-        .brief-section{background:var(--brief-bg);padding:52px 48px;margin-bottom:0;}
-        .brief-inner{max-width:560px;}
-        .brief-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--brief-dim);margin-bottom:16px;}
-        .brief-state{display:inline-block;background:rgba(200,168,75,0.2);color:var(--gold-light);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:2px;margin-bottom:20px;}
-        .brief-lines{margin-bottom:22px;}
-        .brief-line{font-family:'Lora',serif;font-size:16px;color:var(--brief-text);line-height:1.8;}
-        .brief-line+.brief-line{margin-top:2px;}
-        .brief-signals{display:flex;gap:28px;padding-top:18px;border-top:0.5px solid var(--brief-faint);flex-wrap:wrap;}
-        .signal{font-size:12px;color:var(--brief-muted);}
-        .signal strong{display:block;font-size:15px;color:rgba(240,235,224,0.78);font-weight:500;margin-bottom:2px;font-family:'Outfit',sans-serif;}
-        .brief-sig{font-size:11px;color:var(--brief-dim);letter-spacing:1px;margin-top:18px;}
-
-        /* ── DARK END SECTION ── */
-        .end-section{
-          background:var(--dark-end);
-          padding:60px 48px 52px;
-        }
-        .end-title{font-family:'Lora',serif;font-size:32px;color:rgba(240,235,224,0.92);margin-bottom:8px;font-weight:400;}
-        .end-note{font-size:13px;color:rgba(240,235,224,0.45);margin-bottom:32px;font-weight:300;}
-        .btn-end{
-          display:inline-block;background:transparent;
-          color:rgba(240,235,224,0.88);
-          font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;
-          padding:13px 28px;
-          border:0.5px solid rgba(240,235,224,0.3);
-          border-radius:2px;cursor:pointer;text-decoration:none;
-          transition:background 0.2s,border-color 0.2s;
-        }
-        .btn-end:hover{background:rgba(240,235,224,0.08);border-color:rgba(240,235,224,0.5);}
-
-        /* ── SOCIAL ── */
-        .social-section{padding:28px 48px 48px;background:var(--dark-end);border-top:0.5px solid rgba(240,235,224,0.08);}
-        .social-text{font-size:13px;color:rgba(240,235,224,0.38);line-height:1.7;font-weight:300;max-width:380px;}
-        .social-text strong{display:block;color:rgba(240,235,224,0.6);font-weight:500;margin-bottom:4px;font-size:13px;}
-        .social-link{display:inline-block;margin-top:10px;font-size:12px;color:rgba(240,235,224,0.45);text-decoration:none;border-bottom:1px solid rgba(240,235,224,0.15);padding-bottom:1px;transition:color 0.2s,border-color 0.2s;}
-        .social-link:hover{color:rgba(240,235,224,0.7);border-color:rgba(240,235,224,0.35);}
-
+        .cards{padding:0 44px 48px;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;}
+        .card{background:#fff;border:0.5px solid rgba(42,42,42,0.09);border-radius:6px;padding:24px 20px;}
+        .card-title{font-family:"Lora",serif;font-size:15px;color:#1a1a1a;margin-bottom:8px;font-weight:600;}
+        .card-body{font-size:13px;color:rgba(42,42,42,0.55);line-height:1.65;font-weight:300;}
+        .brief-section{background:#2d3d2d;padding:56px 44px;margin-top:0;}
+        .brief-inner{max-width:680px;}
+        .brief-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,235,224,0.35);margin-bottom:16px;}
+        .brief-state{display:inline-block;background:rgba(200,168,75,0.2);color:#c8a84b;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:2px;margin-bottom:22px;border:0.5px solid rgba(200,168,75,0.3);}
+        .brief-text{font-size:15px;color:rgba(240,235,224,0.85);line-height:1.75;margin-bottom:24px;}
+        .brief-signals{display:flex;gap:32px;padding-top:20px;border-top:0.5px solid rgba(240,235,224,0.1);}
+        .signal{font-size:11px;color:rgba(240,235,224,0.4);}
+        .signal strong{display:block;font-size:16px;color:rgba(240,235,224,0.75);font-weight:500;margin-bottom:3px;}
+        .brief-sig{font-size:11px;color:rgba(240,235,224,0.25);letter-spacing:1px;margin-top:18px;}
+        .cta-section{background:#1e2e1e;padding:64px 44px;}
+        .cta-title{font-family:"Lora",serif;font-size:38px;color:#f0ece2;font-weight:400;margin-bottom:12px;}
+        .cta-sub{font-size:14px;color:rgba(240,235,224,0.45);margin-bottom:32px;font-weight:300;}
+        .btn-outline{background:transparent;color:#f0ece2;font-family:"Outfit",sans-serif;font-size:13px;font-weight:500;padding:12px 28px;border:0.5px solid rgba(240,235,224,0.4);border-radius:2px;cursor:pointer;display:inline-block;text-decoration:none;}
+        .btn-outline:hover{background:rgba(240,235,224,0.05);}
+        .footer-bar{background:#1a2a1a;padding:28px 44px;border-top:0.5px solid rgba(240,235,224,0.06);}
+        .footer-text{font-size:13px;color:rgba(240,235,224,0.4);margin-bottom:6px;}
+        .footer-link{font-size:13px;color:rgba(200,168,75,0.7);cursor:pointer;text-decoration:none;}
+        .section-gap{padding-top:48px;}
         @media(max-width:720px){
-          .nav{padding:18px 20px;}
-          .hero{padding:48px 20px 40px;grid-template-columns:1fr;gap:32px;}
+          .nav{padding:14px 20px;}
+          .hero-wrap{grid-template-columns:1fr;padding:40px 20px 36px;gap:28px;}
           h1{font-size:34px;}
-          .divider{margin:0 20px 40px;}
           .cards{padding:0 20px 40px;grid-template-columns:1fr;}
           .brief-section{padding:40px 20px;}
-          .end-section{padding:48px 20px 40px;}
-          .social-section{padding:24px 20px 40px;}
+          .cta-section{padding:48px 20px;}
+          .footer-bar{padding:24px 20px;}
         }
       `}</style>
 
-      <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
 
-      <div className="page-shell">
-        <nav className="nav">
-          <div className="logo">The Munk<span className="logo-ai">AI</span></div>
-          <a href="#signup" className="nav-cta">Bli med i testen</a>
-        </nav>
+      <nav className="nav">
+        <div className="nav-left">
+          <img src="/assets/munk-logo.png" alt="The Munk" className="nav-logo" />
+          <div className="nav-wordmark">The Munk<span>AI</span></div>
+        </div>
+        <a href="#signup" className="nav-link">Bli med i testen</a>
+      </nav>
 
-        <div className="hero">
-          <div className="hero-left">
-            <div className="kicker"><span className="dot"></span>Stress-forståelse for norske menn</div>
-            <h1>Du er mer<br />stresset enn<br /><em>du tror.</em></h1>
-            <p className="sub">The Munk AI leser dine teknologiske bærbare enheter (klokke, ring eller armbånd) og forteller deg — på vanlig norsk — hva stresset gjør i kroppen din. Hver dag. Ikke tall. Ikke grafer. Bare forståelse.</p>
-          </div>
-          <div className="hero-right" id="signup">
-            <div className="form-panel">
-              <div className="form-panel-title">Bli med i testen</div>
-              <div className="form-panel-invite">Vi inviterer nå et begrenset antall til å teste The Munk.</div>
-              {status === 'success' ? (
-                <div className="success-state">
-                  <div className="success-marker">
-                    <span className="success-marker-dot"></span>
-                    Registrert
-                  </div>
-                  <div className="success-title">Takk — du er med.</div>
-                  <div className="success-sub">Vi åpner gradvis for testbrukere.<br />Du får beskjed når vi er klare.</div>
-                </div>
-              ) : (
-                <form className="form-row" onSubmit={handleSubmit}>
-                  <input className="email-input" type="email" placeholder="Din e-postadresse" value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'loading'} />
-                  <button className="btn-primary" type="submit" disabled={status === 'loading'}>
-                    {status === 'loading' ? 'Sender...' : 'Bli med i testen'}
-                  </button>
-                  {status === 'error' && <div className="error-msg">Noe gikk galt. Prøv igjen om litt.</div>}
-                  <div className="form-trust">Gratis i testperioden. Ingen binding. Vi sender kun relevant informasjon.</div>
-                </form>
-              )}
-            </div>
+      <div className="hero-wrap">
+        <div>
+          <div className="kicker"><span className="dot"></span>Stress-forståelse for norske menn</div>
+          <h1>Du er mer<br />stresset enn<br /><em>du tror.</em></h1>
+          <p className="sub">The Munk AI leser dine bærbare enheter og forteller deg — på vanlig norsk — hva stresset gjør i kroppen din. Hver dag. Ikke tall. Ikke grafer. Bare forståelse.</p>
+        </div>
+        <div id="signup">
+          <div className="signup-box">
+            <div className="signup-title">Bli med i testen</div>
+            <div className="signup-sub">Vi inviterer nå et begrenset antall til å teste The Munk.</div>
+            {status === 'success' ? (
+              <div className="success-state">
+                <div className="success-marker"><span className="success-marker-dot"></span>Registrert</div>
+                <div className="success-title">Takk — du er med.</div>
+                <div className="success-sub">Vi åpner gradvis for testbrukere.<br />Du får beskjed når vi er klare.</div>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <input className="signup-input" type="email" placeholder="Din e-postadresse" value={email} onChange={e => setEmail(e.target.value)} required disabled={status === 'loading'} />
+                <button className="btn-primary" type="submit" disabled={status === 'loading'}>
+                  {status === 'loading' ? 'Sender...' : 'Bli med i testen'}
+                </button>
+                {status === 'error' && <div className="error-msg">Noe gikk galt. Prøv igjen om litt.</div>}
+                <div className="signup-note">Gratis i testperioden. Ingen binding. Vi sender kun relevant informasjon.</div>
+              </form>
+            )}
           </div>
         </div>
+      </div>
 
-        <hr className="divider" />
+      <div className="cards section-gap">
+        <div className="card"><div className="card-title">Leser din wearable</div><div className="card-body">Oura, Apple Watch, Garmin eller Whoop (støtte utvides fortløpende).</div></div>
+        <div className="card"><div className="card-title">Én brief per dag</div><div className="card-body">En kort forklaring på vanlig norsk, hver morgen.</div></div>
+        <div className="card"><div className="card-title">Ser mønstrene dine</div><div className="card-body">Over tid ser The Munk hvordan stresset ditt bygger seg opp — og hva kroppen din prøver å si.</div></div>
+        <div className="card"><div className="card-title">Ingen optimalisering</div><div className="card-body">Vi forteller deg ikke hva du skal prestere. Vi hjelper deg å forstå hva som skjer.</div></div>
+      </div>
 
-        <div className="cards">
-          <div className="card"><div className="card-title">Leser din wearable</div><div className="card-body">Oura, Apple Watch, Garmin eller Whoop (støtte utvides fortløpende).</div></div>
-          <div className="card"><div className="card-title">Én brief per dag</div><div className="card-body">En kort forklaring på vanlig norsk, hver morgen.</div></div>
-          <div className="card"><div className="card-title">Ser mønstrene dine</div><div className="card-body">Over tid ser The Munk hvordan stresset ditt bygger seg opp — og hva kroppen din prøver å si.</div></div>
-          <div className="card"><div className="card-title">Ingen optimalisering</div><div className="card-body">Vi forteller deg ikke hva du skal prestere. Vi hjelper deg å forstå hva som skjer.</div></div>
-        </div>
-
-        <div className="brief-section">
-          <div className="brief-inner">
-            <div className="brief-label">Eksempel — daglig brief</div>
-            <div className="brief-state">Moderat stress</div>
-            <div className="brief-lines">
-              <div className="brief-line">Moderat stress i dag.</div>
-              <div className="brief-line">Lav HRV og forhøyet hvilepuls — kroppen er ikke ferdig restituert.</div>
-              <div className="brief-line">Hold stressnivået lavt i dag.</div>
-            </div>
-            <div className="brief-signals">
-              <div className="signal"><strong>38 ms</strong>HRV · lav</div>
-              <div className="signal"><strong>5 t 42 min</strong>Søvn · lett</div>
-              <div className="signal"><strong>62 bpm</strong>Hvilepuls · høyere enn normalt</div>
-            </div>
-            <div className="brief-sig">The Munk · Onsdag 06:47</div>
+      <div className="brief-section">
+        <div className="brief-inner">
+          <div className="brief-label">Eksempel — daglig brief</div>
+          <div className="brief-state">Moderat stress</div>
+          <div className="brief-text">Moderat stress i dag.<br />Lav HRV og forhøyet hvilepuls — kroppen er ikke ferdig restituert.<br />Hold stressnivået lavt i dag.</div>
+          <div className="brief-signals">
+            <div className="signal"><strong>38 ms</strong>HRV · lav</div>
+            <div className="signal"><strong>5t 42 min</strong>Søvn · lett</div>
+            <div className="signal"><strong>62 bpm</strong>Hvilepuls · høyere enn normalt</div>
           </div>
+          <div className="brief-sig">The Munk · Onsdag 06:47</div>
         </div>
+      </div>
 
-        <div className="end-section">
-          <div className="end-title">Gratis i testperioden</div>
-          <div className="end-note">Begrenset antall plasser. Ingen binding.</div>
-          <a href="#signup" className="btn-end">Bli med i testen</a>
-        </div>
+      <div className="cta-section">
+        <div className="cta-title">Gratis i testperioden</div>
+        <div className="cta-sub">Begrenset antall plasser. Ingen binding.</div>
+        <a href="#signup" className="btn-outline">Bli med i testen</a>
+      </div>
 
-        <div className="social-section">
-          <div className="social-text">
-            <strong>Følg utviklingen av The Munk</strong>
-            Jeg deler hvordan stress faktisk ser ut i kroppen — hver dag.
-          </div>
-          <a href="https://x.com/themunk_ai" target="_blank" rel="noopener" className="social-link">→ Følg på X</a>
-        </div>
+      <div className="footer-bar">
+        <div className="footer-text">Følg utviklingen av The Munk</div>
+        <div className="footer-text" style={{fontSize:'12px',marginBottom:'10px'}}>Jeg deler hvordan stress faktisk ser ut i kroppen — hver dag.</div>
+        <a href="https://x.com/themunk_ai" target="_blank" rel="noopener" className="footer-link">→ Følg på X</a>
       </div>
     </>
   )
