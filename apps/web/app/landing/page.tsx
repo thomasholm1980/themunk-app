@@ -29,7 +29,7 @@ export default function LandingPage() {
         .nav-wordmark span{font-size:9px;color:#c8a84b;letter-spacing:2px;font-family:"Outfit",sans-serif;font-weight:400;}
         .nav-left{display:flex;align-items:center;}
         .nav-link{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(42,42,42,0.5);cursor:pointer;font-family:"Outfit",sans-serif;font-weight:500;}
-        .hero-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:64px 44px 56px;align-items:start;max-width:1100px;}
+        .hero-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:64px 44px 56px;align-items:start;max-width:1100px;margin:0 auto;}
         .kicker{display:flex;align-items:center;gap:8px;font-size:12px;color:#2d5a3d;font-weight:500;margin-bottom:24px;letter-spacing:0.5px;}
         .dot{width:7px;height:7px;border-radius:50%;background:#c8a84b;flex-shrink:0;display:inline-block;}
         h1{font-family:"Lora",serif;font-size:46px;line-height:1.15;color:#1a1a1a;margin-bottom:20px;font-weight:400;}
@@ -50,7 +50,7 @@ export default function LandingPage() {
         .success-title{font-family:"Lora",serif;font-size:24px;color:#1a1a1a;margin-bottom:10px;font-weight:600;line-height:1.2;}
         .success-sub{font-size:14px;color:rgba(42,42,42,0.62);line-height:1.7;font-weight:300;}
         .error-msg{font-size:12px;color:#b94040;margin-top:8px;}
-        .cards{padding:0 44px 48px;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;}
+        .cards{padding:0 44px 48px;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;margin:0 auto;}
         .card{background:#fff;border:0.5px solid rgba(42,42,42,0.09);border-radius:6px;padding:24px 20px;}
         .card-title{font-family:"Lora",serif;font-size:15px;color:#1a1a1a;margin-bottom:8px;font-weight:600;}
         .card-body{font-size:13px;color:rgba(42,42,42,0.55);line-height:1.65;font-weight:300;}
