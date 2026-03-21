@@ -80,6 +80,32 @@ export async function POST() {
       return NextResponse.json({ status: 'error', error: error.message }, { status: 500 })
     }
 
+    // Sleep completeness guard (Manju v1)
+    // Do not compute final state if sleep looks incomplete:
+    // - sleep_duration_hours < 6
+    // - AND current Oslo hour < 07:30
+    const osloHour = parseFloat(
+      new Intl.DateTimeFormat('no-NO', {
+        timeZone: 'Europe/Oslo',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      }).format(new Date()).replace(':', '.')
+    )
+    const sleepHours = data.sleep_duration_hours ?? 0
+    const sleepIncomplete = sleepHours < 6 && osloHour < 7.5
+
+    if (sleepIncomplete) {
+      console.log(`[sync] sleep guard: ${sleepHours}h sleep at ${osloHour} Oslo — skipping state compute`)
+      return NextResponse.json({
+        status: 'sleep_incomplete',
+        day_key: dayKey,
+        sleep_duration_hours: sleepHours,
+        oslo_hour: osloHour,
+        message: 'Sleep data not yet complete — state not computed',
+      })
+    }
+
     // Compute state and write to daily_state
     const wearableInput = {
       hrv: data.hrv_rmssd,
