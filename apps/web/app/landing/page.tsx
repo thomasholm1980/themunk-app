@@ -22,6 +22,7 @@ export default function LandingPage() {
     <>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0;}
+        .page-shell{width:100%;overflow-x:hidden;}
         body{background:#faf8f4;font-family:"Outfit",sans-serif;color:#2a2a2a;}
         .nav{padding:16px 44px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid rgba(42,42,42,0.08);}
         .nav-logo{height:52px;width:52px;object-fit:contain;border-radius:50%;}
@@ -83,6 +84,7 @@ export default function LandingPage() {
         }
       `}</style>
 
+      <div className="page-shell">
       <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
 
       <nav className="nav">
@@ -154,6 +156,7 @@ export default function LandingPage() {
         <div className="footer-text">Følg utviklingen av The Munk</div>
         <div className="footer-text" style={{fontSize:'12px',marginBottom:'10px'}}>Jeg deler hvordan stress faktisk ser ut i kroppen — hver dag.</div>
         <a href="https://x.com/themunk_ai" target="_blank" rel="noopener" className="footer-link">→ Følg på X</a>
+      </div>
       </div>
     </>
   )
