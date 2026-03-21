@@ -49,13 +49,10 @@ function WaitingState() {
       `}</style>
       <div className="max-w-md">
         <h1 className={`mf mf-title text-4xl md:text-5xl leading-tight text-white mb-4${visible ? " v" : ""}`}>
-          Stress i dag
+          Vi gjør klar dagens stressnivå
         </h1>
         <p className={`mf mf-body text-lg text-white/80 mb-3${visible ? " v" : ""}`}>
-          Vi venter på nattens Oura-data.
-        </p>
-        <p className={`mf mf-small text-sm text-white/55${visible ? " v" : ""}`}>
-          Du får beskjed når dagens stress er klar.
+          Data fra natten behandles nå — du får beskjed når det er klart.
         </p>
       </div>
     </main>

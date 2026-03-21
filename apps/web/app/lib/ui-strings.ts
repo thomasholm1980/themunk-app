@@ -22,11 +22,11 @@ export const UI = {
   },
 
   // Ventetilstand
-  waitingTitle: 'Dataene er ikke klare ennå.',
-  waitingBody:  'Vi venter på signal fra kroppen din.',
-  waitingHint:  'Dette er vanligvis klart utpå morgenen.',
+  waitingTitle: 'Vi gjør klar dagens stressnivå',
+  waitingBody:  'Data fra natten behandles nå — du får beskjed når det er klart.',
+  waitingHint:  '',
 
-  // Morning Arrival
-  arrivalLine1: 'Følger du med på alt...',
-  arrivalLine2: '...bortsett fra stress?',
+  // Morning Arrival (deaktivert)
+  arrivalLine1: '',
+  arrivalLine2: '',
 } as const

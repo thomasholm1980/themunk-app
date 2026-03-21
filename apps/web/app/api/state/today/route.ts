@@ -352,6 +352,7 @@ export async function GET() {
 
     if (error) {
       console.error('[state/today] db error', error.message)
+      console.warn('[state/today] no daily_state for today', { day_key })
       return NextResponse.json(
         { error: 'Internal server error' },
         { status: 500, headers: { 'Cache-Control': 'no-store' } }
@@ -360,7 +361,7 @@ export async function GET() {
 
     if (!data) {
       return NextResponse.json(
-        { error: 'No data available for today' },
+        { status: 'waiting', error: 'No data available for today' },
         { status: 404, headers: { 'Cache-Control': 'no-store' } }
       )
     }

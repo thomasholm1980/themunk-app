@@ -74,7 +74,7 @@ const FORECAST: Record<MunkState, { headline: string; line: string }> = {
 const GUIDANCE: Record<MunkState, string> = {
   GREEN:  'Kroppen er klar — tempoet kan holdes høyt i dag.',
   YELLOW: 'Hold stressnivået lavt i dag.',
-  RED:    'Kroppen er ikke ferdig restituert — dagen krever mindre av deg.',
+  RED:    'Du tåler mindre stress i dag — prioriter det viktigste først.',
 }
 
 const WINDOWS: Record<MunkState, DecisionContract['windows']> = {
