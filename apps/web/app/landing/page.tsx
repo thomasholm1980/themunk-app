@@ -34,7 +34,8 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <div style={{maxWidth:'1100px',margin:'0 auto',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'48px',padding:'64px 44px 56px',alignItems:'start'}}>
+      <div style={{display:'flex',flexDirection:'column',alignItems:'center',width:'100%'}}>
+      <div style={{maxWidth:'1100px',width:'100%',margin:'0 auto',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'48px',padding:'64px 44px 56px',alignItems:'start'}}>
         <div>
           <div style={{display:'flex',alignItems:'center',gap:'8px',fontSize:'12px',color:'#2d5a3d',fontWeight:500,marginBottom:'24px',letterSpacing:'0.5px'}}>
             <span style={{width:'7px',height:'7px',borderRadius:'50%',background:'#c8a84b',flexShrink:0,display:'inline-block'}}></span>
@@ -90,6 +91,7 @@ export default function LandingPage() {
         ))}
       </div>
 
+      </div>
       {/* BRIEF */}
       <div style={{width:'100%',background:'#2d3d2d',padding:'56px 44px'}}>
         <div style={{maxWidth:'680px'}}>
