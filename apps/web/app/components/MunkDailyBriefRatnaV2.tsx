@@ -201,7 +201,10 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* Insight */}
-          <div className={`brief-insight ease-spring mt-4 text-[34px] leading-[1.25] font-medium${mounted ? " in" : ""}`}>
+          <div className={`brief-insight ease-spring mt-4 text-[16px] uppercase tracking-[0.2em] text-[#C7C7CC]${mounted ? " in" : ""}`}>
+            Kroppen din er analysert i natt
+          </div>
+          <div className={`brief-insight ease-spring mt-2 text-[34px] leading-[1.25] font-medium${mounted ? " in" : ""}`}>
             {resolvedInsight}
           </div>
 
