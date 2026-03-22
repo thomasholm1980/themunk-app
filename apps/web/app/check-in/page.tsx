@@ -91,8 +91,7 @@ export default function CheckInPage() {
       const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
       if (!res.ok) { if (!isPolling) setWaiting(true); return false; }
       const json: StateResponse = await res.json();
-      const todayKey = getOsloDateKey();
-      if (!json.contract || !json.state || json.day_key !== todayKey) {
+      if (!json.contract || !json.state) {
         if (!isPolling) setWaiting(true);
         return false;
       }
