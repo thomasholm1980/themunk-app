@@ -151,7 +151,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             alt=""
             draggable={false}
             style={{
-              width: "100%", height: "auto", display: "block",
+              width: "100%", height: "auto", display: showArrival ? "block" : "none",
               objectFit: "contain", filter: "contrast(1.04)", userSelect: "none",
               opacity: showArrival ? 1 : 0,
               transition: "opacity 500ms ease-out",
