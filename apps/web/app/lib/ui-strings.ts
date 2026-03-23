@@ -23,7 +23,7 @@ export const UI = {
 
   // Ventetilstand
   waitingTitle: 'Vi gjør klar dagens stressnivå',
-  waitingBody:  'Data fra natten behandles nå — du får beskjed når det er klart',
+  waitingBody:  'Start rolig — kroppen bruker fortsatt natten',
   waitingHint:  '',
 
   // Morning Arrival (deaktivert)
