@@ -115,7 +115,7 @@ function ReadyBanner({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div className="fixed top-4 left-0 right-0 flex justify-center z-50 px-4">
       <div className="bg-white/10 backdrop-blur text-white text-sm px-5 py-3 rounded-full">
-        Dagens stress er klar.
+        Dagens stress er klar
       </div>
     </div>
   );

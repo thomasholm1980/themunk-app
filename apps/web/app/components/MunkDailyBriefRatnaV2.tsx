@@ -216,6 +216,11 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             {resolvedInsight}
           </div>
 
+          {/* Explanation */}
+          <div className={`brief-insight ease-spring mt-2 text-[18px] text-[#C7C7CC] max-w-md${mounted ? " in" : ""}`}>
+            {state === "GREEN" ? "Kroppen er godt restituert" : state === "RED" ? "Kroppen er under betydelig belastning" : "Kroppen har ikke hentet seg helt inn"}
+          </div>
+
           {/* Guidance */}
           <div className={`brief-guidance ease-spring mt-3 text-[18px] text-[#C7C7CC] max-w-md${mounted ? " in" : ""}`}>
             {guidance}
