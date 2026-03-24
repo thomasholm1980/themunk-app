@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import MunkDailyBriefRatnaV2 from "../components/MunkDailyBriefRatnaV2";
 import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
 import { HeroMunk } from "../components/hero/HeroMunk";
@@ -29,7 +29,7 @@ const APP_BG = "radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F
 
 type Mode = "idle" | "loading" | "ready";
 
-function WaitingState({ onWake, mode }: { onWake: () => Promise<void>; mode: Mode }) {
+function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
 
@@ -109,43 +109,36 @@ export default function CheckInPage() {
     setDateLabel(new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" }));
   }, []);
 
-  // On load: check once. If state exists → show brief. If not → idle (freeze).
-  useEffect(() => {
-    async function initialCheck() {
-      try {
-        const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
-        if (!res.ok) return; // stay idle
-        const json: StateResponse = await res.json();
-        if (!json.contract || !json.state) return; // stay idle
-        setDayKey(json.day_key);
-        setRatnaContract({
-          state: json.contract.state,
-          insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
-          guidance: json.contract.guidance.line,
-        });
-        setMode("ready");
-      } catch {
-        // stay idle
-      }
-    }
-    initialCheck();
-  }, []);
-
-  // Only called on CTA tap
-  async function handleWake() {
+  function handleWake() {
     if (mode !== "idle") return;
     setMode("loading");
 
-    // Trigger sync
-    try {
-      await fetch("/api/wearables/oura/sync", { method: "POST" });
-    } catch {
-      // continue regardless
-    }
+    async function run() {
+      // First: check if state already exists
+      try {
+        const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
+        if (res.ok) {
+          const json: StateResponse = await res.json();
+          if (json.contract && json.state) {
+            setDayKey(json.day_key);
+            setRatnaContract({
+              state: json.contract.state,
+              insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
+              guidance: json.contract.guidance.line,
+            });
+            setMode("ready");
+            return;
+          }
+        }
+      } catch { /* continue to sync */ }
 
-    // Poll for state every 3s for up to 20s
-    const start = Date.now();
-    await new Promise<void>((resolve) => {
+      // State missing — trigger sync
+      try {
+        await fetch("/api/wearables/oura/sync", { method: "POST" });
+      } catch { /* continue */ }
+
+      // Poll for state
+      const start = Date.now();
       const interval = setInterval(async () => {
         try {
           const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
@@ -161,18 +154,18 @@ export default function CheckInPage() {
               setShowBanner(true);
               setMode("ready");
               clearInterval(interval);
-              resolve();
               return;
             }
           }
         } catch { /* continue */ }
         if (Date.now() - start >= WAKE_POLL_MAX_MS) {
           clearInterval(interval);
-          setMode("idle"); // reset to idle if timeout
-          resolve();
+          setMode("idle");
         }
       }, WAKE_POLL_INTERVAL_MS);
-    });
+    }
+
+    run();
   }
 
   async function handleReflectionSubmit(value: "low" | "mid" | "high") {
