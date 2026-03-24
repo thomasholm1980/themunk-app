@@ -5,23 +5,14 @@ import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
 import { HeroMunk } from "../components/hero/HeroMunk";
 
 const USER_ID = "thomas";
-const POLL_INTERVAL_MS = 2 * 60 * 1000;
-const POLL_MAX_MS = 60 * 60 * 1000;
 const WAKE_POLL_INTERVAL_MS = 3000;
 const WAKE_POLL_MAX_MS = 20000;
-
-interface MorningInsight {
-  id: string;
-  type: string;
-  confidence: "low" | "medium" | "high";
-  message: string;
-}
 
 interface DecisionContract {
   forecast?: { headline: string; line: string } | null;
   state: "GREEN" | "YELLOW" | "RED";
   guidance: { line: string; pattern_context?: string | null };
-  morningInsight: MorningInsight | null;
+  morningInsight: { id: string; type: string; confidence: "low" | "medium" | "high"; message: string } | null;
 }
 
 interface StateResponse {
@@ -36,21 +27,13 @@ const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
 
 const APP_BG = "radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%)";
 
-type WakeStatus = "idle" | "fetching" | "timeout";
+type Mode = "idle" | "loading" | "ready";
 
-function WaitingState({ onWake }: { onWake: () => Promise<void> }) {
+function WaitingState({ onWake, mode }: { onWake: () => Promise<void>; mode: Mode }) {
   const [visible, setVisible] = useState(false);
-  const [wakeStatus, setWakeStatus] = useState<WakeStatus>("idle");
-
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
 
-  async function handleWake() {
-    if (wakeStatus === "fetching") return;
-    setWakeStatus("fetching");
-    await onWake();
-  }
-
-  const isFetching = wakeStatus === "fetching";
+  const isFetching = mode === "loading";
 
   return (
     <main
@@ -64,10 +47,6 @@ function WaitingState({ onWake }: { onWake: () => Promise<void> }) {
         .mf-title { transition-delay:120ms; }
         .mf-body  { transition-delay:180ms; }
         .mf-cta   { transition-delay:260ms; }
-        @keyframes pulse-ring {
-          0%   { transform: scale(1);   opacity: 0.6; }
-          100% { transform: scale(1.5); opacity: 0;   }
-        }
       `}</style>
 
       <div className={`mf mf-monk w-full${visible ? " v" : ""}`} style={{ maxWidth: 400 }}>
@@ -88,13 +67,11 @@ function WaitingState({ onWake }: { onWake: () => Promise<void> }) {
             style={{ background: "rgba(255,200,80,0.3)" }} />
         )}
         <button
-          onClick={handleWake}
+          onClick={onWake}
           disabled={isFetching}
           className="relative px-8 py-4 rounded-full text-base font-medium text-white transition-all"
           style={{
-            background: isFetching
-              ? "rgba(255,255,255,0.08)"
-              : "rgba(255,200,80,0.18)",
+            background: isFetching ? "rgba(255,255,255,0.08)" : "rgba(255,200,80,0.18)",
             border: "1px solid rgba(255,200,80,0.35)",
             cursor: isFetching ? "default" : "pointer",
             letterSpacing: "0.04em",
@@ -122,95 +99,81 @@ function ReadyBanner({ onDismiss }: { onDismiss: () => void }) {
 }
 
 export default function CheckInPage() {
+  const [mode, setMode] = useState<Mode>("idle");
   const [ratnaContract, setRatnaContract] = useState<RatnaContract | null>(null);
-  const [waiting, setWaiting] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
   const [dateLabel, setDateLabel] = useState("");
   const [dayKey, setDayKey] = useState<string>("");
-  const pollStartRef = useRef<number | null>(null);
-  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setDateLabel(new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" }));
   }, []);
 
-  async function fetchState(isPolling = false): Promise<boolean> {
-    try {
-      const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
-      if (!res.ok) { if (!isPolling) setWaiting(true); return false; }
-      const json: StateResponse = await res.json();
-      if (!json.contract || !json.state) {
-        if (!isPolling) setWaiting(true);
-        return false;
-      }
-      setDayKey(json.day_key);
-      setRatnaContract({
-        state: json.contract.state,
-        insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
-        guidance: json.contract.guidance.line,
-      });
-      if (isPolling) setShowBanner(true);
-      setWaiting(false);
-      return true;
-    } catch {
-      if (!isPolling) setWaiting(true);
-      return false;
-    }
-  }
-
-  function startPolling() {
-    if (pollTimerRef.current) return;
-    pollStartRef.current = Date.now();
-    pollTimerRef.current = setInterval(async () => {
-      const elapsed = Date.now() - (pollStartRef.current ?? 0);
-      if (elapsed >= POLL_MAX_MS) { stopPolling(); return; }
-      const found = await fetchState(true);
-      if (found) stopPolling();
-    }, POLL_INTERVAL_MS);
-  }
-
-  function stopPolling() {
-    if (pollTimerRef.current) { clearInterval(pollTimerRef.current); pollTimerRef.current = null; }
-  }
-
+  // On load: check once. If state exists → show brief. If not → idle (freeze).
   useEffect(() => {
-    fetchState(false);
-    return () => stopPolling();
+    async function initialCheck() {
+      try {
+        const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
+        if (!res.ok) return; // stay idle
+        const json: StateResponse = await res.json();
+        if (!json.contract || !json.state) return; // stay idle
+        setDayKey(json.day_key);
+        setRatnaContract({
+          state: json.contract.state,
+          insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
+          guidance: json.contract.guidance.line,
+        });
+        setMode("ready");
+      } catch {
+        // stay idle
+      }
+    }
+    initialCheck();
   }, []);
 
+  // Only called on CTA tap
   async function handleWake() {
-    // 1. Trigger sync
+    if (mode !== "idle") return;
+    setMode("loading");
+
+    // Trigger sync
     try {
       await fetch("/api/wearables/oura/sync", { method: "POST" });
     } catch {
-      // continue to poll regardless
+      // continue regardless
     }
 
-    // 2. Poll for daily_state every 3s for up to 20s
+    // Poll for state every 3s for up to 20s
     const start = Date.now();
     await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
-        const found = await fetchState(true);
-        if (found || Date.now() - start >= WAKE_POLL_MAX_MS) {
+        try {
+          const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
+          if (res.ok) {
+            const json: StateResponse = await res.json();
+            if (json.contract && json.state) {
+              setDayKey(json.day_key);
+              setRatnaContract({
+                state: json.contract.state,
+                insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
+                guidance: json.contract.guidance.line,
+              });
+              setShowBanner(true);
+              setMode("ready");
+              clearInterval(interval);
+              resolve();
+              return;
+            }
+          }
+        } catch { /* continue */ }
+        if (Date.now() - start >= WAKE_POLL_MAX_MS) {
           clearInterval(interval);
+          setMode("idle"); // reset to idle if timeout
           resolve();
         }
       }, WAKE_POLL_INTERVAL_MS);
     });
   }
-
-  if (waiting || !ratnaContract) return <WaitingState onWake={handleWake} />;
-
-  return (
-    <>
-      {showBanner && <ReadyBanner onDismiss={() => setShowBanner(false)} />}
-      <MunkDailyBriefRatnaV2
-        contract={ratnaContract}
-        dateLabel={dateLabel}
-        onReflectionSubmit={handleReflectionSubmit}
-      />
-    </>
-  );
 
   async function handleReflectionSubmit(value: "low" | "mid" | "high") {
     const score = REFLECTION_MAP[value];
@@ -222,4 +185,19 @@ export default function CheckInPage() {
       });
     } catch (err) { console.error("[check-in] reflection submit error", err); }
   }
+
+  if (mode === "ready" && ratnaContract) {
+    return (
+      <>
+        {showBanner && <ReadyBanner onDismiss={() => setShowBanner(false)} />}
+        <MunkDailyBriefRatnaV2
+          contract={ratnaContract}
+          dateLabel={dateLabel}
+          onReflectionSubmit={handleReflectionSubmit}
+        />
+      </>
+    );
+  }
+
+  return <WaitingState onWake={handleWake} mode={mode} />;
 }
