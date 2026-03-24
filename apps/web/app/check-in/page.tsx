@@ -2,10 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import MunkDailyBriefRatnaV2 from "../components/MunkDailyBriefRatnaV2";
 import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
+import { HeroMunk } from "../components/hero/HeroMunk";
 
 const USER_ID = "thomas";
 const POLL_INTERVAL_MS = 2 * 60 * 1000;
 const POLL_MAX_MS = 60 * 60 * 1000;
+const WAKE_POLL_INTERVAL_MS = 3000;
+const WAKE_POLL_MAX_MS = 20000;
 
 interface MorningInsight {
   id: string;
@@ -31,29 +34,74 @@ const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
   low: 1, mid: 5, high: 9,
 };
 
-function getOsloDateKey(): string {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Oslo" }).format(new Date());
-}
+const APP_BG = "radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%)";
 
-function WaitingState() {
+type WakeStatus = "idle" | "fetching" | "timeout";
+
+function WaitingState({ onWake }: { onWake: () => Promise<void> }) {
   const [visible, setVisible] = useState(false);
+  const [wakeStatus, setWakeStatus] = useState<WakeStatus>("idle");
+
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
+
+  async function handleWake() {
+    if (wakeStatus === "fetching") return;
+    setWakeStatus("fetching");
+    await onWake();
+  }
+
+  const isFetching = wakeStatus === "fetching";
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 text-center">
+    <main
+      className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
+      style={{ background: APP_BG }}
+    >
       <style>{`
         .mf { opacity:0; transform:translateY(8px); transition:opacity 800ms cubic-bezier(.22,1,.36,1),transform 800ms cubic-bezier(.22,1,.36,1); will-change:opacity,transform; }
         .mf.v { opacity:1; transform:translateY(0); }
+        .mf-monk { transition-delay:0ms; }
         .mf-title { transition-delay:120ms; }
         .mf-body  { transition-delay:180ms; }
-        .mf-small { transition-delay:240ms; }
+        .mf-cta   { transition-delay:260ms; }
+        @keyframes pulse-ring {
+          0%   { transform: scale(1);   opacity: 0.6; }
+          100% { transform: scale(1.5); opacity: 0;   }
+        }
       `}</style>
-      <div className="max-w-md">
-        <h1 className={`mf mf-title text-4xl md:text-5xl leading-tight text-white mb-4${visible ? " v" : ""}`}>
-          Vi gjør klar dagens stressnivå
-        </h1>
-        <p className={`mf mf-body text-lg text-white/80 mb-3${visible ? " v" : ""}`}>
-          Data fra natten behandles nå — du får beskjed når det er klart.
-        </p>
+
+      <div className={`mf mf-monk w-full${visible ? " v" : ""}`} style={{ maxWidth: 400 }}>
+        <HeroMunk state={null} />
+      </div>
+
+      <h1 className={`mf mf-title text-3xl md:text-4xl leading-tight text-white mb-3${visible ? " v" : ""}`}>
+        {isFetching ? "Henter data fra kroppen din..." : "Dagens stress er ikke klart ennå"}
+      </h1>
+
+      <p className={`mf mf-body text-base text-white/70 mb-8${visible ? " v" : ""}`}>
+        {isFetching ? "Dette tar 10–15 sekunder" : "Trykk for å hente dagens status"}
+      </p>
+
+      <div className={`mf mf-cta relative${visible ? " v" : ""}`}>
+        {isFetching && (
+          <span className="absolute inset-0 rounded-full animate-ping"
+            style={{ background: "rgba(255,200,80,0.3)" }} />
+        )}
+        <button
+          onClick={handleWake}
+          disabled={isFetching}
+          className="relative px-8 py-4 rounded-full text-base font-medium text-white transition-all"
+          style={{
+            background: isFetching
+              ? "rgba(255,255,255,0.08)"
+              : "rgba(255,200,80,0.18)",
+            border: "1px solid rgba(255,200,80,0.35)",
+            cursor: isFetching ? "default" : "pointer",
+            letterSpacing: "0.04em",
+          }}
+        >
+          {isFetching ? "Venter..." : "Vekk munken"}
+        </button>
       </div>
     </main>
   );
@@ -130,18 +178,28 @@ export default function CheckInPage() {
     return () => stopPolling();
   }, []);
 
-  async function handleReflectionSubmit(value: "low" | "mid" | "high") {
-    const score = REFLECTION_MAP[value];
+  async function handleWake() {
+    // 1. Trigger sync
     try {
-      await fetch("/api/reflection", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ day_key: dayKey, energy: score, stress: score, focus: score }),
-      });
-    } catch (err) { console.error("[check-in] reflection submit error", err); }
+      await fetch("/api/wearables/oura/sync", { method: "POST" });
+    } catch {
+      // continue to poll regardless
+    }
+
+    // 2. Poll for daily_state every 3s for up to 20s
+    const start = Date.now();
+    await new Promise<void>((resolve) => {
+      const interval = setInterval(async () => {
+        const found = await fetchState(true);
+        if (found || Date.now() - start >= WAKE_POLL_MAX_MS) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, WAKE_POLL_INTERVAL_MS);
+    });
   }
 
-  if (waiting || !ratnaContract) return <WaitingState />;
+  if (waiting || !ratnaContract) return <WaitingState onWake={handleWake} />;
 
   return (
     <>
@@ -153,4 +211,15 @@ export default function CheckInPage() {
       />
     </>
   );
+
+  async function handleReflectionSubmit(value: "low" | "mid" | "high") {
+    const score = REFLECTION_MAP[value];
+    try {
+      await fetch("/api/reflection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ day_key: dayKey, energy: score, stress: score, focus: score }),
+      });
+    } catch (err) { console.error("[check-in] reflection submit error", err); }
+  }
 }
