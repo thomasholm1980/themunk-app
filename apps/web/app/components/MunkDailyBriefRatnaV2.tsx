@@ -170,13 +170,13 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
       {/* ── DAILY BRIEF ── */}
       <div
         className="w-full flex items-start justify-center text-white"
-        style={{ paddingTop: "24px", minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
+        style={{ paddingTop: "12px", minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
       >
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
           {/* Header */}
           <div className={`brief-header ease-spring w-full mb-4${mounted ? " in" : ""}`}>
-            <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-2">{UI.appName}</div>
+            <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-1">{UI.appName}</div>
             <div className="text-base text-[#C7C7CC]">{dateLabel}</div>
           </div>
 
@@ -227,9 +227,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* Reflection */}
-          <div className={`brief-reflection ease-spring mt-6 w-full${mounted ? " in" : ""}`}>
-            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">{UI.sectionReflection}</div>
-            <div className="text-lg mb-6 text-white">{UI.reflectionQuestion}</div>
+          <div className={`brief-reflection ease-spring mt-4 w-full${mounted ? " in" : ""}`}>
+            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-2">{UI.sectionReflection}</div>
+            <div className="text-lg mb-4 text-white">{UI.reflectionQuestion}</div>
             <div className="flex gap-3 justify-center">
               {(["low", "mid", "high"] as const).map((val) => (
                 <button
