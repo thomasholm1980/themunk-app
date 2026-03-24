@@ -174,7 +174,7 @@ export default function CheckInPage() {
   }
 
   useEffect(() => {
-    fetchState(false).then((found) => { if (!found) startPolling(); });
+    fetchState(false);
     return () => stopPolling();
   }, []);
 
