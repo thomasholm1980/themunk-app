@@ -15,6 +15,7 @@ type Props = {
   contract: RatnaContract;
   dateLabel?: string;
   onReflectionSubmit?: (value: ReflectionValue) => void;
+  onRendered?: () => void;
 };
 
 type StateExpression = {
@@ -32,37 +33,31 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
 
 const APP_BG = "radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%)";
 
-function useMorningArrival(): { showArrival: boolean; showLine1: boolean; showLine2: boolean } {
-  const [showArrival, setShowArrival] = useState(false);
-  const [showLine1, setShowLine1] = useState(false);
-  const [showLine2, setShowLine2] = useState(false);
+const STATE_LABEL: Record<SystemState, string> = {
+  GREEN:  "Godt restituert",
+  YELLOW: "Moderat stress",
+  RED:    "Høyt stress",
+};
 
-  useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    const lastArrival = localStorage.getItem("munk_last_arrival");
-    if (lastArrival !== today) {
-      localStorage.setItem("munk_last_arrival", today);
-      setShowArrival(true);
-      const t1 = window.setTimeout(() => setShowLine1(true), 800);
-      const t2 = window.setTimeout(() => setShowLine2(true), 1400);
-      const t3 = window.setTimeout(() => setShowArrival(false), 4000);
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-    }
-  }, []);
+const STATE_BODY: Record<SystemState, string> = {
+  GREEN:  "Kroppen er godt restituert",
+  YELLOW: "Kroppen har ikke hentet seg helt inn",
+  RED:    "Kroppen er under betydelig belastning",
+};
 
-  return { showArrival, showLine1, showLine2 };
-}
-
-export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onReflectionSubmit }: Props) {
+export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onReflectionSubmit, onRendered }: Props) {
   const { state, insight, guidance } = contract;
   const expr = STATE_EXPRESSION[state];
   const [reflection, setReflection] = useState<ReflectionValue>(null);
   const [mounted, setMounted] = useState(false);
-  const { showArrival, showLine1, showLine2 } = useMorningArrival();
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
+
+  useEffect(() => {
+    if (mounted && onRendered) onRendered();
+  }, [mounted]);
 
   useEffect(() => {
     if (reflection && onReflectionSubmit) onReflectionSubmit(reflection);
@@ -70,19 +65,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
   const resolvedInsight = insight ?? UI.defaultInsight;
 
-  const osloHour = parseInt(
-    new Intl.DateTimeFormat("no-NO", { timeZone: "Europe/Oslo", hour: "numeric", hour12: false }).format(new Date()),
-    10
-  );
-  const isMorning = osloHour < 10;
-
   return (
     <div className="min-h-screen w-full relative overflow-hidden" style={{ background: APP_BG }}>
       <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes glowPulse {
           0%   { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
           50%  { opacity: 0.28; transform: translate(-50%, -50%) scale(1.05); }
@@ -97,91 +82,26 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           transition: opacity 900ms cubic-bezier(0.25, 0.9, 0.3, 1), transform 900ms cubic-bezier(0.25, 0.9, 0.3, 1);
           will-change: opacity, transform;
         }
-        .monk-wrap { opacity: 0; transform: translateY(4px) scale(0.99); }
+        .monk-wrap   { opacity: 0; transform: translateY(4px) scale(0.99); }
         .monk-wrap.in { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0ms; }
-        .brief-header { opacity: 0; transform: translateY(4px); }
-        .brief-header.in { opacity: 1; transform: translateY(0); transition-delay: 60ms; }
-        .brief-insight { opacity: 0; transform: translateY(4px); }
-        .brief-insight.in { opacity: 1; transform: translateY(0); transition-delay: 500ms; }
-        .brief-guidance { opacity: 0; transform: translateY(4px); }
-        .brief-guidance.in { opacity: 1; transform: translateY(0); transition-delay: 700ms; }
-        .brief-reflection { opacity: 0; transform: translateY(4px); }
-        .brief-reflection.in { opacity: 1; transform: translateY(0); transition-delay: 1100ms; }
+        .b-state     { opacity: 0; transform: translateY(4px); }
+        .b-state.in  { opacity: 1; transform: translateY(0); transition-delay: 200ms; }
+        .b-why       { opacity: 0; transform: translateY(4px); }
+        .b-why.in    { opacity: 1; transform: translateY(0); transition-delay: 400ms; }
+        .b-action    { opacity: 0; transform: translateY(4px); }
+        .b-action.in { opacity: 1; transform: translateY(0); transition-delay: 600ms; }
+        .b-reflect   { opacity: 0; transform: translateY(4px); }
+        .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 900ms; }
       `}</style>
 
-      {/* ── MORNING ARRIVAL OVERLAY ── */}
-      <div
-        className="absolute inset-0 flex flex-col items-center z-20"
-        style={{
-          opacity: showArrival ? 1 : 0,
-          pointerEvents: showArrival ? "auto" : "none",
-          transition: "opacity 600ms ease-out",
-        }}
-      >
-        <div style={{
-          position: "fixed", inset: 0,
-          background: "linear-gradient(to bottom, rgba(15,20,15,0.6) 0%, transparent 20%, transparent 72%, rgba(10,15,10,0.8) 100%)",
-          pointerEvents: "none", zIndex: 5,
-        }} />
-        <div className="relative z-10 w-full flex flex-col items-center pt-[13vh] px-6 text-center min-h-[26vh]">
-          <p style={{
-            fontFamily: "'Inter', sans-serif", fontWeight: 650,
-            fontSize: "clamp(20px, 5vw, 30px)", lineHeight: 1.2,
-            color: "#FFFFFF", letterSpacing: "-0.01em",
-            opacity: showLine1 ? 1 : 0,
-            transform: showLine1 ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 700ms ease, transform 700ms ease",
-          }}>
-            {UI.arrivalLine1}
-          </p>
-          <p style={{
-            fontFamily: "'Inter', sans-serif", fontWeight: 420,
-            fontSize: "clamp(18px, 4.5vw, 26px)", lineHeight: 1.2,
-            color: "#C7C7CC", letterSpacing: "-0.01em", marginTop: "10px",
-            opacity: showLine2 ? 1 : 0,
-            transform: showLine2 ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 700ms ease, transform 700ms ease",
-          }}>
-            {UI.arrivalLine2}
-          </p>
-        </div>
-        <div className="relative z-0 w-full flex items-center justify-center" style={{ maxWidth: "500px", margin: "0 auto" }}>
-          <img
-            src="/assets/hero-monk.png"
-            alt=""
-            draggable={false}
-            style={{
-              width: "100%", height: "auto", display: showArrival ? "block" : "none",
-              objectFit: "contain", filter: "contrast(1.04)", userSelect: "none",
-              opacity: showArrival ? 1 : 0,
-              transition: "opacity 500ms ease-out",
-            }}
-          />
-          <div style={{
-            position: "absolute", top: "38%", left: "50%",
-            width: "75px", height: "75px", borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
-            animation: "glowPulse 5s ease-in-out infinite",
-            pointerEvents: "none", zIndex: 2,
-          }} />
-        </div>
-      </div>
-
-      {/* ── DAILY BRIEF ── */}
-      <div
-        className="w-full flex items-start justify-center text-white"
-        style={{ paddingTop: "12px", minHeight: "100vh", opacity: showArrival ? 0 : 1, transition: "opacity 600ms ease-out" }}
-      >
+      <div className="w-full flex items-start justify-center text-white" style={{ paddingTop: "16px", minHeight: "100vh" }}>
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
-          {/* Header */}
-          <div className={`brief-header ease-spring w-full mb-4${mounted ? " in" : ""}`}>
-            <div className="text-lg tracking-[0.3em] uppercase text-white font-semibold mb-1">{UI.appName}</div>
-            <div className="text-base text-[#C7C7CC]">{dateLabel}</div>
-          </div>
+          {/* Date */}
+          <div className="text-sm tracking-[0.25em] uppercase text-[#6E6E73] mb-2">{dateLabel}</div>
 
-          {/* Munk + glow */}
-          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`}>
+          {/* Munk */}
+          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "8px" }}>
             <div style={{
               "--amplitude": expr.breathAmplitude,
               "--posture": expr.postureOffset,
@@ -192,44 +112,45 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               <img
                 src="/assets/munk-transparent.png"
                 alt="Munk"
-                style={{ width: "200px" }}
+                style={{ width: "160px" }}
                 className="select-none"
                 draggable={false}
               />
             </div>
             <div style={{
               position: "absolute", top: "42%", left: "50%",
-              width: "75px", height: "75px", borderRadius: "50%",
+              width: "65px", height: "65px", borderRadius: "50%",
               background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
               animation: "glowPulse 5s ease-in-out infinite",
               pointerEvents: "none",
             }} />
           </div>
 
-          {/* Insight */}
-          {isMorning && (
-          <div className={`brief-insight ease-spring mt-4 text-[16px] uppercase tracking-[0.2em] text-[#C7C7CC]${mounted ? " in" : ""}`}>
-            Kroppen din er analysert i natt
-          </div>
-          )}
-          <div className={`brief-insight ease-spring mt-2 text-[34px] leading-[1.25] font-medium${mounted ? " in" : ""}`}>
-            {resolvedInsight}
+          {/* Stress level — primary */}
+          <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
+            <div className="text-[13px] tracking-[0.3em] uppercase text-[#6E6E73] mb-1">Stressnivå</div>
+            <div className="text-[36px] leading-[1.15] font-semibold text-white">
+              {STATE_LABEL[state]}
+            </div>
           </div>
 
-          {/* Explanation */}
-          <div className={`brief-insight ease-spring mt-2 text-[18px] text-[#C7C7CC] max-w-md${mounted ? " in" : ""}`}>
-            {state === "GREEN" ? "Kroppen er godt restituert" : state === "RED" ? "Kroppen er under betydelig belastning" : "Kroppen har ikke hentet seg helt inn"}
+          {/* Why */}
+          <div className={`b-why ease-spring mt-3 text-[17px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
+            {resolvedInsight !== UI.defaultInsight ? resolvedInsight : STATE_BODY[state]}
           </div>
 
-          {/* Guidance */}
-          <div className={`brief-guidance ease-spring mt-3 text-[18px] text-[#C7C7CC] max-w-md${mounted ? " in" : ""}`}>
+          {/* Action */}
+          <div className={`b-action ease-spring mt-3 text-[17px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
             {guidance}
           </div>
 
+          {/* Divider */}
+          <div className="w-16 h-px bg-white/10 my-5" />
+
           {/* Reflection */}
-          <div className={`brief-reflection ease-spring mt-4 w-full${mounted ? " in" : ""}`}>
+          <div className={`b-reflect ease-spring w-full${mounted ? " in" : ""}`}>
             <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-2">{UI.sectionReflection}</div>
-            <div className="text-lg mb-4 text-white">{UI.reflectionQuestion}</div>
+            <div className="text-base mb-4 text-white">{UI.reflectionQuestion}</div>
             <div className="flex gap-3 justify-center">
               {(["low", "mid", "high"] as const).map((val) => (
                 <button

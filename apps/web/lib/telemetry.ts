@@ -25,7 +25,31 @@ export async function logBriefRunEvent(event: BriefRunEvent): Promise<void> {
       blocked_reasons: event.blocked_reasons,
     });
   } catch {
-    // Telemetry must never break the response
     console.error('telemetry_write_failed', event.template_id);
+  }
+}
+
+// Morning Loop observability — fire-and-forget, never throws
+export type MorningEvent =
+  | 'wake_monk_tapped'
+  | 'wake_monk_state_found'
+  | 'wake_monk_sync_started'
+  | 'wake_monk_sync_succeeded'
+  | 'wake_monk_sync_no_data'
+  | 'wake_monk_retry_tapped'
+  | 'brief_rendered';
+
+export function logMorningEvent(event: MorningEvent, meta?: Record<string, unknown>): void {
+  try {
+    const payload = {
+      event,
+      ts: new Date().toISOString(),
+      ...meta,
+    };
+    console.log('[morning-loop]', payload);
+    // Fire-and-forget to Supabase — no await, no block
+    supabase.from('morning_events' as any).insert(payload as any).then(() => {}).catch(() => {});
+  } catch {
+    // Telemetry must never throw
   }
 }

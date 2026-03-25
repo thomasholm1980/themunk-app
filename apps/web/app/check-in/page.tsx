@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import MunkDailyBriefRatnaV2 from "../components/MunkDailyBriefRatnaV2";
 import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
 import { HeroMunk } from "../components/hero/HeroMunk";
+import { logMorningEvent } from "../../lib/telemetry";
 
 const USER_ID = "thomas";
 const WAKE_POLL_INTERVAL_MS = 3000;
@@ -50,6 +51,16 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     ? "Prøv igjen"
     : "Vekk munken";
 
+  function handleClick() {
+    if (isFetching) return;
+    if (isNoData) {
+      logMorningEvent('wake_monk_retry_tapped');
+    } else {
+      logMorningEvent('wake_monk_tapped');
+    }
+    onWake();
+  }
+
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
@@ -87,7 +98,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
           />
         )}
         <button
-          onClick={onWake}
+          onClick={handleClick}
           disabled={isFetching}
           className="relative px-8 py-4 rounded-full text-base font-medium text-white transition-all"
           style={{
@@ -140,6 +151,7 @@ export default function CheckInPage() {
         if (res.ok) {
           const json: StateResponse = await res.json();
           if (json.contract && json.state) {
+            logMorningEvent('wake_monk_state_found', { state: json.state, day_key: json.day_key });
             setDayKey(json.day_key);
             setRatnaContract({
               state: json.contract.state,
@@ -153,14 +165,17 @@ export default function CheckInPage() {
       } catch { /* continue to sync */ }
 
       // State missing — trigger sync
+      logMorningEvent('wake_monk_sync_started');
       try {
         const syncRes = await fetch("/api/wearables/oura/sync", { method: "POST" });
         if (syncRes.ok) {
           const syncJson = await syncRes.json();
           if (syncJson.status === "no_data") {
+            logMorningEvent('wake_monk_sync_no_data');
             setMode("no_data");
             return;
           }
+          logMorningEvent('wake_monk_sync_succeeded');
         }
       } catch { /* continue to poll */ }
 
@@ -172,6 +187,7 @@ export default function CheckInPage() {
           if (res.ok) {
             const json: StateResponse = await res.json();
             if (json.contract && json.state) {
+              logMorningEvent('wake_monk_state_found', { state: json.state, day_key: json.day_key, via: 'poll' });
               setDayKey(json.day_key);
               setRatnaContract({
                 state: json.contract.state,
@@ -186,9 +202,9 @@ export default function CheckInPage() {
           }
         } catch { /* continue */ }
 
-        // FIX: timeout → no_data, not idle
         if (Date.now() - start >= WAKE_POLL_MAX_MS) {
           clearInterval(interval);
+          logMorningEvent('wake_monk_sync_no_data', { reason: 'poll_timeout' });
           setMode("no_data");
         }
       }, WAKE_POLL_INTERVAL_MS);
@@ -216,6 +232,7 @@ export default function CheckInPage() {
           contract={ratnaContract}
           dateLabel={dateLabel}
           onReflectionSubmit={handleReflectionSubmit}
+          onRendered={() => logMorningEvent('brief_rendered')}
         />
       </>
     );
