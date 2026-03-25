@@ -166,6 +166,17 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           </div>
 
+          {/* Stress nå entry */}
+          <div className="b-reflect ease-spring mt-6 pb-8 w-full">
+            <button
+              onClick={() => window.location.href = "/stress-now"}
+              className="text-sm transition-colors"
+              style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.06em" }}
+            >
+              Stress nå →
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
