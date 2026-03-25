@@ -153,10 +153,31 @@ export default function CheckInPage() {
           if (json.contract && json.state) {
             logMorningEvent('wake_monk_state_found', { state: json.state, day_key: json.day_key });
             setDayKey(json.day_key);
+
+            // Fetch pattern expression — non-blocking, best-effort
+            let context_line: string | null = null;
+            try {
+              const patternRes = await fetch("/api/patterns/today");
+              if (patternRes.ok) {
+                const patternJson = await patternRes.json();
+                if (patternJson.sufficient_data && patternJson.patterns?.length > 0) {
+                  const { resolvePatternExpression } = await import("@themunk/core/state/pattern-expression-v1");
+                  const expr = resolvePatternExpression(patternJson.patterns, patternJson.sufficient_data);
+                  if (expr.show_context_line) {
+                    context_line = expr.context_line;
+                    logMorningEvent('pattern_context_available' as any, { code: expr.pattern_code });
+                  } else {
+                    logMorningEvent('pattern_context_suppressed' as any);
+                  }
+                }
+              }
+            } catch { /* non-fatal */ }
+
             setRatnaContract({
               state: json.contract.state,
               insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
               guidance: json.contract.guidance.line,
+              context_line,
             });
             setMode("ready");
             return;

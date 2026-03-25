@@ -8,6 +8,7 @@ export type RatnaContract = {
   state: SystemState;
   insight: string | null;
   guidance: string;
+  context_line?: string | null;
 };
 
 type Props = {
@@ -44,7 +45,7 @@ const STATE_BODY: Record<SystemState, string> = {
 };
 
 export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onRendered }: Props) {
-  const { state, insight, guidance } = contract;
+  const { state, insight, guidance, context_line } = contract;
   const expr = STATE_EXPRESSION[state];
   const [mounted, setMounted] = useState(false);
 
@@ -83,6 +84,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         .b-why.in    { opacity: 1; transform: translateY(0); transition-delay: 400ms; }
         .b-action    { opacity: 0; transform: translateY(4px); }
         .b-action.in { opacity: 1; transform: translateY(0); transition-delay: 600ms; }
+        .b-context    { opacity: 0; transform: translateY(4px); }
+        .b-context.in { opacity: 1; transform: translateY(0); transition-delay: 520ms; }
         .b-reflect   { opacity: 0; transform: translateY(4px); }
         .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 900ms; }
       `}</style>
@@ -133,6 +136,12 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* Action */}
+          {context_line && (
+          <div className={`b-context ease-spring mt-2 text-[15px] text-[rgba(255,255,255,0.38)] max-w-sm${mounted ? " in" : ""}`}>
+            {context_line}
+          </div>
+          )}
+
           <div className={`b-action ease-spring mt-3 text-[17px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
             {guidance}
           </div>
