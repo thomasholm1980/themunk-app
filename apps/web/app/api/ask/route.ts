@@ -3,7 +3,7 @@ export const revalidate = 0
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { AnthropicAdapter } from '../../lib/anthropic_adapter'
+import { AnthropicAdapter } from '../../../lib/anthropic_adapter'
 
 const USER_ID = 'thomas'
 
