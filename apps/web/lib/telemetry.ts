@@ -47,8 +47,14 @@ export function logMorningEvent(event: MorningEvent, meta?: Record<string, unkno
       ...meta,
     };
     console.log('[morning-loop]', payload);
-    // Fire-and-forget to Supabase — no await, no block
-    supabase.from('morning_events' as any).insert(payload as any).then(() => {}).catch(() => {});
+    // Fire-and-forget — wrap in void async to allow .catch
+    void (async () => {
+      try {
+        await supabase.from('morning_events' as any).insert(payload as any);
+      } catch {
+        // Telemetry must never throw
+      }
+    })();
   } catch {
     // Telemetry must never throw
   }
