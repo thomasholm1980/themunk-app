@@ -172,7 +172,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
           {/* Ask the Munk entry */}
           <div
-            className="b-reflect ease-spring mt-3 mb-10 w-full rounded-2xl px-5 py-4 cursor-pointer"
+            className={`b-reflect ease-spring mt-3 mb-10 w-full rounded-2xl px-5 py-4 cursor-pointer${mounted ? " in" : ""}`}
             style={{
               background: "rgba(255,255,255,0.03)",
               border: "1px solid rgba(255,255,255,0.07)",
