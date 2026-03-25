@@ -156,11 +156,13 @@ export default function CheckInPage() {
 
             // Fetch pattern expression — non-blocking, best-effort
             let context_line: string | null = null;
+            let context_pattern: string | null = null;
             try {
               const patternRes = await fetch("/api/patterns/today");
               if (patternRes.ok) {
                 const patternJson = await patternRes.json();
                 if (patternJson.sufficient_data && patternJson.patterns?.length > 0) {
+                  context_pattern = patternJson.patterns[0]?.code ?? null;
                   const { resolvePatternExpression } = await import("@themunk/core/state/pattern-expression-v1");
                   const expr = resolvePatternExpression(patternJson.patterns, patternJson.sufficient_data);
                   if (expr.show_context_line) {
@@ -178,7 +180,7 @@ export default function CheckInPage() {
               insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
               guidance: json.contract.guidance.line,
               context_line,
-              context_pattern: patternJson?.patterns?.[0]?.code ?? null,
+              context_pattern,
             });
             setMode("ready");
             return;
