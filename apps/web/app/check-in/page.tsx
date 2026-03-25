@@ -178,6 +178,7 @@ export default function CheckInPage() {
               insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
               guidance: json.contract.guidance.line,
               context_line,
+              context_pattern: patternJson?.patterns?.[0]?.code ?? null,
             });
             setMode("ready");
             return;

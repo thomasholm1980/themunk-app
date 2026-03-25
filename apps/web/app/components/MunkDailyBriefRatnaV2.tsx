@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { UI } from "../lib/ui-strings";
 import ReflectionMemoryCard from "./ReflectionMemoryCard";
+import ContextSurfaceCard from "./ContextSurfaceCard";
 
 type SystemState = "GREEN" | "YELLOW" | "RED";
 export type RatnaContract = {
@@ -9,6 +10,7 @@ export type RatnaContract = {
   insight: string | null;
   guidance: string;
   context_line?: string | null;
+  context_pattern?: string | null;
 };
 
 type Props = {
@@ -45,7 +47,7 @@ const STATE_BODY: Record<SystemState, string> = {
 };
 
 export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onRendered }: Props) {
-  const { state, insight, guidance, context_line } = contract;
+  const { state, insight, guidance, context_line, context_pattern } = contract;
   const expr = STATE_EXPRESSION[state];
   const [mounted, setMounted] = useState(false);
 
@@ -154,6 +156,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Kort sjekk</div>
             <ReflectionMemoryCard dayKey={new Date().toISOString().slice(0, 10)} />
           </div>
+
+          {/* Context Surface */}
+          <ContextSurfaceCard patternCode={context_pattern ?? null} />
 
           {/* Stress nå entry */}
           <div className="b-reflect ease-spring mt-6 pb-8 w-full">
