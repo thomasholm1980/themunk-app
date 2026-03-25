@@ -213,16 +213,6 @@ export default function CheckInPage() {
     run();
   }
 
-  async function handleReflectionSubmit(value: "low" | "mid" | "high") {
-    const score = REFLECTION_MAP[value];
-    try {
-      await fetch("/api/reflection", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ day_key: dayKey, energy: score, stress: score, focus: score }),
-      });
-    } catch (err) { console.error("[check-in] reflection submit error", err); }
-  }
 
   if (mode === "ready" && ratnaContract) {
     return (
@@ -231,7 +221,6 @@ export default function CheckInPage() {
         <MunkDailyBriefRatnaV2
           contract={ratnaContract}
           dateLabel={dateLabel}
-          onReflectionSubmit={handleReflectionSubmit}
           onRendered={() => logMorningEvent('brief_rendered')}
         />
       </>

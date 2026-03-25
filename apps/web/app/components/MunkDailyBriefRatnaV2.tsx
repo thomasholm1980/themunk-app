@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { UI } from "../lib/ui-strings";
+import ReflectionMemoryCard from "./ReflectionMemoryCard";
 
 type SystemState = "GREEN" | "YELLOW" | "RED";
-type ReflectionValue = "low" | "mid" | "high" | null;
-
 export type RatnaContract = {
   state: SystemState;
   insight: string | null;
@@ -14,7 +13,6 @@ export type RatnaContract = {
 type Props = {
   contract: RatnaContract;
   dateLabel?: string;
-  onReflectionSubmit?: (value: ReflectionValue) => void;
   onRendered?: () => void;
 };
 
@@ -45,10 +43,9 @@ const STATE_BODY: Record<SystemState, string> = {
   RED:    "Kroppen er under betydelig belastning",
 };
 
-export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onReflectionSubmit, onRendered }: Props) {
+export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onRendered }: Props) {
   const { state, insight, guidance } = contract;
   const expr = STATE_EXPRESSION[state];
-  const [reflection, setReflection] = useState<ReflectionValue>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -58,10 +55,6 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
   useEffect(() => {
     if (mounted && onRendered) onRendered();
   }, [mounted]);
-
-  useEffect(() => {
-    if (reflection && onReflectionSubmit) onReflectionSubmit(reflection);
-  }, [reflection, onReflectionSubmit]);
 
   const resolvedInsight = insight ?? UI.defaultInsight;
 
@@ -147,23 +140,10 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           {/* Divider */}
           <div className="w-16 h-px bg-white/10 my-5" />
 
-          {/* Reflection */}
+          {/* Reflection Memory V1 */}
           <div className={`b-reflect ease-spring w-full${mounted ? " in" : ""}`}>
-            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-2">{UI.sectionReflection}</div>
-            <div className="text-base mb-4 text-white">{UI.reflectionQuestion}</div>
-            <div className="flex gap-3 justify-center">
-              {(["low", "mid", "high"] as const).map((val) => (
-                <button
-                  key={val}
-                  onClick={() => setReflection(val)}
-                  className={`px-6 py-3 rounded-xl border capitalize transition-all ${
-                    reflection === val ? "bg-white/20 border-white/40" : "bg-white/10 border-white/20"
-                  }`}
-                >
-                  {UI.reflectionOptions[val]}
-                </button>
-              ))}
-            </div>
+            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Kort sjekk</div>
+            <ReflectionMemoryCard dayKey={new Date().toISOString().slice(0, 10)} />
           </div>
 
           {/* Stress nå entry */}
