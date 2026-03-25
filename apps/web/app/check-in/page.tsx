@@ -37,9 +37,25 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   const isFetching = mode === "loading";
   const isNoData   = mode === "no_data";
 
+  const osloHour = parseInt(
+    new Intl.DateTimeFormat("no-NO", {
+      timeZone: "Europe/Oslo",
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date()),
+    10
+  );
+
+  const isMorning   = osloHour >= 4  && osloHour < 11;
+  const isAfternoon = osloHour >= 11 && osloHour < 18;
+
   const title = isNoData
     ? "Oura er ikke klar ennå"
-    : "God morgen";
+    : isMorning
+    ? "God morgen"
+    : isAfternoon
+    ? "Munken er våken"
+    : "Munken roer ned";
 
   const body = isNoData
     ? "Åpne Oura-appen, la den synkronisere, og prøv igjen."
@@ -49,7 +65,9 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     ? "Henter..."
     : isNoData
     ? "Prøv igjen"
-    : "Vekk munken";
+    : isMorning
+    ? "Vekk munken"
+    : "Møt munken";
 
   function handleClick() {
     if (isFetching) return;
