@@ -27,13 +27,24 @@ const REFLECTION_MAP: Record<"low" | "mid" | "high", number> = {
 
 const APP_BG = "radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%)";
 
-type Mode = "idle" | "loading" | "ready";
+type Mode = "idle" | "loading" | "no_data" | "ready";
 
 function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
 
   const isFetching = mode === "loading";
+  const isNoData = mode === "no_data";
+
+  const title = isFetching
+    ? "Henter data fra kroppen din..."
+    : "Dagens stress er ikke klart ennå";
+
+  const body = isFetching
+    ? "Dette tar 10–15 sekunder"
+    : isNoData
+    ? "Åpne Oura-appen og la den laste ferdig, så prøver du igjen."
+    : "Trykk for å hente dagens status";
 
   return (
     <main
@@ -54,11 +65,12 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       </div>
 
       <h1 className={`mf mf-title text-3xl md:text-4xl leading-tight text-white mb-3${visible ? " v" : ""}`}>
-        {isFetching ? "Henter data fra kroppen din..." : "Dagens stress er ikke klart ennå"}
+        {title}
       </h1>
 
-      <p className={`mf mf-body text-base text-white/70 mb-8${visible ? " v" : ""}`}>
-        {isFetching ? "Dette tar 10–15 sekunder" : "Trykk for å hente dagens status"}
+      <p className={`mf mf-body text-base mb-8${visible ? " v" : ""}`}
+        style={{ color: isNoData ? "rgba(255,200,80,0.85)" : "rgba(255,255,255,0.7)" }}>
+        {body}
       </p>
 
       <div className={`mf mf-cta relative${visible ? " v" : ""}`}>
@@ -77,7 +89,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
             letterSpacing: "0.04em",
           }}
         >
-          {isFetching ? "Venter..." : "Vekk munken"}
+          {isFetching ? "Venter..." : isNoData ? "Prøv igjen" : "Vekk munken"}
         </button>
       </div>
     </main>
@@ -110,7 +122,7 @@ export default function CheckInPage() {
   }, []);
 
   function handleWake() {
-    if (mode !== "idle") return;
+    if (mode === "loading") return;
     setMode("loading");
 
     async function run() {
@@ -132,10 +144,17 @@ export default function CheckInPage() {
         }
       } catch { /* continue to sync */ }
 
-      // State missing — trigger sync
+      // State missing — trigger sync and read response
       try {
-        await fetch("/api/wearables/oura/sync", { method: "POST" });
-      } catch { /* continue */ }
+        const syncRes = await fetch("/api/wearables/oura/sync", { method: "POST" });
+        if (syncRes.ok) {
+          const syncJson = await syncRes.json();
+          if (syncJson.status === "no_data") {
+            setMode("no_data");
+            return;
+          }
+        }
+      } catch { /* continue to poll */ }
 
       // Poll for state
       const start = Date.now();
