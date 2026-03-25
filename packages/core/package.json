@@ -26,6 +26,7 @@
     "./state/pattern-memory": "./state/pattern-memory.ts",
     "./state/learning-arc": "./state/learning-arc.ts",
     "./state/personal-insight": "./state/personal-insight.ts",
-    "./state/stress-now": "./state/stress-now.ts"
+    "./state/stress-now": "./state/stress-now.ts",
+    "./state/pattern-memory-v1": "./state/pattern-memory-v1.ts"
   }
 }
