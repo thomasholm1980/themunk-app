@@ -50,15 +50,15 @@ function OptionRow<T extends string>({
         <button
           key={opt.value}
           onClick={() => onSelect(opt.value)}
-          className="px-5 py-2 rounded-xl text-sm transition-all"
+          className="px-4 py-2 rounded-xl text-xs transition-all"
           style={{
             background: selected === opt.value
-              ? "rgba(255,200,80,0.20)"
-              : "rgba(255,255,255,0.07)",
+              ? "rgba(255,255,255,0.10)"
+              : "rgba(255,255,255,0.04)",
             border: selected === opt.value
-              ? "1px solid rgba(255,200,80,0.40)"
-              : "1px solid rgba(255,255,255,0.10)",
-            color: selected === opt.value ? "#fff" : "rgba(255,255,255,0.55)",
+              ? "1px solid rgba(255,255,255,0.18)"
+              : "1px solid rgba(255,255,255,0.07)",
+            color: selected === opt.value ? "rgba(255,255,255,0.90)" : "rgba(255,255,255,0.40)",
           }}
         >
           {opt.label}
@@ -123,11 +123,11 @@ export default function ReflectionMemoryCard({ dayKey }: Props) {
   if (!loaded) return null;
 
   return (
-    <div className="w-full flex flex-col gap-5">
+    <div className="w-full flex flex-col gap-4">
 
       {/* Q1 */}
       <div className="flex flex-col gap-2 items-center">
-        <div className="text-xs tracking-[0.25em] uppercase text-[#6E6E73]">
+        <div className="text-xs tracking-[0.2em] uppercase text-[rgba(255,255,255,0.28)]">
           Hvordan kjentes kroppen i dag?
         </div>
         <OptionRow
@@ -139,7 +139,7 @@ export default function ReflectionMemoryCard({ dayKey }: Props) {
 
       {/* Q2 */}
       <div className="flex flex-col gap-2 items-center">
-        <div className="text-xs tracking-[0.25em] uppercase text-[#6E6E73]">
+        <div className="text-xs tracking-[0.2em] uppercase text-[rgba(255,255,255,0.28)]">
           Traff dagens stressvurdering?
         </div>
         <OptionRow
@@ -151,7 +151,7 @@ export default function ReflectionMemoryCard({ dayKey }: Props) {
 
       {/* Q3 */}
       <div className="flex flex-col gap-2 items-center">
-        <div className="text-xs tracking-[0.25em] uppercase text-[#6E6E73]">
+        <div className="text-xs tracking-[0.2em] uppercase text-[rgba(255,255,255,0.28)]">
           Hvordan utviklet dagen seg?
         </div>
         <OptionRow

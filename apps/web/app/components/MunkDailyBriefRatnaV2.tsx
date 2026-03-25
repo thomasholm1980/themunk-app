@@ -92,14 +92,14 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 900ms; }
       `}</style>
 
-      <div className="w-full flex items-start justify-center text-white" style={{ paddingTop: "16px", minHeight: "100vh" }}>
+      <div className="w-full flex items-start justify-center text-white" style={{ paddingTop: "8px", minHeight: "100vh" }}>
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
           {/* Date */}
-          <div className="text-sm tracking-[0.25em] uppercase text-[#6E6E73] mb-2">{dateLabel}</div>
+          <div className="text-xs tracking-[0.25em] uppercase text-[#6E6E73] mb-1">{dateLabel}</div>
 
           {/* Munk */}
-          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "8px" }}>
+          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "4px" }}>
             <div style={{
               "--amplitude": expr.breathAmplitude,
               "--posture": expr.postureOffset,
@@ -110,7 +110,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               <img
                 src="/assets/munk-transparent.png"
                 alt="Munk"
-                style={{ width: "160px" }}
+                style={{ width: "140px" }}
                 className="select-none"
                 draggable={false}
               />
@@ -133,27 +133,26 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* Why */}
-          <div className={`b-why ease-spring mt-3 text-[17px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
+          <div className={`b-why ease-spring mt-2 text-[16px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
             {resolvedInsight !== UI.defaultInsight ? resolvedInsight : STATE_BODY[state]}
           </div>
 
           {/* Action */}
           {context_line && (
-          <div className={`b-context ease-spring mt-2 text-[15px] text-[rgba(255,255,255,0.38)] max-w-sm${mounted ? " in" : ""}`}>
+          <div className={`b-context ease-spring mt-1 text-[13px] text-[rgba(255,255,255,0.30)] max-w-sm${mounted ? " in" : ""}`}>
             {context_line}
           </div>
           )}
 
-          <div className={`b-action ease-spring mt-3 text-[17px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
+          <div className={`b-action ease-spring mt-2 text-[16px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
             {guidance}
           </div>
 
           {/* Divider */}
-          <div className="w-16 h-px bg-white/10 my-5" />
+          <div className="w-12 h-px bg-white/8 my-4" />
 
           {/* Reflection Memory V1 */}
           <div className={`b-reflect ease-spring w-full${mounted ? " in" : ""}`}>
-            <div className="text-xs tracking-[0.35em] uppercase text-[#6E6E73] mb-4">Kort sjekk</div>
             <ReflectionMemoryCard dayKey={new Date().toISOString().slice(0, 10)} />
           </div>
 

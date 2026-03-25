@@ -51,28 +51,28 @@ export default function ContextSurfaceCard({ patternCode }: Props) {
 
   return (
     <div
-      className="w-full max-w-sm mx-auto mt-2 mb-6"
+      className="w-full max-w-sm mx-auto mt-1 mb-4"
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.06)",
         borderRadius: "16px",
         padding: "16px 18px",
       }}
     >
       {/* Label */}
-      <div className="text-xs tracking-[0.25em] uppercase text-[#6E6E73] mb-2">
+      <div className="text-xs tracking-[0.2em] uppercase text-[rgba(255,255,255,0.22)] mb-2">
         Forstå mer
       </div>
 
       {/* Title */}
-      <div className="text-[15px] font-medium text-white leading-snug mb-1">
+      <div className="text-[14px] font-medium text-[rgba(255,255,255,0.80)] leading-snug mb-1">
         {item.title}
       </div>
 
       {/* Summary — expandable */}
       {item.summary && (
         <div
-          className="text-[13px] text-[rgba(255,255,255,0.45)] leading-relaxed"
+          className="text-[12px] text-[rgba(255,255,255,0.35)] leading-relaxed"
           style={{
             display: "-webkit-box",
             WebkitLineClamp: expanded ? undefined : 2,
