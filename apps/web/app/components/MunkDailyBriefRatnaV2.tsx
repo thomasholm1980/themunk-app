@@ -159,15 +159,32 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           {/* Context Surface */}
           <ContextSurfaceCard patternCode={context_pattern ?? null} />
 
-          {/* Stress nå entry */}
-          <div className="b-reflect ease-spring mt-6 pb-8 w-full">
+          {/* Secondary entry points */}
+          <div className="b-reflect ease-spring mt-4 w-full flex flex-col items-center gap-3">
             <button
               onClick={() => window.location.href = "/stress-now"}
               className="text-sm transition-colors"
-              style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.06em" }}
+              style={{ color: "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}
             >
               Stress nå →
             </button>
+          </div>
+
+          {/* Ask the Munk entry */}
+          <div
+            className="b-reflect ease-spring mt-3 mb-10 w-full rounded-2xl px-5 py-4 cursor-pointer"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}
+            onClick={() => window.location.href = "/ask"}
+          >
+            <div className="text-xs tracking-[0.25em] uppercase text-[rgba(255,255,255,0.25)] mb-1">
+              Spør Munken
+            </div>
+            <div className="text-[13px] text-[rgba(255,255,255,0.38)]">
+              Spør om stress, søvn, HRV eller dagens mønster
+            </div>
           </div>
 
         </div>
