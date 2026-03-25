@@ -34,17 +34,21 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
 
   const isFetching = mode === "loading";
-  const isNoData = mode === "no_data";
+  const isNoData   = mode === "no_data";
 
-  const title = isFetching
-    ? "Henter data fra kroppen din..."
-    : "Dagens stress er ikke klart ennå";
+  const title = isNoData
+    ? "Oura er ikke klar ennå"
+    : "God morgen";
 
-  const body = isFetching
-    ? "Dette tar 10–15 sekunder"
+  const body = isNoData
+    ? "Åpne Oura-appen, la den synkronisere, og prøv igjen."
+    : "Trykk for å se dagens stressnivå.";
+
+  const ctaLabel = isFetching
+    ? "Henter..."
     : isNoData
-    ? "Åpne Oura-appen og la den laste ferdig, så prøver du igjen."
-    : "Trykk for å hente dagens status";
+    ? "Prøv igjen"
+    : "Vekk munken";
 
   return (
     <main
@@ -54,7 +58,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       <style>{`
         .mf { opacity:0; transform:translateY(8px); transition:opacity 800ms cubic-bezier(.22,1,.36,1),transform 800ms cubic-bezier(.22,1,.36,1); will-change:opacity,transform; }
         .mf.v { opacity:1; transform:translateY(0); }
-        .mf-monk { transition-delay:0ms; }
+        .mf-monk  { transition-delay:0ms; }
         .mf-title { transition-delay:120ms; }
         .mf-body  { transition-delay:180ms; }
         .mf-cta   { transition-delay:260ms; }
@@ -64,19 +68,23 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
         <HeroMunk state={null} />
       </div>
 
-      <h1 className={`mf mf-title text-3xl md:text-4xl leading-tight text-white mb-3${visible ? " v" : ""}`}>
+      <h1 className={`mf mf-title text-3xl leading-tight text-white mb-3${visible ? " v" : ""}`}>
         {title}
       </h1>
 
-      <p className={`mf mf-body text-base mb-8${visible ? " v" : ""}`}
-        style={{ color: isNoData ? "rgba(255,200,80,0.85)" : "rgba(255,255,255,0.7)" }}>
+      <p
+        className={`mf mf-body text-base mb-8${visible ? " v" : ""}`}
+        style={{ color: isNoData ? "rgba(255,200,80,0.85)" : "rgba(255,255,255,0.6)" }}
+      >
         {body}
       </p>
 
       <div className={`mf mf-cta relative${visible ? " v" : ""}`}>
         {isFetching && (
-          <span className="absolute inset-0 rounded-full animate-ping"
-            style={{ background: "rgba(255,200,80,0.3)" }} />
+          <span
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{ background: "rgba(255,200,80,0.3)" }}
+          />
         )}
         <button
           onClick={onWake}
@@ -89,7 +97,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
             letterSpacing: "0.04em",
           }}
         >
-          {isFetching ? "Venter..." : isNoData ? "Prøv igjen" : "Vekk munken"}
+          {ctaLabel}
         </button>
       </div>
     </main>
@@ -126,7 +134,7 @@ export default function CheckInPage() {
     setMode("loading");
 
     async function run() {
-      // First: check if state already exists
+      // Check if state already exists
       try {
         const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
         if (res.ok) {
@@ -144,7 +152,7 @@ export default function CheckInPage() {
         }
       } catch { /* continue to sync */ }
 
-      // State missing — trigger sync and read response
+      // State missing — trigger sync
       try {
         const syncRes = await fetch("/api/wearables/oura/sync", { method: "POST" });
         if (syncRes.ok) {
@@ -177,9 +185,11 @@ export default function CheckInPage() {
             }
           }
         } catch { /* continue */ }
+
+        // FIX: timeout → no_data, not idle
         if (Date.now() - start >= WAKE_POLL_MAX_MS) {
           clearInterval(interval);
-          setMode("idle");
+          setMode("no_data");
         }
       }, WAKE_POLL_INTERVAL_MS);
     }
