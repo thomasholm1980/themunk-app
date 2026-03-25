@@ -112,6 +112,48 @@ export async function POST(req: NextRequest) {
       if (pattern?.sufficient_data && pattern.pattern_codes?.length > 0) {
         groundingContext += `\nAKTIVE MØNSTRE: ${pattern.pattern_codes.join(', ')}`
       }
+
+      // Content library context — deterministic tag match, MAX ONE item
+      const activePattern = pattern?.sufficient_data && pattern.pattern_codes?.length > 0
+        ? pattern.pattern_codes[0] as string
+        : null
+
+      if (activePattern) {
+        const PATTERN_TAG_MAP: Record<string, string[]> = {
+          repeated_elevated_stress:        ['chronic_stress', 'allostatic_load', 'physiological', 'work_stress'],
+          subjective_load_above_baseline:  ['work_stress', 'chronic_stress', 'regulation'],
+          recovery_mismatch:               ['recovery', 'sleep_debt', 'physiological'],
+          day_drift_negative:              ['acute_stress', 'regulation', 'sleep_debt'],
+        }
+        const targetTags = PATTERN_TAG_MAP[activePattern] ?? []
+
+        if (targetTags.length > 0) {
+          const { data: libItems } = await supabase
+            .from('content_library')
+            .select('title, summary, topic_tags, stress_tags')
+            .eq('trust_status', 'approved')
+            .eq('library_status', 'available')
+
+          if (libItems && libItems.length > 0) {
+            // Score by tag overlap
+            const scored = libItems
+              .map((item: any) => ({
+                item,
+                score: (item.stress_tags as string[]).filter((t: string) => targetTags.includes(t)).length,
+              }))
+              .filter((s: any) => s.score > 0)
+              .sort((a: any, b: any) => b.score - a.score)
+
+            if (scored.length > 0) {
+              const best = scored[0].item
+              groundingContext += `\nRELEVANT KONTEKST: "${best.title}" — ${best.summary ?? ''}`
+              logTelemetry('ask_munk_context_used', { pattern: activePattern, title: best.title })
+            } else {
+              logTelemetry('ask_munk_context_not_used', { reason: 'no_tag_match', pattern: activePattern })
+            }
+          }
+        }
+      }
     } catch { /* grounding failure is non-fatal */ }
 
     const prompt = groundingContext
