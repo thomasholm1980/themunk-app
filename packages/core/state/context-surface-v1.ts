@@ -31,6 +31,14 @@ export interface ContextSurfaceSuppressed {
 
 export type ContextSurfaceOutput = ContextSurfaceResult | ContextSurfaceSuppressed
 
+// State-based fallback slugs when pattern_memory is empty
+// YELLOW/RED → one quiet support item. GREEN → nothing.
+export const STATE_FALLBACK_SLUGS: Record<string, string | null> = {
+  RED:    'seed-stress-accumulation-005',
+  YELLOW: 'seed-stress-accumulation-005',
+  GREEN:  null,
+}
+
 // Pattern → stress_tag mapping
 const PATTERN_TAG_MAP: Record<string, string[]> = {
   repeated_elevated_stress: ['chronic_stress', 'allostatic_load', 'physiological', 'work_stress'],

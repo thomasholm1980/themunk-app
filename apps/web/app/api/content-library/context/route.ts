@@ -8,7 +8,7 @@ export const revalidate = 0
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { resolveContextSurface } from '@themunk/core/state/context-surface-v1'
+import { resolveContextSurface, STATE_FALLBACK_SLUGS } from '@themunk/core/state/context-surface-v1'
 import type { ContentItem } from '@themunk/core/state/context-surface-v1'
 
 function getServiceClient() {
@@ -25,7 +25,9 @@ function logTelemetry(event: string, meta?: Record<string, unknown>): void {
 export async function GET(req: NextRequest) {
   try {
     const supabase     = getServiceClient()
-    const patternCode  = req.nextUrl.searchParams.get('pattern_code')
+    const patternCode      = req.nextUrl.searchParams.get('pattern_code')
+    const state            = req.nextUrl.searchParams.get('state') ?? undefined
+    const sufficientData   = req.nextUrl.searchParams.get('sufficient_data') === 'true'
 
     // Fetch approved + available items
     const { data, error } = await supabase
@@ -40,12 +42,36 @@ export async function GET(req: NextRequest) {
     }
 
     const items = (data ?? []) as ContentItem[]
-    const result = resolveContextSurface(patternCode, items)
+
+    // Pattern-based match (primary)
+    let result = resolveContextSurface(patternCode, items)
+
+    // State-based fallback when pattern_memory is missing or insufficient
+    if (!result.show_context_card && !sufficientData && state) {
+      const fallbackSlug = STATE_FALLBACK_SLUGS[state] ?? null
+      if (fallbackSlug) {
+        const fallbackItem = items.find(i => i.slug === fallbackSlug) ?? null
+        if (fallbackItem) {
+          result = {
+            show_context_card: true,
+            item: {
+              title:       fallbackItem.title,
+              summary:     fallbackItem.summary,
+              source_type: fallbackItem.source_type,
+              source_name: fallbackItem.source_name,
+              topic_tags:  fallbackItem.topic_tags,
+              stress_tags: fallbackItem.stress_tags,
+            },
+          }
+          logTelemetry('context_card_state_fallback', { state, slug: fallbackSlug })
+        }
+      }
+    }
 
     if (result.show_context_card) {
       logTelemetry('context_card_available', { pattern_code: patternCode, title: result.item.title })
     } else {
-      logTelemetry('context_card_suppressed', { pattern_code: patternCode })
+      logTelemetry('context_card_suppressed', { pattern_code: patternCode, state })
     }
 
     return NextResponse.json(

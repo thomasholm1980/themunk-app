@@ -139,6 +139,13 @@ export async function POST(req: NextRequest) {
         ? pattern.pattern_codes[0] as string
         : null
 
+      // State-based fallback when no pattern — inject one relevant library item
+      const STATE_FALLBACK_SLUGS: Record<string, string | null> = {
+        RED:    'seed-stress-accumulation-005',
+        YELLOW: 'seed-stress-accumulation-005',
+        GREEN:  null,
+      }
+
       if (activePattern) {
         const PATTERN_TAG_MAP: Record<string, string[]> = {
           repeated_elevated_stress:        ['chronic_stress', 'allostatic_load', 'physiological', 'work_stress'],
@@ -151,7 +158,7 @@ export async function POST(req: NextRequest) {
         if (targetTags.length > 0) {
           const { data: libItems } = await supabase
             .from('content_library')
-            .select('title, summary, topic_tags, stress_tags')
+            .select('title, summary, topic_tags, stress_tags, slug')
             .eq('trust_status', 'approved')
             .eq('library_status', 'available')
 
@@ -171,6 +178,24 @@ export async function POST(req: NextRequest) {
             } else {
               logTelemetry('ask_munk_context_not_used', { reason: 'no_tag_match', pattern: activePattern })
             }
+          }
+        }
+      } else if (!pattern?.sufficient_data && state?.state) {
+        // State-based fallback — inject one quiet support item when no pattern exists
+        const fallbackSlug = STATE_FALLBACK_SLUGS[state.state] ?? null
+        if (fallbackSlug) {
+          const { data: fallbackItems } = await supabase
+            .from('content_library')
+            .select('title, summary, slug')
+            .eq('slug', fallbackSlug)
+            .eq('trust_status', 'approved')
+            .eq('library_status', 'available')
+            .limit(1)
+
+          if (fallbackItems && fallbackItems.length > 0) {
+            const item = fallbackItems[0]
+            groundingContext += `\nRELEVANT KONTEKST: "${item.title}" — ${item.summary ?? ''}`
+            logTelemetry('ask_munk_context_state_fallback', { state: state.state, slug: fallbackSlug })
           }
         }
       }
