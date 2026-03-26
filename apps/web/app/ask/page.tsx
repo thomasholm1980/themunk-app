@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { logMorningEvent } from '../../lib/telemetry'
 
-const APP_BG = 'radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%)'
+const APP_BG = 'radial-gradient(ellipse at 50% 15%, #3A7268 0%, #1E4039 45%, #0F1F1C 100%)'
 
 const STARTER_PROMPTS = [
   'Hva betyr dette stresset?',
@@ -54,7 +54,6 @@ export default function AskPage() {
     const startTime = Date.now()
 
     try {
-      // First attempt
       let result = await askMunk(q)
 
       // Silent retry — only on 503, only once
@@ -105,17 +104,17 @@ export default function AskPage() {
     >
       <style>{`
         @keyframes glowBreath {
-          0%,100% { opacity: 0.18; transform: scale(1); }
-          50%      { opacity: 0.34; transform: scale(1.10); }
+          0%,100% { opacity: 0.30; transform: scale(1); }
+          50%      { opacity: 0.55; transform: scale(1.12); }
         }
         @keyframes glowPulse {
-          0%   { opacity: 0.28; transform: scale(0.92); }
-          50%  { opacity: 0.72; transform: scale(1.18); }
-          100% { opacity: 0.28; transform: scale(0.92); }
+          0%   { opacity: 0.45; transform: scale(0.92); }
+          50%  { opacity: 0.90; transform: scale(1.20); }
+          100% { opacity: 0.45; transform: scale(0.92); }
         }
         @keyframes ringExpand {
-          0%   { opacity: 0.55; transform: scale(0.70); }
-          100% { opacity: 0;    transform: scale(1.60); }
+          0%   { opacity: 0.70; transform: scale(0.70); }
+          100% { opacity: 0;    transform: scale(1.65); }
         }
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(16px); }
@@ -138,36 +137,47 @@ export default function AskPage() {
         {/* Back */}
         <button
           onClick={() => window.location.href = '/check-in'}
-          className="self-start text-xs text-[rgba(255,255,255,0.20)] mb-12 tracking-[0.04em]"
+          className="self-start text-xs mb-12 tracking-[0.04em]"
+          style={{ color: 'rgba(255,255,255,0.45)' }}
         >
           ← Tilbake
         </button>
 
-        {/* Monk presence */}
-        <div className="flex justify-center mb-10" style={{ position: 'relative', height: 72 }}>
+        {/* Monk presence — boosted 15% */}
+        <div className="flex justify-center mb-10" style={{ position: 'relative', height: 80 }}>
+          {/* Outer ring */}
           <div style={{
             position: 'absolute',
-            width: 72, height: 72,
+            width: 80, height: 80,
             borderRadius: '50%',
-            border: '1px solid rgba(255,160,50,0.10)',
+            border: '1px solid rgba(255,160,50,0.20)',
             top: 0, left: '50%', transform: 'translateX(-50%)',
           }} />
+          {/* Mid ring */}
           <div style={{
             position: 'absolute',
-            width: 52, height: 52,
+            width: 60, height: 60,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,160,50,0.72) 0%, rgba(255,100,20,0.28) 52%, transparent 78%)',
-            animation: isWaiting ? 'glowPulse 1.4s ease-in-out infinite' : 'glowBreath 5s ease-in-out infinite',
-            filter: 'blur(3px)',
+            border: '1px solid rgba(255,160,50,0.12)',
             top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            transition: 'opacity 0.4s ease',
           }} />
+          {/* Core glow */}
+          <div style={{
+            position: 'absolute',
+            width: 56, height: 56,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,170,60,0.90) 0%, rgba(255,110,20,0.40) 50%, transparent 78%)',
+            animation: isWaiting ? 'glowPulse 1.4s ease-in-out infinite' : 'glowBreath 5s ease-in-out infinite',
+            filter: 'blur(4px)',
+            top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          }} />
+          {/* Arrival ring */}
           {arriving && (
             <div style={{
               position: 'absolute',
-              width: 72, height: 72,
+              width: 80, height: 80,
               borderRadius: '50%',
-              border: '1px solid rgba(255,160,50,0.45)',
+              border: '1px solid rgba(255,160,50,0.55)',
               top: 0, left: '50%', transform: 'translateX(-50%)',
               animation: 'ringExpand 600ms ease-out forwards',
             }} />
@@ -176,43 +186,53 @@ export default function AskPage() {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="text-xs tracking-[0.3em] uppercase text-[rgba(255,255,255,0.20)] mb-3">
+          <div className="text-xs tracking-[0.3em] uppercase mb-3"
+            style={{ color: 'rgba(255,255,255,0.45)' }}>
             Spør Munken
           </div>
-          <div className="text-[21px] font-medium leading-snug text-white" style={{ letterSpacing: '-0.01em' }}>
+          <div className="text-[22px] font-semibold leading-snug text-white"
+            style={{ letterSpacing: '-0.01em' }}>
             Få en rolig forklaring på stresset ditt
           </div>
         </div>
 
-        {/* Input */}
+        {/* Input — stronger presence, still open */}
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
           placeholder="Hva lurer du på?"
           rows={3}
-          className="w-full text-[15px] text-white placeholder-[rgba(255,255,255,0.18)] resize-none outline-none"
+          className="w-full text-[15px] text-white resize-none outline-none"
           style={{
-            background:    'transparent',
+            background:    'rgba(255,255,255,0.06)',
             border:        'none',
-            borderBottom:  '1px solid rgba(255,255,255,0.10)',
+            borderBottom:  '1px solid rgba(255,255,255,0.22)',
             borderRadius:  0,
-            padding:       '0 0 16px 0',
+            padding:       '4px 0 18px 0',
             lineHeight:    '1.65',
-            marginBottom:  '28px',
+            marginBottom:  '24px',
+            color:         'rgba(255,255,255,0.92)',
           }}
         />
+        <style>{`textarea::placeholder { color: rgba(255,255,255,0.38) !important; }`}</style>
 
-        {/* Submit */}
+        {/* Submit — quietly ready, not disabled-looking */}
         <button
           onClick={handleSubmit}
           disabled={!question.trim() || isWaiting}
-          className="w-full py-[14px] text-[13px] font-medium mb-12 transition-all"
+          className="w-full py-[15px] text-[14px] font-semibold mb-12 transition-all"
           style={{
-            background:    question.trim() && !isWaiting ? 'rgba(255,200,80,0.10)' : 'transparent',
-            border:        question.trim() && !isWaiting ? '1px solid rgba(255,200,80,0.20)' : '1px solid rgba(255,255,255,0.06)',
+            background:    question.trim() && !isWaiting
+              ? 'rgba(255,200,80,0.16)'
+              : 'rgba(255,255,255,0.06)',
+            border:        question.trim() && !isWaiting
+              ? '1px solid rgba(255,200,80,0.35)'
+              : '1px solid rgba(255,255,255,0.12)',
             borderRadius:  '14px',
-            color:         question.trim() && !isWaiting ? 'rgba(255,255,255,0.80)' : 'rgba(255,255,255,0.16)',
+            color:         question.trim() && !isWaiting
+              ? 'rgba(255,255,255,0.95)'
+              : 'rgba(255,255,255,0.30)',
             cursor:        question.trim() && !isWaiting ? 'pointer' : 'default',
             letterSpacing: '0.08em',
           }}
@@ -220,22 +240,23 @@ export default function AskPage() {
           {isWaiting ? '·  ·  ·' : 'Spør'}
         </button>
 
-        {/* Starter prompts */}
+        {/* Starter prompts — stronger text */}
         {!answer && !isWaiting && (
           <div className="flex flex-col gap-[6px] mb-6 fade-in">
-            <div className="text-xs tracking-[0.22em] uppercase text-[rgba(255,255,255,0.15)] mb-3">
+            <div className="text-xs tracking-[0.22em] uppercase mb-3"
+              style={{ color: 'rgba(255,255,255,0.35)' }}>
               Eller velg et spørsmål
             </div>
             {STARTER_PROMPTS.map(p => (
               <button
                 key={p}
                 onClick={() => handlePrompt(p)}
-                className="text-left text-[13px] px-0 py-[10px] transition-all"
+                className="text-left text-[13px] px-0 py-[11px] transition-all"
                 style={{
-                  color:        'rgba(255,255,255,0.32)',
+                  color:        'rgba(255,255,255,0.55)',
                   background:   'transparent',
                   border:       'none',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  borderBottom: '1px solid rgba(255,255,255,0.08)',
                   lineHeight:   '1.5',
                 }}
               >
@@ -247,53 +268,62 @@ export default function AskPage() {
 
         {/* Error */}
         {error && (
-          <div className="text-[13px] text-[rgba(255,200,80,0.55)] text-center mb-6">
+          <div className="text-[13px] text-center mb-6"
+            style={{ color: 'rgba(255,200,80,0.75)' }}>
             {error}
           </div>
         )}
 
         {/* Answer */}
         {answer && (
-          <div ref={answerRef} className="fade-up w-full flex flex-col mb-10" style={{ paddingTop: '8px' }}>
+          <div ref={answerRef} className="fade-up w-full flex flex-col mb-10"
+            style={{ paddingTop: '8px' }}>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', marginBottom: '32px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', marginBottom: '32px' }} />
 
             <div className="answer-section" style={{ marginBottom: '28px' }}>
-              <div className="text-xs tracking-[0.24em] uppercase text-[rgba(255,255,255,0.20)] mb-3">
+              <div className="text-xs tracking-[0.24em] uppercase mb-3"
+                style={{ color: 'rgba(255,255,255,0.40)' }}>
                 Kort svar
               </div>
-              <div className="text-[17px] text-white leading-relaxed" style={{ letterSpacing: '-0.01em' }}>
+              <div className="text-[17px] text-white leading-relaxed"
+                style={{ letterSpacing: '-0.01em' }}>
                 {answer.short_answer}
               </div>
             </div>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', marginBottom: '28px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '28px' }} />
 
             <div className="answer-section" style={{ marginBottom: '28px' }}>
-              <div className="text-xs tracking-[0.24em] uppercase text-[rgba(255,255,255,0.20)] mb-3">
+              <div className="text-xs tracking-[0.24em] uppercase mb-3"
+                style={{ color: 'rgba(255,255,255,0.40)' }}>
                 Hvorfor det betyr noe
               </div>
-              <div className="text-[14px] text-[rgba(255,255,255,0.50)] leading-relaxed">
+              <div className="text-[14px] leading-relaxed"
+                style={{ color: 'rgba(255,255,255,0.68)' }}>
                 {answer.why_it_matters}
               </div>
             </div>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', marginBottom: '28px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '28px' }} />
 
             <div className="answer-section">
-              <div className="text-xs tracking-[0.24em] uppercase text-[rgba(255,255,255,0.20)] mb-3">
+              <div className="text-xs tracking-[0.24em] uppercase mb-3"
+                style={{ color: 'rgba(255,255,255,0.40)' }}>
                 Hva du gjør nå
               </div>
-              <div className="text-[14px] text-[rgba(255,255,255,0.50)] leading-relaxed">
+              <div className="text-[14px] leading-relaxed"
+                style={{ color: 'rgba(255,255,255,0.68)' }}>
                 {answer.what_to_do}
               </div>
             </div>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', margin: '32px 0 24px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.12)', margin: '32px 0 24px' }} />
 
             <button
               onClick={() => { setAnswer(null); setQuestion('') }}
-              className="text-xs text-[rgba(255,255,255,0.18)] tracking-[0.08em] text-center"
+              className="text-xs tracking-[0.08em] text-center"
+              style={{ color: 'rgba(255,255,255,0.35)' }}
             >
               Nytt spørsmål
             </button>
