@@ -110,14 +110,15 @@ export async function POST() {
     // Do not compute final state if sleep looks incomplete:
     // - sleep_duration_hours < 6
     // - AND current Oslo hour < 07:30
-    const osloHour = parseFloat(
-      new Intl.DateTimeFormat('no-NO', {
-        timeZone: 'Europe/Oslo',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false,
-      }).format(new Date()).replace(':', '.')
-    )
+    const osloParts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Oslo',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(new Date())
+    const osloH = parseInt(osloParts.find(p => p.type === 'hour')?.value ?? '0', 10)
+    const osloM = parseInt(osloParts.find(p => p.type === 'minute')?.value ?? '0', 10)
+    const osloHour = osloH + osloM / 60
     const sleepHours = data.sleep_duration_hours ?? 0
     const sleepIncomplete = sleepHours < 6 && osloHour < 7.5
 
