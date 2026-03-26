@@ -19,6 +19,16 @@ interface Answer {
   what_to_do:     string
 }
 
+async function askMunk(question: string): Promise<{ answer?: Answer; error?: string; status: number }> {
+  const res  = await fetch('/api/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question }),
+  })
+  const json = await res.json()
+  return { ...json, status: res.status }
+}
+
 export default function AskPage() {
   const [question,  setQuestion]  = useState('')
   const [answer,    setAnswer]    = useState<Answer | null>(null)
@@ -44,15 +54,16 @@ export default function AskPage() {
     const startTime = Date.now()
 
     try {
-      const res  = await fetch('/api/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q }),
-      })
-      const json = await res.json()
+      // First attempt
+      let result = await askMunk(q)
 
-      if (!res.ok) {
-        setError(json.error ?? 'Noe gikk galt.')
+      // Silent retry — only on 503, only once
+      if (result.status === 503) {
+        result = await askMunk(q)
+      }
+
+      if (result.status !== 200 || !result.answer) {
+        setError(result.error ?? 'Noe gikk galt.')
         logMorningEvent('ask_munk_answer_failed' as any)
         setLoading(false)
       } else {
@@ -64,7 +75,7 @@ export default function AskPage() {
 
         setTimeout(() => {
           setArriving(false)
-          setAnswer(json.answer)
+          setAnswer(result.answer!)
           logMorningEvent('ask_munk_answer_rendered' as any)
           setTimeout(() => {
             answerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -173,7 +184,7 @@ export default function AskPage() {
           </div>
         </div>
 
-        {/* Input — transparent, minimal, line only */}
+        {/* Input */}
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
@@ -209,7 +220,7 @@ export default function AskPage() {
           {isWaiting ? '·  ·  ·' : 'Spør'}
         </button>
 
-        {/* Starter prompts — borderless, open list */}
+        {/* Starter prompts */}
         {!answer && !isWaiting && (
           <div className="flex flex-col gap-[6px] mb-6 fade-in">
             <div className="text-xs tracking-[0.22em] uppercase text-[rgba(255,255,255,0.15)] mb-3">
@@ -241,7 +252,7 @@ export default function AskPage() {
           </div>
         )}
 
-        {/* Answer — open, airy, no card */}
+        {/* Answer */}
         {answer && (
           <div ref={answerRef} className="fade-up w-full flex flex-col mb-10" style={{ paddingTop: '8px' }}>
 
