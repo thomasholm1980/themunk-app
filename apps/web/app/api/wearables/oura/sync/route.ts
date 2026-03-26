@@ -55,11 +55,14 @@ export async function POST() {
       const ageMinutes = (Date.now() - new Date(existingState.computed_at).getTime()) / 60000
       if (ageMinutes < 60) {
         console.log(`[sync] skipped — fresh daily_state exists (${Math.round(ageMinutes)}min old, state: ${existingState.state})`)
+        // Return 'ok' with existing state so UI can use it directly — not 'skipped'
         return NextResponse.json({
-          status: 'skipped',
+          status: 'ok',
           reason: 'fresh_state_exists',
+          day_key: dayKey,
           state: existingState.state,
           age_minutes: Math.round(ageMinutes),
+          state_verified: true,
         })
       }
     }

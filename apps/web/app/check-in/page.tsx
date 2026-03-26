@@ -217,6 +217,11 @@ export default function CheckInPage() {
             setMode("no_data");
             return;
           }
+          if (syncJson.status === "sleep_incomplete") {
+            logMorningEvent('wake_monk_sync_no_data');
+            setMode("no_data");
+            return;
+          }
           logMorningEvent('wake_monk_sync_succeeded');
         }
       } catch { /* continue to poll */ }
