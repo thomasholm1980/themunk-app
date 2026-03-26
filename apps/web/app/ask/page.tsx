@@ -86,33 +86,33 @@ export default function AskPage() {
 
   return (
     <main
-      className="min-h-screen text-white flex flex-col items-center px-6 py-10"
-      style={{ background: APP_BG }}
+      className="min-h-screen text-white flex flex-col items-center px-6"
+      style={{ background: APP_BG, paddingTop: '20px' }}
     >
       <style>{`
         @keyframes glowBreath {
-          0%,100% { opacity: 0.35; transform: scale(1); }
-          50%      { opacity: 0.65; transform: scale(1.10); }
+          0%,100% { opacity: 0.35; transform: translate(-50%,-50%) scale(1); }
+          50%      { opacity: 0.65; transform: translate(-50%,-50%) scale(1.10); }
         }
         @keyframes glowPulse {
-          0%,100% { opacity: 0.50; transform: scale(0.95); }
-          50%      { opacity: 1.00; transform: scale(1.15); }
+          0%,100% { opacity: 0.50; transform: translate(-50%,-50%) scale(0.95); }
+          50%      { opacity: 1.00; transform: translate(-50%,-50%) scale(1.15); }
         }
         @keyframes ringArrive {
           0%   { opacity: 0.80; transform: translate(-50%,-50%) scale(0.75); }
           100% { opacity: 0;    transform: translate(-50%,-50%) scale(1.70); }
         }
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(14px); }
+          from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeIn {
           from { opacity: 0; }
           to   { opacity: 1; }
         }
-        .fade-up  { animation: fadeUp 700ms cubic-bezier(.22,1,.36,1) both; }
-        .fade-in  { animation: fadeIn 400ms ease both; }
-        .a-s      { animation: fadeUp 500ms cubic-bezier(.22,1,.36,1) both; }
+        .fade-up { animation: fadeUp 700ms cubic-bezier(.22,1,.36,1) both; }
+        .fade-in { animation: fadeIn 400ms ease both; }
+        .a-s     { animation: fadeUp 500ms cubic-bezier(.22,1,.36,1) both; }
         .a-s:nth-child(1) { animation-delay: 0ms; }
         .a-s:nth-child(3) { animation-delay: 70ms; }
         .a-s:nth-child(5) { animation-delay: 140ms; }
@@ -121,23 +121,32 @@ export default function AskPage() {
 
       <div className="w-full max-w-sm flex flex-col">
 
-        {/* ← Tilbake */}
+        {/* ← Tilbake — tight top */}
         <button
           onClick={() => window.location.href = '/check-in'}
-          className="self-start text-[13px] mb-10 tracking-[0.03em]"
-          style={{ color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none' }}
+          style={{
+            alignSelf: 'flex-start',
+            fontSize: '13px',
+            color: 'rgba(255,255,255,0.50)',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            marginBottom: '20px',
+            letterSpacing: '0.02em',
+            cursor: 'pointer',
+          }}
         >
           ← Tilbake
         </button>
 
-        {/* HERO — all layers share exact center via translate(-50%,-50%) */}
-        <div className="mb-10" style={{ position: 'relative', height: 88, width: '100%' }}>
+        {/* HERO — compact, max 120px tall, exact shared center */}
+        <div style={{ position: 'relative', height: 80, width: '100%', marginBottom: '12px' }}>
 
           {/* Outer ring */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%,-50%)',
-            width: 88, height: 88,
+            width: 76, height: 76,
             borderRadius: '50%',
             border: '1px solid rgba(255,160,50,0.22)',
           }} />
@@ -146,27 +155,28 @@ export default function AskPage() {
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%,-50%)',
-            width: 64, height: 64,
+            width: 54, height: 54,
             borderRadius: '50%',
             border: '1px solid rgba(255,160,50,0.14)',
           }} />
 
-          {/* Core glow — centered, no offset */}
+          {/* Core glow — same center, same transform origin */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%,-50%)',
-            width: 60, height: 60,
+            width: 52, height: 52,
             borderRadius: '50%',
             background: 'radial-gradient(circle at 50% 50%, rgba(255,175,60,1.00) 0%, rgba(255,120,20,0.45) 45%, transparent 75%)',
             filter: 'blur(5px)',
-            animation: isWaiting ? 'glowPulse 1.4s ease-in-out infinite' : 'glowBreath 5s ease-in-out infinite',
+            animation: isWaiting
+              ? 'glowPulse 1.4s ease-in-out infinite'
+              : 'glowBreath 5s ease-in-out infinite',
           }} />
 
-          {/* Arrival expansion ring — same center */}
+          {/* Arrival ring */}
           {arriving && (
             <div style={{
               position: 'absolute', top: '50%', left: '50%',
-              width: 88, height: 88,
+              width: 76, height: 76,
               borderRadius: '50%',
               border: '1px solid rgba(255,160,50,0.60)',
               animation: 'ringArrive 650ms ease-out forwards',
@@ -174,57 +184,66 @@ export default function AskPage() {
           )}
         </div>
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div
-            className="text-[11px] tracking-[0.32em] uppercase mb-3"
-            style={{ color: 'rgba(255,255,255,0.52)' }}
-          >
-            Spør Munken
-          </div>
-          <div
-            className="text-[22px] font-semibold leading-snug"
-            style={{ color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.01em' }}
-          >
-            Få en rolig forklaring på stresset ditt
-          </div>
+        {/* SPØR MUNKEN label */}
+        <div style={{
+          textAlign: 'center',
+          fontSize: '11px',
+          letterSpacing: '0.30em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.52)',
+          marginBottom: '8px',
+        }}>
+          Spør Munken
         </div>
 
-        {/* Input — transparent, bottom line only, clear placeholder */}
+        {/* Headline */}
+        <div style={{
+          textAlign: 'center',
+          fontSize: '21px',
+          fontWeight: 600,
+          lineHeight: 1.25,
+          color: 'rgba(255,255,255,0.96)',
+          letterSpacing: '-0.01em',
+          marginBottom: '20px',
+        }}>
+          Få en rolig forklaring på stresset ditt
+        </div>
+
+        {/* Input — bottom line only, tight spacing */}
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
           placeholder="Hva lurer du på?"
-          rows={3}
+          rows={2}
           style={{
             width: '100%',
             background: 'transparent',
             border: 'none',
             borderBottom: '1.5px solid rgba(255,255,255,0.28)',
             borderRadius: 0,
-            padding: '0 0 16px 0',
-            lineHeight: '1.65',
+            padding: '0 0 10px 0',
+            lineHeight: '1.60',
             fontSize: '15px',
             color: 'rgba(255,255,255,0.94)',
             resize: 'none',
             outline: 'none',
-            marginBottom: '22px',
+            marginBottom: '14px',
           }}
         />
 
-        {/* CTA — quietly ready */}
+        {/* CTA — right under input, clearly tappable */}
         <button
           onClick={handleSubmit}
           disabled={!question.trim() || isWaiting}
           style={{
             width: '100%',
-            padding: '15px 0',
-            borderRadius: '14px',
+            padding: '14px 0',
+            borderRadius: '13px',
             fontSize: '14px',
             fontWeight: 600,
             letterSpacing: '0.08em',
-            marginBottom: '48px',
+            marginBottom: '32px',
             transition: 'all 0.2s ease',
             background: question.trim() && !isWaiting
               ? 'rgba(255,200,80,0.18)'
@@ -243,11 +262,14 @@ export default function AskPage() {
 
         {/* Starter prompts */}
         {!answer && !isWaiting && (
-          <div className="flex flex-col mb-6 fade-in">
-            <div
-              className="text-[11px] tracking-[0.24em] uppercase mb-4"
-              style={{ color: 'rgba(255,255,255,0.40)' }}
-            >
+          <div className="fade-in">
+            <div style={{
+              fontSize: '11px',
+              letterSpacing: '0.24em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.40)',
+              marginBottom: '12px',
+            }}>
               Eller velg et spørsmål
             </div>
             {STARTER_PROMPTS.map((p, i) => (
@@ -255,9 +277,11 @@ export default function AskPage() {
                 key={p}
                 onClick={() => handlePrompt(p)}
                 style={{
+                  display: 'block',
+                  width: '100%',
                   textAlign: 'left',
                   fontSize: '14px',
-                  padding: '12px 0',
+                  padding: '11px 0',
                   color: 'rgba(255,255,255,0.62)',
                   background: 'transparent',
                   border: 'none',
@@ -276,70 +300,54 @@ export default function AskPage() {
 
         {/* Error */}
         {error && (
-          <div
-            className="text-[13px] text-center mb-6"
-            style={{ color: 'rgba(255,200,80,0.80)' }}
-          >
+          <div style={{
+            fontSize: '13px',
+            textAlign: 'center',
+            marginBottom: '16px',
+            color: 'rgba(255,200,80,0.80)',
+          }}>
             {error}
           </div>
         )}
 
         {/* Answer */}
         {answer && (
-          <div ref={answerRef} className="fade-up w-full flex flex-col mb-10">
+          <div ref={answerRef} className="fade-up w-full flex flex-col" style={{ marginBottom: '40px' }}>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', marginBottom: '28px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', marginBottom: '24px' }} />
 
-            <div className="a-s" style={{ marginBottom: '24px' }}>
-              <div
-                className="text-[11px] tracking-[0.26em] uppercase mb-3"
-                style={{ color: 'rgba(255,255,255,0.44)' }}
-              >
+            <div className="a-s" style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>
                 Kort svar
               </div>
-              <div
-                className="text-[17px] leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.01em' }}
-              >
+              <div style={{ fontSize: '17px', lineHeight: 1.55, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.01em' }}>
                 {answer.short_answer}
               </div>
             </div>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '24px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
 
-            <div className="a-s" style={{ marginBottom: '24px' }}>
-              <div
-                className="text-[11px] tracking-[0.26em] uppercase mb-3"
-                style={{ color: 'rgba(255,255,255,0.44)' }}
-              >
+            <div className="a-s" style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>
                 Hvorfor det betyr noe
               </div>
-              <div
-                className="text-[14px] leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.70)' }}
-              >
+              <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>
                 {answer.why_it_matters}
               </div>
             </div>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '24px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
 
             <div className="a-s">
-              <div
-                className="text-[11px] tracking-[0.26em] uppercase mb-3"
-                style={{ color: 'rgba(255,255,255,0.44)' }}
-              >
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>
                 Hva du gjør nå
               </div>
-              <div
-                className="text-[14px] leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.70)' }}
-              >
+              <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>
                 {answer.what_to_do}
               </div>
             </div>
 
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', margin: '28px 0 20px' }} />
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', margin: '24px 0 16px' }} />
 
             <button
               onClick={() => { setAnswer(null); setQuestion('') }}
