@@ -91,11 +91,11 @@ export default function AskPage() {
     >
       <style>{`
         @keyframes glowBreath {
-          0%,100% { opacity: 0.40; transform: translate(-50%,-50%) scale(1); }
-          50%      { opacity: 0.70; transform: translate(-50%,-50%) scale(1.08); }
+          0%,100% { opacity: 0.55; transform: translate(-50%,-50%) scale(1); }
+          50%      { opacity: 0.85; transform: translate(-50%,-50%) scale(1.08); }
         }
         @keyframes glowPulse {
-          0%,100% { opacity: 0.55; transform: translate(-50%,-50%) scale(0.96); }
+          0%,100% { opacity: 0.65; transform: translate(-50%,-50%) scale(0.96); }
           50%      { opacity: 1.00; transform: translate(-50%,-50%) scale(1.12); }
         }
         @keyframes ringArrive {
@@ -134,31 +134,31 @@ export default function AskPage() {
           ← Tilbake
         </button>
 
-        {/* HERO — tighter glow core, same center */}
-        <div style={{ position: 'relative', height: 80, width: '100%', marginBottom: '12px' }}>
+        {/* HERO — larger glow, same shared center */}
+        <div style={{ position: 'relative', height: 100, width: '100%', marginBottom: '12px' }}>
 
           {/* Outer ring */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%,-50%)',
-            width: 76, height: 76, borderRadius: '50%',
-            border: '1px solid rgba(255,160,50,0.22)',
+            width: 88, height: 88, borderRadius: '50%',
+            border: '1px solid rgba(255,160,50,0.25)',
           }} />
 
           {/* Mid ring */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%,-50%)',
-            width: 54, height: 54, borderRadius: '50%',
-            border: '1px solid rgba(255,160,50,0.14)',
+            width: 64, height: 64, borderRadius: '50%',
+            border: '1px solid rgba(255,160,50,0.15)',
           }} />
 
-          {/* Core glow — tighter: smaller size, harder falloff, less fog */}
+          {/* Core glow — 68px, blur 10px, strong center */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'radial-gradient(circle at 50% 50%, rgba(255,185,70,1.00) 0%, rgba(255,130,20,0.55) 40%, rgba(255,100,10,0.15) 65%, transparent 80%)',
-            filter: 'blur(4px)',
+            width: 68, height: 68, borderRadius: '50%',
+            background: 'radial-gradient(circle at 50% 50%, rgba(255,190,70,1.00) 0%, rgba(255,140,20,0.70) 35%, rgba(255,100,10,0.25) 60%, transparent 80%)',
+            filter: 'blur(10px)',
             animation: isWaiting
               ? 'glowPulse 1.4s ease-in-out infinite'
               : 'glowBreath 5s ease-in-out infinite',
@@ -168,7 +168,7 @@ export default function AskPage() {
           {arriving && (
             <div style={{
               position: 'absolute', top: '50%', left: '50%',
-              width: 76, height: 76, borderRadius: '50%',
+              width: 88, height: 88, borderRadius: '50%',
               border: '1px solid rgba(255,160,50,0.60)',
               animation: 'ringArrive 650ms ease-out forwards',
             }} />
@@ -193,7 +193,7 @@ export default function AskPage() {
           Få en rolig forklaring på stresset ditt
         </div>
 
-        {/* Input — stronger placeholder */}
+        {/* Input */}
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
@@ -210,7 +210,7 @@ export default function AskPage() {
           }}
         />
 
-        {/* CTA — stronger surface + label */}
+        {/* CTA */}
         <button
           onClick={handleSubmit}
           disabled={!question.trim() || isWaiting}
@@ -234,7 +234,7 @@ export default function AskPage() {
           {isWaiting ? '·  ·  ·' : 'Spør'}
         </button>
 
-        {/* Starter prompts — stronger text */}
+        {/* Starter prompts */}
         {!answer && !isWaiting && (
           <div className="fade-in">
             <div style={{
@@ -277,30 +277,22 @@ export default function AskPage() {
         {/* Answer */}
         {answer && (
           <div ref={answerRef} className="fade-up w-full flex flex-col" style={{ marginBottom: '40px' }}>
-
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', marginBottom: '24px' }} />
-
             <div className="a-s" style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Kort svar</div>
               <div style={{ fontSize: '17px', lineHeight: 1.55, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.01em' }}>{answer.short_answer}</div>
             </div>
-
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
-
             <div className="a-s" style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Hvorfor det betyr noe</div>
               <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>{answer.why_it_matters}</div>
             </div>
-
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
-
             <div className="a-s">
               <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Hva du gjør nå</div>
               <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>{answer.what_to_do}</div>
             </div>
-
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', margin: '24px 0 16px' }} />
-
             <button
               onClick={() => { setAnswer(null); setQuestion('') }}
               style={{
