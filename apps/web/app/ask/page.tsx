@@ -55,8 +55,6 @@ export default function AskPage() {
 
     try {
       let result = await askMunk(q)
-
-      // Silent retry — only on 503, only once
       if (result.status === 503) {
         result = await askMunk(q)
       }
@@ -68,10 +66,8 @@ export default function AskPage() {
       } else {
         const elapsed = Date.now() - startTime
         const settle  = Math.max(0, 500 - elapsed)
-
         setLoading(false)
         setArriving(true)
-
         setTimeout(() => {
           setArriving(false)
           setAnswer(result.answer!)
@@ -113,8 +109,8 @@ export default function AskPage() {
           100% { opacity: 0.45; transform: scale(0.92); }
         }
         @keyframes ringExpand {
-          0%   { opacity: 0.70; transform: scale(0.70); }
-          100% { opacity: 0;    transform: scale(1.65); }
+          0%   { opacity: 0.70; transform: translateX(-50%) scale(0.70); }
+          100% { opacity: 0;    transform: translateX(-50%) scale(1.65); }
         }
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(16px); }
@@ -130,6 +126,7 @@ export default function AskPage() {
         .answer-section:nth-child(1) { animation-delay: 0ms; }
         .answer-section:nth-child(3) { animation-delay: 80ms; }
         .answer-section:nth-child(5) { animation-delay: 160ms; }
+        textarea::placeholder { color: rgba(255,255,255,0.38) !important; }
       `}</style>
 
       <div className="w-full max-w-sm flex flex-col">
@@ -143,7 +140,7 @@ export default function AskPage() {
           ← Tilbake
         </button>
 
-        {/* Monk presence — boosted 15% */}
+        {/* Monk presence — centered glow */}
         <div className="flex justify-center mb-10" style={{ position: 'relative', height: 80 }}>
           {/* Outer ring */}
           <div style={{
@@ -151,25 +148,28 @@ export default function AskPage() {
             width: 80, height: 80,
             borderRadius: '50%',
             border: '1px solid rgba(255,160,50,0.20)',
-            top: 0, left: '50%', transform: 'translateX(-50%)',
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
           }} />
           {/* Mid ring */}
           <div style={{
             position: 'absolute',
-            width: 60, height: 60,
+            width: 58, height: 58,
             borderRadius: '50%',
             border: '1px solid rgba(255,160,50,0.12)',
-            top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
           }} />
-          {/* Core glow */}
+          {/* Core glow — truly centered */}
           <div style={{
             position: 'absolute',
-            width: 56, height: 56,
+            width: 54, height: 54,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,170,60,0.90) 0%, rgba(255,110,20,0.40) 50%, transparent 78%)',
+            background: 'radial-gradient(circle at center, rgba(255,170,60,0.90) 0%, rgba(255,110,20,0.40) 50%, transparent 78%)',
             animation: isWaiting ? 'glowPulse 1.4s ease-in-out infinite' : 'glowBreath 5s ease-in-out infinite',
             filter: 'blur(4px)',
-            top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
           }} />
           {/* Arrival ring */}
           {arriving && (
@@ -178,7 +178,8 @@ export default function AskPage() {
               width: 80, height: 80,
               borderRadius: '50%',
               border: '1px solid rgba(255,160,50,0.55)',
-              top: 0, left: '50%', transform: 'translateX(-50%)',
+              top: '50%', left: '50%',
+              transform: 'translateX(-50%) translateY(-50%)',
               animation: 'ringExpand 600ms ease-out forwards',
             }} />
           )}
@@ -196,7 +197,7 @@ export default function AskPage() {
           </div>
         </div>
 
-        {/* Input — stronger presence, still open */}
+        {/* Input — NO background, only bottom line */}
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
@@ -205,19 +206,17 @@ export default function AskPage() {
           rows={3}
           className="w-full text-[15px] text-white resize-none outline-none"
           style={{
-            background:    'rgba(255,255,255,0.06)',
-            border:        'none',
-            borderBottom:  '1px solid rgba(255,255,255,0.22)',
-            borderRadius:  0,
-            padding:       '4px 0 18px 0',
-            lineHeight:    '1.65',
-            marginBottom:  '24px',
-            color:         'rgba(255,255,255,0.92)',
+            background:   'transparent',
+            border:       'none',
+            borderBottom: '1px solid rgba(255,255,255,0.22)',
+            borderRadius: 0,
+            padding:      '0 0 18px 0',
+            lineHeight:   '1.65',
+            marginBottom: '24px',
           }}
         />
-        <style>{`textarea::placeholder { color: rgba(255,255,255,0.38) !important; }`}</style>
 
-        {/* Submit — quietly ready, not disabled-looking */}
+        {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={!question.trim() || isWaiting}
@@ -240,7 +239,7 @@ export default function AskPage() {
           {isWaiting ? '·  ·  ·' : 'Spør'}
         </button>
 
-        {/* Starter prompts — stronger text */}
+        {/* Starter prompts */}
         {!answer && !isWaiting && (
           <div className="flex flex-col gap-[6px] mb-6 fade-in">
             <div className="text-xs tracking-[0.22em] uppercase mb-3"
@@ -251,7 +250,7 @@ export default function AskPage() {
               <button
                 key={p}
                 onClick={() => handlePrompt(p)}
-                className="text-left text-[13px] px-0 py-[11px] transition-all"
+                className="text-left text-[13px] px-0 py-[11px]"
                 style={{
                   color:        'rgba(255,255,255,0.55)',
                   background:   'transparent',
