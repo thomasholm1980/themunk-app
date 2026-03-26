@@ -192,6 +192,13 @@ export default function AskPage() {
         }}>
           Få en rolig forklaring på stresset ditt
         </div>
+        <div style={{
+          textAlign: 'center', fontSize: '14px', fontWeight: 400,
+          lineHeight: 1.45, color: 'rgba(255,255,255,0.62)',
+          marginTop: '8px', marginBottom: '0',
+        }}>
+          Dagens signaler er klare. Nå kan du spørre hva de betyr.
+        </div>
 
         {/* Input */}
         <textarea
