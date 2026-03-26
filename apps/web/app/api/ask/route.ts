@@ -7,6 +7,19 @@ import { AnthropicAdapter } from '../../../lib/anthropic_adapter'
 
 const USER_ID = 'thomas'
 
+const STATE_LABEL: Record<string, string> = {
+  GREEN:  'lavt stress',
+  YELLOW: 'moderat stress',
+  RED:    'høyt stress',
+}
+
+const PATTERN_LABEL: Record<string, string> = {
+  repeated_elevated_stress:       'gjentatt forhøyet stressbelastning over flere dager',
+  subjective_load_above_baseline: 'subjektiv belastning over normalt nivå',
+  recovery_mismatch:              'restitusjon henger etter belastning',
+  day_drift_negative:             'negativ utvikling gjennom dagen',
+}
+
 function getServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,12 +56,18 @@ SPRÅKREGLER (UFRAVIKELIGE):
 - Ikke "kanskje", "det kan være", "basert på"
 - Ikke emojis
 - Ikke unødvendig fylltekst
+- Ikke bruk interne koder som YELLOW, GREEN, RED — bruk kun norske beskrivelser
 
 TONE:
 - Rolig
 - Jordnær
 - Direkte
 - Maskulin
+
+VARIASJON (PÅKREVD):
+- what_to_do skal variere mellom svar — ikke gjenta samme råd
+- Unngå å starte flere felt med "Prioriter søvn"
+- Gi konkret handling tilpasset spørsmålet, ikke generisk restitusjonsfrase
 
 ATFERDSREGLER:
 - Forankre alltid svaret i stress
@@ -100,7 +119,8 @@ export async function POST(req: NextRequest) {
       const pattern    = patternRes.data
 
       if (state) {
-        groundingContext += `\nDAGENS TILSTAND: ${state.state} (confidence: ${state.confidence})`
+        const stateLabel = STATE_LABEL[state.state] ?? 'ukjent stressnivå'
+        groundingContext += `\nDAGENS TILSTAND: ${stateLabel} (sikkerhet: ${state.confidence})`
         if (state.hrv)            groundingContext += `, HRV: ${state.hrv}`
         if (state.rhr)            groundingContext += `, hvilepuls: ${state.rhr}`
         if (state.sleep_score)    groundingContext += `, søvnscore: ${state.sleep_score}`
@@ -110,10 +130,11 @@ export async function POST(req: NextRequest) {
         groundingContext += `\nDAGENS REFLEKSJON: kroppen kjennes ${reflection.body_feeling ?? 'ukjent'}, dag utviklet seg ${reflection.day_direction ?? 'ukjent'}`
       }
       if (pattern?.sufficient_data && pattern.pattern_codes?.length > 0) {
-        groundingContext += `\nAKTIVE MØNSTRE: ${pattern.pattern_codes.join(', ')}`
+        const norwegianPatterns = (pattern.pattern_codes as string[])
+          .map((code: string) => PATTERN_LABEL[code] ?? code)
+        groundingContext += `\nAKTIVE MØNSTRE: ${norwegianPatterns.join('; ')}`
       }
 
-      // Content library context — deterministic tag match, MAX ONE item
       const activePattern = pattern?.sufficient_data && pattern.pattern_codes?.length > 0
         ? pattern.pattern_codes[0] as string
         : null
@@ -135,7 +156,6 @@ export async function POST(req: NextRequest) {
             .eq('library_status', 'available')
 
           if (libItems && libItems.length > 0) {
-            // Score by tag overlap
             const scored = libItems
               .map((item: any) => ({
                 item,
@@ -164,11 +184,17 @@ export async function POST(req: NextRequest) {
     let answer: { short_answer: string; why_it_matters: string; what_to_do: string } | null = null
 
     try {
-      const res   = await adapter.complete({
-        prompt: `${SYSTEM_PROMPT}\n\n${prompt}`,
-        max_tokens: 400,
-        temperature: 0.3,
-      })
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 12000)
+      )
+      const res = await Promise.race([
+        adapter.complete({
+          prompt: `${SYSTEM_PROMPT}\n\n${prompt}`,
+          max_tokens: 400,
+          temperature: 0.3,
+        }),
+        timeoutPromise,
+      ])
       const clean = res.text.replace(/```json|```/g, '').trim()
       answer = JSON.parse(clean)
       logTelemetry('ask_munk_answer_rendered')
