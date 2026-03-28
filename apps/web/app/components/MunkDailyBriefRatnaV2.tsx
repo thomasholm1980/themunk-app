@@ -142,9 +142,12 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         .b-now.in     { opacity: 1; transform: translateY(0); transition-delay: 700ms; }
         .b-ask        { opacity: 0; transform: translateY(4px); }
         .b-ask.in     { opacity: 1; transform: translateY(0); transition-delay: 820ms; }
+        .b-monster    { opacity: 0; transform: translateY(4px); }
+        .b-monster.in { opacity: 1; transform: translateY(0); transition-delay: 920ms; }
         .b-reflect    { opacity: 0; transform: translateY(4px); }
-        .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 960ms; }
-        .ask-card:active { transform: scale(0.98); }
+        .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 1020ms; }
+        .ask-card:active   { transform: scale(0.98); }
+        .monster-card:active { transform: scale(0.98); }
       `}</style>
 
       <div className="w-full flex items-start justify-center text-white" style={{ paddingTop: "8px", minHeight: "100vh" }}>
@@ -179,7 +182,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             }} />
           </div>
 
-          {/* Stress level — primary */}
+          {/* Stress level */}
           <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
             <div className="text-[13px] tracking-[0.3em] uppercase text-[#6E6E73] mb-1">Stressnivå</div>
             <div className="text-[36px] leading-[1.15] font-semibold text-white">
@@ -187,14 +190,14 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           </div>
 
-          {/* Why — no duplicate, insight only */}
+          {/* Why */}
           {resolvedInsight !== UI.defaultInsight && (
             <div className={`b-why ease-spring mt-2 text-[16px] text-[rgba(255,255,255,0.80)] max-w-sm${mounted ? " in" : ""}`}>
               {resolvedInsight}
             </div>
           )}
 
-          {/* Context line — higher contrast */}
+          {/* Context line */}
           {context_line && (
             <div className={`b-context ease-spring mt-2 text-[15px] text-[rgba(255,255,255,0.55)] max-w-sm${mounted ? " in" : ""}`}>
               {context_line}
@@ -206,7 +209,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             {guidance}
           </div>
 
-          {/* ── NOW + Gjør nå — core insight block ── */}
+          {/* NOW + Gjør nå */}
           <div
             className={`b-now ease-spring mt-7 w-full rounded-2xl px-6 py-7${mounted ? " in" : ""}`}
             style={{
@@ -214,22 +217,14 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               border: "1px solid rgba(255,255,255,0.11)",
             }}
           >
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">
-              Nå
-            </div>
-            <div className="text-[17px] text-white leading-snug mb-5">
-              {nowText}
-            </div>
+            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">Nå</div>
+            <div className="text-[17px] text-white leading-snug mb-5">{nowText}</div>
             <div className="w-full h-px mb-5" style={{ background: "rgba(255,255,255,0.08)" }} />
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">
-              Gjør nå
-            </div>
-            <div className="text-[17px] font-semibold text-white leading-snug">
-              {actionNowText}
-            </div>
+            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">Gjør nå</div>
+            <div className="text-[17px] font-semibold text-white leading-snug">{actionNowText}</div>
           </div>
 
-          {/* ── Ask the Munk — clear action ── */}
+          {/* Ask the Munk */}
           <div
             className={`ask-card b-ask ease-spring mt-4 w-full rounded-2xl px-6 py-6 cursor-pointer${mounted ? " in" : ""}`}
             style={{
@@ -250,18 +245,42 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           </div>
 
+          {/* Se mønsteret */}
+          <div
+            className={`monster-card b-monster ease-spring mt-4 w-full rounded-2xl px-6 py-6 cursor-pointer text-left${mounted ? " in" : ""}`}
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.13)",
+              transition: "transform 150ms ease, background 150ms ease",
+            }}
+            onClick={() => window.location.href = "/monster"}
+          >
+            <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>
+              Siste 7 dager
+            </div>
+            <div className="text-[17px] font-semibold text-white mb-1">
+              Se mønsteret
+            </div>
+            <div className="text-[14px]" style={{ color: "rgba(255,255,255,0.50)" }}>
+              Se om stresset bygger seg opp eller slipper taket
+            </div>
+            <div className="mt-3 text-[13px]" style={{ color: "rgba(255,255,255,0.30)" }}>
+              Åpne →
+            </div>
+          </div>
+
           {/* Divider */}
           <div className="w-12 h-px bg-white/8 my-6" />
 
           {/* Context Surface */}
           <ContextSurfaceCard patternCode={context_pattern ?? null} />
 
-          {/* Reflection — demoted */}
+          {/* Reflection */}
           <div className={`b-reflect ease-spring w-full mt-2${mounted ? " in" : ""}`}>
             <ReflectionMemoryCard dayKey={new Date().toISOString().slice(0, 10)} />
           </div>
 
-          {/* Secondary entry */}
+          {/* Secondary */}
           <div className="mt-6 mb-10 w-full flex flex-col items-center">
             <button
               onClick={() => window.location.href = "/stress-now"}
