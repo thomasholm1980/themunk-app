@@ -40,12 +40,6 @@ const STATE_LABEL: Record<SystemState, string> = {
   RED:    "Høyt stress",
 };
 
-const STATE_BODY: Record<SystemState, string> = {
-  GREEN:  "Kroppen er godt restituert",
-  YELLOW: "Kroppen har ikke hentet seg helt inn",
-  RED:    "Kroppen er under betydelig belastning",
-};
-
 type TimeBucket = "morning" | "day" | "evening";
 
 function getTimeBucket(): TimeBucket {
@@ -150,13 +144,16 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         .b-ask.in     { opacity: 1; transform: translateY(0); transition-delay: 820ms; }
         .b-reflect    { opacity: 0; transform: translateY(4px); }
         .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 960ms; }
+        .ask-card:active { transform: scale(0.98); }
       `}</style>
 
       <div className="w-full flex items-start justify-center text-white" style={{ paddingTop: "8px", minHeight: "100vh" }}>
         <div className="w-full max-w-xl flex flex-col items-center text-center px-6">
 
+          {/* Date */}
           <div className="text-xs tracking-[0.25em] uppercase text-[#6E6E73] mb-1">{dateLabel}</div>
 
+          {/* Munk */}
           <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "4px" }}>
             <div style={{
               "--amplitude": expr.breathAmplitude,
@@ -182,6 +179,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             }} />
           </div>
 
+          {/* Stress level — primary */}
           <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
             <div className="text-[13px] tracking-[0.3em] uppercase text-[#6E6E73] mb-1">Stressnivå</div>
             <div className="text-[36px] leading-[1.15] font-semibold text-white">
@@ -189,65 +187,81 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           </div>
 
-          <div className={`b-why ease-spring mt-2 text-[16px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
-            {resolvedInsight !== UI.defaultInsight ? resolvedInsight : STATE_BODY[state]}
-          </div>
+          {/* Why — no duplicate, insight only */}
+          {resolvedInsight !== UI.defaultInsight && (
+            <div className={`b-why ease-spring mt-2 text-[16px] text-[rgba(255,255,255,0.80)] max-w-sm${mounted ? " in" : ""}`}>
+              {resolvedInsight}
+            </div>
+          )}
 
+          {/* Context line — higher contrast */}
           {context_line && (
-            <div className={`b-context ease-spring mt-1 text-[13px] text-[rgba(255,255,255,0.30)] max-w-sm${mounted ? " in" : ""}`}>
+            <div className={`b-context ease-spring mt-2 text-[15px] text-[rgba(255,255,255,0.55)] max-w-sm${mounted ? " in" : ""}`}>
               {context_line}
             </div>
           )}
 
-          <div className={`b-action ease-spring mt-2 text-[16px] text-[#C7C7CC] max-w-sm${mounted ? " in" : ""}`}>
+          {/* Guidance */}
+          <div className={`b-action ease-spring mt-2 text-[17px] font-medium text-white max-w-sm${mounted ? " in" : ""}`}>
             {guidance}
           </div>
 
-          <div className={`b-now ease-spring mt-6 w-full rounded-2xl px-5 py-5${mounted ? " in" : ""}`}
+          {/* ── NOW + Gjør nå — core insight block ── */}
+          <div
+            className={`b-now ease-spring mt-7 w-full rounded-2xl px-6 py-7${mounted ? " in" : ""}`}
             style={{
-              background: "rgba(255,255,255,0.045)",
-              border: "1px solid rgba(255,255,255,0.09)",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.11)",
             }}
           >
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.28)] mb-2">
+            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">
               Nå
             </div>
-            <div className="text-[15px] text-[rgba(255,255,255,0.75)] leading-snug mb-4">
+            <div className="text-[17px] text-white leading-snug mb-5">
               {nowText}
             </div>
-            <div className="w-full h-px mb-4" style={{ background: "rgba(255,255,255,0.07)" }} />
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.28)] mb-2">
+            <div className="w-full h-px mb-5" style={{ background: "rgba(255,255,255,0.08)" }} />
+            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">
               Gjør nå
             </div>
-            <div className="text-[15px] font-medium text-white leading-snug">
+            <div className="text-[17px] font-semibold text-white leading-snug">
               {actionNowText}
             </div>
           </div>
 
+          {/* ── Ask the Munk — clear action ── */}
           <div
-            className={`b-ask ease-spring mt-4 w-full rounded-2xl px-5 py-5 cursor-pointer${mounted ? " in" : ""}`}
+            className={`ask-card b-ask ease-spring mt-4 w-full rounded-2xl px-6 py-6 cursor-pointer${mounted ? " in" : ""}`}
             style={{
-              background: "rgba(255,200,80,0.07)",
-              border: "1px solid rgba(255,200,80,0.18)",
+              background: "rgba(255,200,80,0.13)",
+              border: "1px solid rgba(255,200,80,0.35)",
+              transition: "transform 150ms ease, background 150ms ease",
             }}
             onClick={() => window.location.href = "/ask"}
           >
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,200,80,0.55)] mb-1">
+            <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "rgba(255,200,80,0.80)" }}>
               Spør Munken
             </div>
-            <div className="text-[14px] text-[rgba(255,255,255,0.55)]">
+            <div className="text-[16px] font-medium text-white">
               Dagens signaler er klare. Hva vil du forstå?
+            </div>
+            <div className="mt-3 text-[13px]" style={{ color: "rgba(255,200,80,0.70)" }}>
+              Trykk for å spørre →
             </div>
           </div>
 
+          {/* Divider */}
           <div className="w-12 h-px bg-white/8 my-6" />
 
+          {/* Context Surface */}
           <ContextSurfaceCard patternCode={context_pattern ?? null} />
 
+          {/* Reflection — demoted */}
           <div className={`b-reflect ease-spring w-full mt-2${mounted ? " in" : ""}`}>
             <ReflectionMemoryCard dayKey={new Date().toISOString().slice(0, 10)} />
           </div>
 
+          {/* Secondary entry */}
           <div className="mt-6 mb-10 w-full flex flex-col items-center">
             <button
               onClick={() => window.location.href = "/stress-now"}
