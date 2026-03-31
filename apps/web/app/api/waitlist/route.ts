@@ -74,9 +74,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Serverfeil' }, { status: 500 })
     }
 
+    const cleanEmail = email.toLowerCase().trim()
     try {
-      await sendConfirmationEmail(email.toLowerCase().trim())
-      console.log('[waitlist] confirmation email sent to:', to)
+      await sendConfirmationEmail(cleanEmail)
+      console.log('[waitlist] confirmation email sent to:', cleanEmail)
     } catch (mailErr) {
       console.error('[waitlist] email send failed:', mailErr)
     }
