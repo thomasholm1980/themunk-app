@@ -5,6 +5,11 @@ import nodemailer from 'nodemailer'
 export const runtime = 'nodejs'
 
 async function sendConfirmationEmail(to: string) {
+  console.log('[waitlist] attempting SMTP to:', to)
+  console.log('[waitlist] SMTP_HOST:', process.env.SMTP_HOST)
+  console.log('[waitlist] SMTP_PORT:', process.env.SMTP_PORT)
+  console.log('[waitlist] SMTP_USER:', process.env.SMTP_USER)
+
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT ?? '465'),
@@ -13,9 +18,12 @@ async function sendConfirmationEmail(to: string) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   })
 
-  await transporter.sendMail({
+  const result = await transporter.sendMail({
     from: process.env.SMTP_FROM ?? 'The Munk <hei@themunk.ai>',
     to,
     subject: 'Du er på listen – The Munk',
@@ -39,6 +47,7 @@ Vi sier ifra så snart vi åpner.
 
 – The Munk`,
   })
+  console.log('[waitlist] email sent, messageId:', result.messageId)
 }
 
 export async function POST(req: NextRequest) {
@@ -74,12 +83,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Serverfeil' }, { status: 500 })
     }
 
-    // Send confirmation email — non-blocking, fail gracefully
     try {
       await sendConfirmationEmail(email.toLowerCase().trim())
     } catch (mailErr) {
-      console.error('[waitlist] email send failed', mailErr)
-      // DB insert succeeded — signup is still valid
+      console.error('[waitlist] email send failed:', mailErr)
     }
 
     return NextResponse.json({ ok: true })
