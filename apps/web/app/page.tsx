@@ -1,5 +1,4 @@
-// apps/web/app/page.tsx
-import { redirect } from "next/navigation";
+import LandingPage from "./landing/page";
 export default function Home() {
-  redirect("/check-in");
+  return <LandingPage />;
 }
