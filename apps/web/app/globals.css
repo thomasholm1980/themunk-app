@@ -9,11 +9,50 @@
   --text:           #FFFFFF;
   --text-secondary: #C7C7CC;
   --muted:          #6E6E73;
+  --gold:           #D4AF37;
+}
+
+html {
+  height: 100%;
 }
 
 body {
-  background: radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%);
   color: var(--text);
-  font-family: "Georgia", serif;
+  font-family: ui-serif, -apple-system-serif, "New York", "Georgia", serif;
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.bg-munk-morning {
+  background: radial-gradient(circle at 50% 35%, #3E5E56 0%, #162C27 60%, #0D1A17 100%);
+}
+
+.bg-munk-evening {
+  background: radial-gradient(circle at 50% 25%, #1B3833 0%, #081210 70%, #040807 100%);
+}
+
+.bg-munk-default {
+  background: radial-gradient(ellipse at 50% 20%, #2F5D54 0%, #1C3A34 40%, #0F1F1C 100%);
+}
+
+.munk-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-left: 1px solid rgba(255,255,255,0.03);
+  border-bottom: none;
+  border-right: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  border-radius: 20px;
+  padding: 28px 24px;
+}
+
+.munk-card-gold {
+  background: linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(212,175,55,0.05) 100%);
+  border-top: 1px solid rgba(212,175,55,0.25);
+  border-left: 1px solid rgba(212,175,55,0.10);
+  border-bottom: none;
+  border-right: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  border-radius: 20px;
+  padding: 28px 24px;
 }
