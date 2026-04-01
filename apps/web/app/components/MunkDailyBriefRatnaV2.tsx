@@ -146,7 +146,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         .b-monster.in { opacity: 1; transform: translateY(0); transition-delay: 920ms; }
         .b-reflect    { opacity: 0; transform: translateY(4px); }
         .b-reflect.in { opacity: 1; transform: translateY(0); transition-delay: 1020ms; }
-        .ask-card:active   { transform: scale(0.98); }
+        .ask-card:active    { transform: scale(0.98); }
         .monster-card:active { transform: scale(0.98); }
       `}</style>
 
@@ -190,16 +190,16 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           </div>
 
-          {/* Why */}
+          {/* Why — lifted contrast */}
           {resolvedInsight !== UI.defaultInsight && (
-            <div className={`b-why ease-spring mt-2 text-[16px] text-[rgba(255,255,255,0.80)] max-w-sm${mounted ? " in" : ""}`}>
+            <div className={`b-why ease-spring mt-2 text-[17px] text-[rgba(255,255,255,0.90)] max-w-sm${mounted ? " in" : ""}`}>
               {resolvedInsight}
             </div>
           )}
 
-          {/* Context line */}
+          {/* Context line — lifted contrast + size */}
           {context_line && (
-            <div className={`b-context ease-spring mt-2 text-[15px] text-[rgba(255,255,255,0.55)] max-w-sm${mounted ? " in" : ""}`}>
+            <div className={`b-context ease-spring mt-2 text-[16px] text-[rgba(255,255,255,0.70)] max-w-sm${mounted ? " in" : ""}`}>
               {context_line}
             </div>
           )}
@@ -217,10 +217,12 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               border: "1px solid rgba(255,255,255,0.11)",
             }}
           >
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">Nå</div>
+            <div className="text-[11px] tracking-[0.28em] uppercase mb-3"
+              style={{ color: "rgba(255,255,255,0.55)" }}>Nå</div>
             <div className="text-[17px] text-white leading-snug mb-5">{nowText}</div>
-            <div className="w-full h-px mb-5" style={{ background: "rgba(255,255,255,0.08)" }} />
-            <div className="text-[11px] tracking-[0.28em] uppercase text-[rgba(255,255,255,0.40)] mb-3">Gjør nå</div>
+            <div className="w-full h-px mb-5" style={{ background: "rgba(255,255,255,0.10)" }} />
+            <div className="text-[11px] tracking-[0.28em] uppercase mb-3"
+              style={{ color: "rgba(255,255,255,0.55)" }}>Gjør nå</div>
             <div className="text-[17px] font-semibold text-white leading-snug">{actionNowText}</div>
           </div>
 
@@ -234,13 +236,15 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             }}
             onClick={() => window.location.href = "/ask"}
           >
-            <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "rgba(255,200,80,0.80)" }}>
+            <div className="text-[11px] tracking-[0.28em] uppercase mb-2"
+              style={{ color: "rgba(255,200,80,0.85)" }}>
               Spør Munken
             </div>
-            <div className="text-[16px] font-medium text-white">
+            <div className="text-[16px] font-semibold text-white">
               Dagens signaler er klare. Hva vil du forstå?
             </div>
-            <div className="mt-3 text-[13px]" style={{ color: "rgba(255,200,80,0.70)" }}>
+            <div className="mt-3 text-[13px]"
+              style={{ color: "rgba(255,200,80,0.85)" }}>
               Trykk for å spørre →
             </div>
           </div>
@@ -249,28 +253,31 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           <div
             className={`monster-card b-monster ease-spring mt-4 w-full rounded-2xl px-6 py-6 cursor-pointer text-left${mounted ? " in" : ""}`}
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.13)",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.15)",
               transition: "transform 150ms ease, background 150ms ease",
             }}
             onClick={() => window.location.href = "/monster"}
           >
-            <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <div className="text-[11px] tracking-[0.28em] uppercase mb-2"
+              style={{ color: "rgba(255,255,255,0.50)" }}>
               Siste 7 dager
             </div>
             <div className="text-[17px] font-semibold text-white mb-1">
               Se mønsteret
             </div>
-            <div className="text-[14px]" style={{ color: "rgba(255,255,255,0.50)" }}>
+            <div className="text-[15px]"
+              style={{ color: "rgba(255,255,255,0.65)" }}>
               Se om stresset bygger seg opp eller slipper taket
             </div>
-            <div className="mt-3 text-[13px]" style={{ color: "rgba(255,255,255,0.30)" }}>
+            <div className="mt-3 text-[13px]"
+              style={{ color: "rgba(255,255,255,0.45)" }}>
               Åpne →
             </div>
           </div>
 
           {/* Divider */}
-          <div className="w-12 h-px bg-white/8 my-6" />
+          <div className="w-12 h-px my-6" style={{ background: "rgba(255,255,255,0.12)" }} />
 
           {/* Context Surface */}
           <ContextSurfaceCard patternCode={context_pattern ?? null} />
@@ -285,7 +292,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <button
               onClick={() => window.location.href = "/stress-now"}
               className="text-sm transition-colors"
-              style={{ color: "rgba(255,255,255,0.22)", letterSpacing: "0.06em" }}
+              style={{ color: "rgba(255,255,255,0.30)", letterSpacing: "0.06em" }}
             >
               Stress nå →
             </button>
