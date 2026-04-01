@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import * as postmark from 'postmark'
 
 export const runtime = 'nodejs'
 
@@ -55,7 +55,6 @@ const EMAIL_HTML = `<!DOCTYPE html>
               <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Ved å bruke data fra wearables som klokker, helseringer og armbånd, tolker The Munk signalene fra kroppen din og gjør dem lettere å forstå i en travel hverdag.</p>
               <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Vi kombinerer fysiologiske data med generativ AI for å gi deg en roligere og mer menneskelig forståelse av:</p>
 
-              <!-- Bullet list -->
               <ul style="margin:0 0 20px;padding-left:24px;">
                 <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvordan kroppen din faktisk har det</li>
                 <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvorfor dagen kjennes som den gjør</li>
@@ -85,21 +84,13 @@ const EMAIL_HTML = `<!DOCTYPE html>
 </html>`
 
 async function sendConfirmationEmail(to: string) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.BREVO_SMTP_USER,
-      pass: process.env.BREVO_SMTP_PASS,
-    },
-  })
-
-  await transporter.sendMail({
-    from: 'The Munk <hei@themunk.ai>',
-    to,
-    subject: 'Du er på listen – The Munk',
-    text: `Hei,
+  const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN!)
+  await client.sendEmail({
+    From: 'The Munk <hei@themunk.ai>',
+    To: to,
+    Subject: 'Du er på listen – The Munk',
+    HtmlBody: EMAIL_HTML,
+    TextBody: `Hei,
 
 Du er nå på ventelisten til The Munk.
 
@@ -118,7 +109,7 @@ Målet er enkelt:
 Vi sier ifra så snart vi åpner.
 
 – The Munk`,
-    html: EMAIL_HTML,
+    MessageStream: 'outbound',
   })
 }
 
