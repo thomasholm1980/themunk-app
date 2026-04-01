@@ -18,7 +18,7 @@ html {
 
 body {
   color: var(--text);
-  font-family: ui-serif, -apple-system-serif, "New York", "Georgia", serif;
+  font-family: ui-serif, -apple-system-serif, "New York", var(--font-crimson), "Charter", "Georgia", serif;
   min-height: 100vh;
   min-height: 100dvh;
 }

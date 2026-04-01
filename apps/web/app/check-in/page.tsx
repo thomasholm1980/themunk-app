@@ -53,6 +53,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   const [visible, setVisible] = useState(false);
   const [msgIndex, setMsgIndex] = useState(0);
   const [msgVisible, setMsgVisible] = useState(true);
+  const [showStoreFallback, setShowStoreFallback] = useState(false);
   const timeBucket = getTimeBucket();
   const bg = getBgGradient(timeBucket);
 
@@ -60,7 +61,6 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
-  // Message cycle — only during loading
   useEffect(() => {
     if (mode !== "loading") return;
     const interval = setInterval(() => {
@@ -73,9 +73,44 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     return () => clearInterval(interval);
   }, [mode]);
 
-  const isFetching = mode === "loading";
-  const isNoData   = mode === "no_data";
-  const isIdle     = mode === "idle";
+  function openOura() {
+    setShowStoreFallback(false);
+    const start = Date.now();
+
+    // Try deep link
+    window.location.href = "oura://";
+
+    // If window stays focused after 2.5s, user didn't leave — show store fallback
+    const timer = setTimeout(() => {
+      if (Date.now() - start < 3000) {
+        setShowStoreFallback(true);
+      }
+    }, 2500);
+
+    // If user left (blur), cancel fallback
+    const onBlur = () => {
+      clearTimeout(timer);
+      window.removeEventListener("blur", onBlur);
+    };
+    window.addEventListener("blur", onBlur);
+  }
+
+  const isLoading = mode === "loading";
+  const isNoData  = mode === "no_data";
+  const isIdle    = mode === "idle";
+
+  const ghostButton: React.CSSProperties = {
+    padding: "16px 40px",
+    borderRadius: "100px",
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    color: "rgba(255,255,255,0.90)",
+    fontSize: "15px",
+    letterSpacing: "0.06em",
+    cursor: "pointer",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+  };
 
   return (
     <main
@@ -84,33 +119,34 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     >
       <style>{`
         @keyframes heartGlow {
-          0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); filter: blur(20px); }
-          50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.1); filter: blur(40px); }
+          0%, 100% { opacity: 0.35; transform: scale(0.88); filter: blur(22px); }
+          50%       { opacity: 0.95; transform: scale(1.12); filter: blur(38px); }
         }
         @keyframes munkFloat {
           0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-6px); }
+          50%       { transform: translateY(-7px); }
         }
-        .msg-enter { opacity: 1; transform: translateY(0); transition: opacity 600ms ease, transform 600ms ease; }
-        .msg-exit  { opacity: 0; transform: translateY(4px); transition: opacity 600ms ease, transform 600ms ease; }
-        .mf { opacity: 0; transform: translateY(8px); transition: opacity 800ms cubic-bezier(.22,1,.36,1), transform 800ms cubic-bezier(.22,1,.36,1); }
-        .mf.v { opacity: 1; transform: translateY(0); }
+        .msg-visible { opacity: 1; transform: translateY(0);   transition: opacity 600ms ease, transform 600ms ease; }
+        .msg-hidden  { opacity: 0; transform: translateY(5px); transition: opacity 600ms ease, transform 600ms ease; }
+        .fade-in { opacity: 0; transform: translateY(10px); animation: fadeUp 900ms cubic-bezier(.22,1,.36,1) forwards; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
-      {/* Munk + glow */}
-      <div className={`mf relative mb-10${visible ? " v" : ""}`}>
-        {/* Heart glow */}
+      {/* Munk + centered orb */}
+      <div className="fade-in relative flex items-center justify-center mb-10" style={{ animationDelay: "0ms", width: "240px", height: "260px" }}>
+        {/* Gold orb — centered behind monk */}
         <div style={{
           position: "absolute",
-          top: "52%",
+          top: "50%",
           left: "50%",
-          width: "120px",
-          height: "120px",
+          width: "130px",
+          height: "130px",
           borderRadius: "50%",
           background: "radial-gradient(circle, #D4AF37 0%, transparent 70%)",
-          animation: isFetching ? "heartGlow 6s ease-in-out infinite" : "none",
-          zIndex: 0,
+          transform: "translate(-50%, -50%)",
+          animation: isLoading ? "heartGlow 6s ease-in-out infinite" : "none",
           pointerEvents: "none",
+          zIndex: 0,
         }} />
         <img
           src="/assets/munk-transparent.png"
@@ -126,88 +162,73 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
         />
       </div>
 
-      {/* Content area */}
-      <div className={`mf flex flex-col items-center gap-4${visible ? " v" : ""}`} style={{ minHeight: "80px" }}>
+      {/* Content */}
+      <div className="flex flex-col items-center gap-5" style={{ minHeight: "120px" }}>
 
-        {/* Loading state */}
-        {isFetching && (
-          <>
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex flex-col items-center gap-3">
             <p
-              className={msgVisible ? "msg-enter" : "msg-exit"}
-              style={{
-                fontSize: "20px",
-                color: "rgba(255,255,255,0.90)",
-                lineHeight: 1.4,
-                maxWidth: "280px",
-              }}
+              className={msgVisible ? "msg-visible" : "msg-hidden"}
+              style={{ fontSize: "20px", color: "rgba(255,255,255,0.90)", lineHeight: 1.4, maxWidth: "280px" }}
             >
               {LOADING_MESSAGES[msgIndex]}
             </p>
-            <p style={{
-              fontSize: "11px",
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: "rgba(212,175,55,0.55)",
-            }}>
+            <p style={{ fontSize: "11px", letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(212,175,55,0.55)" }}>
               Synkroniserer med Oura
             </p>
-          </>
+          </div>
         )}
 
-        {/* Idle state */}
+        {/* Idle */}
         {isIdle && (
-          <>
-            <p style={{ fontSize: "28px", color: "rgba(255,255,255,0.95)", lineHeight: 1.2 }}>
+          <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay: "200ms" }}>
+            <p style={{ fontSize: "30px", color: "rgba(255,255,255,0.95)", lineHeight: 1.2 }}>
               {timeBucket === "morning" ? "God morgen" : timeBucket === "day" ? "Munken er våken" : "Munken roer ned"}
             </p>
-            <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.50)", marginBottom: "8px" }}>
+            <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)" }}>
               Trykk for å se dagens stressnivå.
             </p>
-            <button
-              onClick={onWake}
-              style={{
-                marginTop: "8px",
-                padding: "16px 40px",
-                borderRadius: "100px",
-                background: "transparent",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.85)",
-                fontSize: "15px",
-                letterSpacing: "0.06em",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={onWake} style={ghostButton}>
               {timeBucket === "morning" ? "Vekk munken" : "Møt munken"}
             </button>
-          </>
+          </div>
         )}
 
-        {/* No data state */}
+        {/* No data */}
         {isNoData && (
-          <>
-            <p style={{ fontSize: "20px", color: "rgba(255,255,255,0.85)", lineHeight: 1.4, maxWidth: "280px" }}>
-              Oura er ikke klar ennå
+          <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay: "0ms" }}>
+            <p style={{ fontSize: "22px", color: "rgba(255,255,255,0.90)", lineHeight: 1.35, maxWidth: "280px" }}>
+              Munken venter på kroppens signaler
             </p>
-            <p style={{ fontSize: "15px", color: "rgba(212,175,55,0.70)", maxWidth: "260px", lineHeight: 1.6 }}>
-              Åpne Oura-appen, la den synkronisere, og prøv igjen.
+            <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.50)", maxWidth: "260px", lineHeight: 1.65 }}>
+              Åpne Oura-appen for å bekrefte at ringen din har synkronisert dagens data.
             </p>
-            <button
-              onClick={onWake}
-              style={{
-                marginTop: "16px",
-                padding: "16px 40px",
-                borderRadius: "100px",
-                background: "transparent",
-                border: "1px solid rgba(255,255,255,0.10)",
-                color: "rgba(255,255,255,0.70)",
-                fontSize: "15px",
-                letterSpacing: "0.06em",
-                cursor: "pointer",
-              }}
-            >
+
+            <button onClick={openOura} style={{ ...ghostButton, color: "#D4AF37", borderColor: "rgba(212,175,55,0.30)" }}>
+              Åpne Oura
+            </button>
+
+            {showStoreFallback && (
+              <div className="fade-in flex flex-col items-center gap-2" style={{ animationDelay: "0ms" }}>
+                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)" }}>Ikke installert?</p>
+                <div className="flex gap-4">
+                  <a href="https://apps.apple.com/app/oura/id1043837948" target="_blank" rel="noopener"
+                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.70)", textDecoration: "none" }}>
+                    App Store →
+                  </a>
+                  <a href="https://play.google.com/store/apps/details?id=com.ouraring.oura" target="_blank" rel="noopener"
+                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.70)", textDecoration: "none" }}>
+                    Google Play →
+                  </a>
+                </div>
+              </div>
+            )}
+
+            <button onClick={onWake} style={{ ...ghostButton, marginTop: "4px", fontSize: "13px", padding: "12px 28px", color: "rgba(255,255,255,0.40)", borderColor: "rgba(255,255,255,0.08)" }}>
               Prøv igjen
             </button>
-          </>
+          </div>
         )}
 
       </div>
