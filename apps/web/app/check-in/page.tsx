@@ -54,6 +54,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [msgVisible, setMsgVisible] = useState(true);
   const [showStoreFallback, setShowStoreFallback] = useState(false);
+  const [hasOpenedOura, setHasOpenedOura] = useState(false);
   const timeBucket = getTimeBucket();
   const bg = getBgGradient(timeBucket);
 
@@ -75,19 +76,16 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
 
   function openOura() {
     setShowStoreFallback(false);
-    const start = Date.now();
-
-    // Try deep link
+    setHasOpenedOura(true);
     window.location.href = "oura://";
 
-    // If window stays focused after 2.5s, user didn't leave — show store fallback
+    const start = Date.now();
     const timer = setTimeout(() => {
       if (Date.now() - start < 3000) {
         setShowStoreFallback(true);
       }
     }, 2500);
 
-    // If user left (blur), cancel fallback
     const onBlur = () => {
       clearTimeout(timer);
       window.removeEventListener("blur", onBlur);
@@ -133,8 +131,8 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       `}</style>
 
       {/* Munk + centered orb */}
-      <div className="fade-in relative flex items-center justify-center mb-10" style={{ animationDelay: "0ms", width: "240px", height: "260px" }}>
-        {/* Gold orb — centered behind monk */}
+      <div className="fade-in relative flex items-center justify-center mb-10"
+        style={{ animationDelay: "0ms", width: "240px", height: "260px" }}>
         <div style={{
           position: "absolute",
           top: "50%",
@@ -163,15 +161,13 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col items-center gap-5" style={{ minHeight: "120px" }}>
+      <div className="flex flex-col items-center gap-5" style={{ minHeight: "140px" }}>
 
         {/* Loading */}
         {isLoading && (
           <div className="flex flex-col items-center gap-3">
-            <p
-              className={msgVisible ? "msg-visible" : "msg-hidden"}
-              style={{ fontSize: "20px", color: "rgba(255,255,255,0.90)", lineHeight: 1.4, maxWidth: "280px" }}
-            >
+            <p className={msgVisible ? "msg-visible" : "msg-hidden"}
+              style={{ fontSize: "20px", color: "rgba(255,255,255,0.90)", lineHeight: 1.4, maxWidth: "280px" }}>
               {LOADING_MESSAGES[msgIndex]}
             </p>
             <p style={{ fontSize: "11px", letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(212,175,55,0.55)" }}>
@@ -205,29 +201,47 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
               Åpne Oura-appen for å bekrefte at ringen din har synkronisert dagens data.
             </p>
 
-            <button onClick={openOura} style={{ ...ghostButton, color: "#D4AF37", borderColor: "rgba(212,175,55,0.30)" }}>
+            {/* Primary action */}
+            <button onClick={openOura}
+              style={{ ...ghostButton, marginTop: "8px", color: "#D4AF37", borderColor: "rgba(212,175,55,0.30)" }}>
               Åpne Oura
             </button>
 
+            {/* Store fallback — only if deep link failed */}
             {showStoreFallback && (
-              <div className="fade-in flex flex-col items-center gap-2" style={{ animationDelay: "0ms" }}>
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)" }}>Ikke installert?</p>
-                <div className="flex gap-4">
+              <div className="fade-in flex flex-col items-center gap-2" style={{ animationDelay: "0ms", marginTop: "24px" }}>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.05em" }}>
+                  Ikke installert?
+                </p>
+                <div className="flex gap-5">
                   <a href="https://apps.apple.com/app/oura/id1043837948" target="_blank" rel="noopener"
-                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.70)", textDecoration: "none" }}>
+                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.65)", textDecoration: "none" }}>
                     App Store →
                   </a>
                   <a href="https://play.google.com/store/apps/details?id=com.ouraring.oura" target="_blank" rel="noopener"
-                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.70)", textDecoration: "none" }}>
+                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.65)", textDecoration: "none" }}>
                     Google Play →
                   </a>
                 </div>
               </div>
             )}
 
-            <button onClick={onWake} style={{ ...ghostButton, marginTop: "4px", fontSize: "13px", padding: "12px 28px", color: "rgba(255,255,255,0.40)", borderColor: "rgba(255,255,255,0.08)" }}>
-              Prøv igjen
-            </button>
+            {/* Secondary — text link only, appears after user has tried Oura */}
+            {hasOpenedOura && (
+              <button onClick={onWake}
+                style={{
+                  marginTop: "28px",
+                  background: "none",
+                  border: "none",
+                  color: "rgba(255,255,255,0.30)",
+                  fontSize: "13px",
+                  letterSpacing: "0.08em",
+                  cursor: "pointer",
+                  padding: "8px",
+                }}>
+                Prøv igjen →
+              </button>
+            )}
           </div>
         )}
 
