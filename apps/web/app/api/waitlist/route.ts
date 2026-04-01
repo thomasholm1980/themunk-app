@@ -49,68 +49,23 @@ const EMAIL_HTML = `<!DOCTYPE html>
           <!-- Body -->
           <tr>
             <td style="padding:0 40px 16px;">
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Hei,
-              </p>
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Du er nå på ventelisten til The Munk.
-              </p>
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                The Munk er bygget for å hjelpe deg å forstå stresset ditt bedre – ikke bare se tall.
-              </p>
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Ved å bruke data fra wearables som klokker, helseringer og armbånd, tolker The Munk signalene fra kroppen din og gjør dem lettere å forstå i en travel hverdag.
-              </p>
-              <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Vi kombinerer fysiologiske data med generativ AI for å gi deg en roligere og mer menneskelig forståelse av:
-              </p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Hei,</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Du er nå på ventelisten til The Munk.</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">The Munk er bygget for å hjelpe deg å forstå stresset ditt bedre – ikke bare se tall.</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Ved å bruke data fra wearables som klokker, helseringer og armbånd, tolker The Munk signalene fra kroppen din og gjør dem lettere å forstå i en travel hverdag.</p>
+              <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Vi kombinerer fysiologiske data med generativ AI for å gi deg en roligere og mer menneskelig forståelse av:</p>
 
               <!-- Bullet list -->
-              <table cellpadding="0" cellspacing="0" style="margin:0 0 16px;width:100%;">
-                <tr>
-                  <td style="padding:6px 0;">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="width:20px;vertical-align:top;font-family:Georgia,serif;font-size:16px;color:#c8a84b;padding-top:1px;">–</td>
-                        <td style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.65;">hvordan kroppen din faktisk har det</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:6px 0;">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="width:20px;vertical-align:top;font-family:Georgia,serif;font-size:16px;color:#c8a84b;padding-top:1px;">–</td>
-                        <td style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.65;">hvorfor dagen kjennes som den gjør</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:6px 0;">
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="width:20px;vertical-align:top;font-family:Georgia,serif;font-size:16px;color:#c8a84b;padding-top:1px;">–</td>
-                        <td style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.65;">og hva du bør gjøre videre</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
+              <ul style="margin:0 0 20px;padding-left:24px;">
+                <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvordan kroppen din faktisk har det</li>
+                <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvorfor dagen kjennes som den gjør</li>
+                <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">og hva du bør gjøre videre</li>
+              </ul>
 
-              <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Målet er enkelt:
-              </p>
-              <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Å gjøre stress tydeligere, roligere og mer håndterbart.
-              </p>
-              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                Vi sier ifra så snart vi åpner.
-              </p>
-              <p style="margin:0 0 0;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">
-                – The Munk
-              </p>
+              <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Målet er enkelt:</p>
+              <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Å gjøre stress tydeligere, roligere og mer håndterbart.</p>
+              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Vi sier ifra så snart vi åpner.</p>
+              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">– The Munk</p>
             </td>
           </tr>
 
@@ -118,10 +73,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
           <tr>
             <td align="center" style="padding:32px 40px 40px;">
               <div style="width:40px;height:1px;background:#d4c9b8;margin-bottom:20px;"></div>
-              <a href="https://www.themunk.ai"
-                style="font-family:Georgia,serif;font-size:12px;color:#aaa;text-decoration:none;letter-spacing:1px;">
-                themunk.ai
-              </a>
+              <a href="https://www.themunk.ai" style="font-family:Georgia,serif;font-size:12px;color:#aaa;text-decoration:none;letter-spacing:1px;">themunk.ai</a>
             </td>
           </tr>
 
