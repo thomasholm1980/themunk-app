@@ -17,19 +17,27 @@ type PatternsResponse = {
 };
 
 const PATTERN_LABEL: Record<string, string> = {
-  repeated_elevated_stress:      "Vedvarende høyt stress",
+  repeated_elevated_stress:       "Vedvarende høyt stress",
   subjective_load_above_baseline: "Opplevd belastning over normalt",
-  recovery_deficit:              "Underskudd på restitusjon",
-  green_streak:                  "Stabil restitusjonsperiode",
-  hrv_suppressed:                "Lavt restitusjonsnivå over tid",
+  recovery_deficit:               "Underskudd på restitusjon",
+  green_streak:                   "Stabil restitusjonsperiode",
+  hrv_suppressed:                 "Lavt restitusjonsnivå over tid",
 };
 
 const PATTERN_BODY: Record<string, string> = {
-  repeated_elevated_stress:      "Kroppen har vist forhøyet stress i flere dager på rad. Dette er ikke én dårlig natt — det er et mønster.",
+  repeated_elevated_stress:       "Kroppen har vist forhøyet stress i flere dager på rad. Dette er ikke én dårlig natt — det er et mønster.",
   subjective_load_above_baseline: "Du har rapportert at kroppen kjennes tyngre enn vanlig over flere dager.",
-  recovery_deficit:              "Kroppen har ikke fått nok tid til å hente seg inn mellom belastningene.",
-  green_streak:                  "Du er inne i en god periode. Kroppen restituerer stabilt.",
-  hrv_suppressed:                "Kroppens evne til å håndtere stress har vært lavere enn normalt den siste tiden.",
+  recovery_deficit:               "Kroppen har ikke fått nok tid til å hente seg inn mellom belastningene.",
+  green_streak:                   "Du er inne i en god periode. Kroppen restituerer stabilt.",
+  hrv_suppressed:                 "Kroppens evne til å håndtere stress har vært lavere enn normalt den siste tiden.",
+};
+
+const PATTERN_MEANING: Record<string, string> = {
+  repeated_elevated_stress:       "Når dette gjentar seg over flere dager, blir det ofte vanskeligere å hente seg inn igjen — selv når dagene ikke føles spesielt krevende.",
+  subjective_load_above_baseline: "Dette kan være en del av grunnen til at kroppen kjennes mer anspent enn vanlig. Signalene stemmer med det du selv merker.",
+  recovery_deficit:               "Dette mønsteret gjør at selv vanlige dager kan føles tyngre enn de egentlig er. Kroppen jobber hardere enn den burde for å holde seg stabil.",
+  green_streak:                   "Dette gir kroppen rom til å bygge seg opp. En god periode nå betyr bedre motstandskraft fremover.",
+  hrv_suppressed:                 "Lavere restitusjon over tid gjør at kroppen tåler mindre variasjon. Det som normalt ikke merkes, kan begynne å sette spor.",
 };
 
 const CONFIDENCE_LABEL: Record<string, string> = {
@@ -108,9 +116,10 @@ export default function MonsterPage() {
           )}
 
           {data && data.sufficient_data && data.patterns.map((p, i) => {
-            const label = PATTERN_LABEL[p.code] ?? p.code;
-            const body  = PATTERN_BODY[p.code] ?? "";
-            const conf  = CONFIDENCE_LABEL[p.confidence] ?? p.confidence;
+            const label   = PATTERN_LABEL[p.code] ?? p.code;
+            const body    = PATTERN_BODY[p.code] ?? "";
+            const meaning = PATTERN_MEANING[p.code] ?? "";
+            const conf    = CONFIDENCE_LABEL[p.confidence] ?? p.confidence;
             const delayClass = ["d3","d4","d5"][i] ?? "d5";
             return (
               <div
@@ -129,8 +138,15 @@ export default function MonsterPage() {
                   {label}
                 </div>
                 {body && (
-                  <div className="text-[15px] leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
+                  <div className="text-[15px] leading-relaxed mb-3"
+                    style={{ color: "rgba(255,255,255,0.65)" }}>
                     {body}
+                  </div>
+                )}
+                {meaning && (
+                  <div className="text-[14px] leading-relaxed"
+                    style={{ color: "rgba(255,200,80,0.55)", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "12px" }}>
+                    {meaning}
                   </div>
                 )}
               </div>
