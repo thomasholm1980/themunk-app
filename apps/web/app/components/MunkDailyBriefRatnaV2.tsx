@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { UI } from "../lib/ui-strings";
 import ContextSurfaceCard from "./ContextSurfaceCard";
+import { useAtmosphere } from "../../hooks/useAtmosphere";
 
 type SystemState = "GREEN" | "YELLOW" | "RED";
 export type RatnaContract = {
@@ -55,8 +56,9 @@ function getTimeBucket(): TimeBucket {
 
 function getBgClass(bucket: TimeBucket): string {
   if (bucket === "morning") return "bg-munk-morning";
+  if (bucket === "day")     return "bg-munk-day";
   if (bucket === "evening") return "bg-munk-evening";
-  return "bg-munk-default";
+  return "bg-munk-night";
 }
 
 const NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
@@ -276,6 +278,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
   const [timeBucket, setTimeBucket] = useState<TimeBucket>("morning");
   const [activeTab, setActiveTab] = useState<"idag" | "monster" | "ro">("idag");
   const [showReflection, setShowReflection] = useState(false);
+  const atm = useAtmosphere();
 
   useEffect(() => {
     setTimeBucket(getTimeBucket());
@@ -293,7 +296,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
   const dayKey = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className={`min-h-screen min-h-[100dvh] w-full relative overflow-hidden ${bgClass}`}>
+    <div className={`min-h-screen min-h-[100dvh] w-full relative overflow-hidden ${bgClass}`}
+      style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: "background 3s ease-in-out" }}>
 
       {/* Reflection Sheet */}
       {showReflection && (
@@ -339,7 +343,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         <div className="w-full max-w-xl flex flex-col items-center text-center px-5">
 
           {/* Date */}
-          <div className="text-[11px] tracking-[0.28em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <div className="text-[11px] tracking-[0.28em] uppercase mb-1" style={{ color: "#ffffff" }}>
             {dateLabel}
           </div>
 
@@ -500,9 +504,9 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             className="flex flex-col items-center gap-1"
           >
             {activeTab === tab.id && (
-              <div className="w-1 h-1 rounded-full" style={{ background: "#D4AF37" }} />
+              <div style={{ width:"4px", height:"4px", background:"#D4AF37", borderRadius:"50%", marginBottom:"2px" }} />
             )}
-            {activeTab !== tab.id && <div className="w-1 h-1" />}
+            {activeTab !== tab.id && <div style={{ width:"4px", height:"4px", marginBottom:"2px" }} />}
             <span
               className="text-[11px] tracking-[0.18em] uppercase"
               style={{

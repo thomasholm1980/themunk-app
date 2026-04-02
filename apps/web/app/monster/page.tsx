@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useAtmosphere } from "../../hooks/useAtmosphere";
 import { motion, useAnimationFrame } from "framer-motion";
 
-const APP_BG = "radial-gradient(circle at 50% 25%, #1B3833 0%, #081210 70%, #040807 100%)";
+// APP_BG erstattet av useAtmosphere
 
 type Pattern = {
   code: string;
