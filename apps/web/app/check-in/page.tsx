@@ -220,7 +220,7 @@ export default function CheckInPage() {
               }
             }
           } catch {}
-          setRatnaContract({ state:json.contract.state, insight:json.contract.forecast?.headline??json.contract.morningInsight?.message??null, guidance:json.contract.guidance.line, context_line, context_pattern });
+          setRatnaContract({ state:json.contract.state, insight:json.contract.forecast?.headline??json.contract.morningInsight?.message??null, guidance:json.contract.guidance.line, context_line, context_pattern, hrv:(json as any).hrv_rmssd??null, rhr:(json as any).resting_hr??null });
           setMode("ready"); return;
         }
       }
@@ -252,7 +252,7 @@ export default function CheckInPage() {
                 }
               }
             } catch {}
-            setRatnaContract({ state:json.contract.state, insight:json.contract.forecast?.headline??json.contract.morningInsight?.message??null, guidance:json.contract.guidance.line, context_line, context_pattern });
+            setRatnaContract({ state:json.contract.state, insight:json.contract.forecast?.headline??json.contract.morningInsight?.message??null, guidance:json.contract.guidance.line, context_line, context_pattern, hrv:(json as any).hrv_rmssd??null, rhr:(json as any).resting_hr??null });
             sessionStorage.setItem("munk_awake","true"); setMode("ready"); return;
           }
         }
