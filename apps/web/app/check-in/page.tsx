@@ -197,10 +197,14 @@ export default function CheckInPage() {
 
   useEffect(() => {
     setDateLabel(getOsloDateLabel());
-    // isAwake: sjekk URL-parameter FØRST, deretter sessionStorage
-    const params = new URLSearchParams(window.location.search);
-    const awakeParam = params.get('awake') === 'true';
-    if (awakeParam) sessionStorage.setItem('munk_awake', 'true');
+    // isAwake: sjekk URL (search + hash) og sessionStorage
+    const search = window.location.search + window.location.hash;
+    const awakeParam = search.includes('awake=true');
+    if (awakeParam) {
+      sessionStorage.setItem('munk_awake', 'true');
+      // Fjern parameter fra URL uten reload
+      window.history.replaceState({}, '', '/check-in');
+    }
     const isAwake = awakeParam || sessionStorage.getItem("munk_awake") === "true";
     if (isAwake) { setMode("loading"); runFetch(); }
   }, []);
