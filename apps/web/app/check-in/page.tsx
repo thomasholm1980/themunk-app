@@ -52,8 +52,8 @@ function AtmosphereOrbs() {
         </filter>
         <rect width="100%" height="100%" filter="url(#munk-noise)" />
       </svg>
-      <div className="munk-orb-drift-1" style={{ position:"absolute",top:"25%",left:"30%",width:"280px",height:"280px",borderRadius:"50%",background:"radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%)",filter:"blur(60px)",pointerEvents:"none",zIndex:0 }} />
-      <div className="munk-orb-drift-2" style={{ position:"absolute",top:"50%",left:"60%",width:"220px",height:"220px",borderRadius:"50%",background:"radial-gradient(circle, rgba(30,80,40,0.09) 0%, transparent 70%)",filter:"blur(80px)",pointerEvents:"none",zIndex:0 }} />
+      <div className="munk-orb-drift-1" style={{ position:"absolute",top:"5%",left:"10%",width:"200px",height:"200px",borderRadius:"50%",background:"radial-gradient(circle, rgba(212,175,55,0.025) 0%, transparent 70%)",filter:"blur(80px)",pointerEvents:"none",zIndex:0 }} />
+      <div className="munk-orb-drift-2" style={{ position:"absolute",top:"50%",left:"60%",width:"220px",height:"220px",borderRadius:"50%",background:"radial-gradient(circle, rgba(30,80,40,0.04) 0%, transparent 70%)",filter:"blur(80px)",pointerEvents:"none",zIndex:0 }} />
       <div className="munk-orb-drift-3" style={{ position:"absolute",top:"70%",left:"20%",width:"180px",height:"180px",borderRadius:"50%",background:"radial-gradient(circle, rgba(212,175,55,0.04) 0%, transparent 70%)",filter:"blur(100px)",pointerEvents:"none",zIndex:0 }} />
     </>
   );
