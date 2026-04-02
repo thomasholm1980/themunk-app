@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { logMorningEvent } from '../../lib/telemetry'
-
-const APP_BG = 'radial-gradient(ellipse at 50% 0%, #4a8a7e 0%, #1a3d36 50%, #0a1a17 100%)'
+import { useAtmosphere } from '../../hooks/useAtmosphere'
 
 const STARTER_PROMPTS = [
   'Hva betyr dette stresset?',
@@ -30,6 +29,7 @@ async function askMunk(question: string): Promise<{ answer?: Answer; error?: str
 }
 
 export default function AskPage() {
+  const atm = useAtmosphere()
   const [question,  setQuestion]  = useState('')
   const [answer,    setAnswer]    = useState<Answer | null>(null)
   const [loading,   setLoading]   = useState(false)
@@ -87,7 +87,7 @@ export default function AskPage() {
   return (
     <main
       className="min-h-screen text-white flex flex-col items-center px-6"
-      style={{ background: APP_BG, paddingTop: '20px' }}
+      style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: 'background 3s ease-in-out', paddingTop: '20px' }}
     >
       <style>{`
         @keyframes glowBreath {
@@ -238,7 +238,7 @@ export default function AskPage() {
             cursor: question.trim() && !isWaiting ? 'pointer' : 'default',
           }}
         >
-          {isWaiting ? '·  ·  ·' : 'Spør'}
+          {isWaiting ? 'Munken lytter til hjertet ditt...' : 'Spør'}
         </button>
 
         {/* Starter prompts */}
@@ -283,7 +283,7 @@ export default function AskPage() {
 
         {/* Answer */}
         {answer && (
-          <div ref={answerRef} className="fade-up w-full flex flex-col" style={{ marginBottom: '40px' }}>
+          <div ref={answerRef} className="fade-up w-full flex flex-col" style={{ marginBottom: '40px', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: '24px', padding: '24px' }}>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', marginBottom: '24px' }} />
             <div className="a-s" style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Kort svar</div>
@@ -312,6 +312,11 @@ export default function AskPage() {
             </button>
           </div>
         )}
+
+      {/* Disclaimer */}
+        <div style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5, paddingBottom: '32px', paddingTop: '8px' }}>
+          Dette er AI-veiledning for stressmestring, ikke medisinske råd.<br />Kontakt lege ved behov.
+        </div>
 
       </div>
     </main>
