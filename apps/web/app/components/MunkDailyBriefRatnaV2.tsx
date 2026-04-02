@@ -419,13 +419,15 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* NOW + Gjør nå */}
-          <div className={`b-now ease-spring mt-7 w-full munk-card${mounted ? " in" : ""}`}>
-            <div className="text-[11px] tracking-[0.28em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.50)" }}>
-              Nå
+          <div className={`b-now ease-spring mt-12 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.03)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"36px", padding:"32px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
+            {/* Edge-light */}
+            <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)" }} />
+            <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
+              Kroppens signaler
             </div>
             <div className="text-[17px] text-white leading-relaxed mb-5">{nowText}</div>
-            <div className="w-full h-px mb-5" style={{ background: "rgba(255,255,255,0.08)" }} />
-            <div className="text-[11px] tracking-[0.28em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.50)" }}>
+            <div className="w-full h-px mb-5" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
+            <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
               Gjør nå
             </div>
             <div className="text-[18px] font-semibold text-white leading-snug">{actionNowText}</div>
