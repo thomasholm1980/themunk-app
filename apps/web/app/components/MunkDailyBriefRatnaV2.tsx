@@ -456,7 +456,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <button
               onClick={() => window.location.href = "/ask"}
               className="w-full mt-6 pt-5 text-center text-[11px] tracking-[0.2em] uppercase"
-              style={{ borderTop:"1px solid rgba(255,255,255,0.05)", color:"rgba(212,175,55,0.80)", background:"none", border:"none", borderTop:"1px solid rgba(255,255,255,0.05)", cursor:"pointer", paddingTop:"20px" }}
+              style={{ color:"rgba(212,175,55,0.80)", background:"none", border:"none", borderTop:"1px solid rgba(255,255,255,0.05)", cursor:"pointer", paddingTop:"20px", width:"100%", marginTop:"20px" }}
             >
               Spør Munken om disse signalene →
             </button>
