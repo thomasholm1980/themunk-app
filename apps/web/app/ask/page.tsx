@@ -135,7 +135,7 @@ export default function AskPage() {
         </button>
 
         {/* HERO — larger glow, same shared center */}
-        <div style={{ position: 'relative', height: 100, width: '100%', marginBottom: '12px' }}>
+        <div style={{ position: 'relative', height: 70, width: '100%', marginBottom: '8px' }}>
 
           {/* Outer ring */}
           <div style={{
@@ -188,14 +188,14 @@ export default function AskPage() {
         <div style={{
           textAlign: 'center', fontSize: '21px', fontWeight: 600,
           lineHeight: 1.25, color: 'rgba(255,255,255,0.96)',
-          letterSpacing: '-0.01em', marginBottom: '20px',
+          letterSpacing: '-0.01em', marginBottom: '10px',
         }}>
           Få en rolig forklaring på stresset ditt
         </div>
         <div style={{
           textAlign: 'center', fontSize: '14px', fontWeight: 400,
           lineHeight: 1.45, color: 'rgba(255,255,255,0.62)',
-          marginTop: '8px', marginBottom: '0',
+          marginTop: '4px', marginBottom: '0',
         }}>
           Dagens signaler er klare. Nå kan du spørre hva de betyr.
         </div>
@@ -206,14 +206,14 @@ export default function AskPage() {
           onChange={e => setQuestion(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
           placeholder="Hva lurer du på?"
-          rows={2}
+          rows={1}
           style={{
             width: '100%', background: 'transparent',
             border: 'none', borderBottom: '1.5px solid rgba(255,255,255,0.28)',
             borderRadius: 0, padding: '0 0 10px 0',
             lineHeight: '1.60', fontSize: '15px',
             color: 'rgba(255,255,255,0.94)',
-            resize: 'none', outline: 'none', marginBottom: '14px',
+            resize: 'none', outline: 'none', marginBottom: '8px',
           }}
         />
 
@@ -222,10 +222,10 @@ export default function AskPage() {
           onClick={handleSubmit}
           disabled={!question.trim() || isWaiting}
           style={{
-            width: '100%', padding: '15px 0',
+            width: '100%', padding: '12px 0',
             borderRadius: '13px', fontSize: '15px',
             fontWeight: 700, letterSpacing: '0.10em',
-            marginBottom: '32px', transition: 'all 0.2s ease',
+            marginBottom: '20px', transition: 'all 0.2s ease',
             background: question.trim() && !isWaiting
               ? 'rgba(255,200,80,0.22)'
               : 'rgba(255,255,255,0.08)',
