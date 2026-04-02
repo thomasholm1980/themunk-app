@@ -438,7 +438,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
               Gjør nå
             </div>
-            <div className="text-[16px] font-semibold text-white leading-snug">{actionNowText}</div>
+            <div className="text-[16px] font-semibold text-white leading-snug">Ta deg en pause</div>
           </div>
 
           {/* Ask the Munk — flyttet til meny (Steg 4) */}
