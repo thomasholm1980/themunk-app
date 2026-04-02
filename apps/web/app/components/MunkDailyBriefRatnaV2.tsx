@@ -398,27 +398,23 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           </div>
 
-          {/* Why */}
-          {resolvedInsight !== UI.defaultInsight && (
-            <div className={`b-why ease-spring mt-3 text-[17px] max-w-sm leading-relaxed${mounted ? " in" : ""}`}
-              style={{ color: "rgba(255,255,255,0.85)" }}>
-              {resolvedInsight}
+          {/* Oura Data Row — under overskriften */}
+          {(hrv || rhr) && (
+            <div className={`b-why ease-spring flex justify-center gap-12 mt-6 mb-2${mounted ? " in" : ""}`} style={{ opacity: 0.85 }}>
+              {hrv && (
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>HRV (Oura)</span>
+                  <span className="text-[20px] font-medium italic" style={{ color: "rgba(255,255,255,0.90)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>{hrv} ms</span>
+                </div>
+              )}
+              {rhr && (
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>Hvilepuls (Oura)</span>
+                  <span className="text-[20px] font-medium italic" style={{ color: "rgba(255,255,255,0.90)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>{rhr} bpm</span>
+                </div>
+              )}
             </div>
           )}
-
-          {/* Context line */}
-          {context_line && (
-            <div className={`b-why ease-spring mt-2 text-[15px] max-w-sm${mounted ? " in" : ""}`}
-              style={{ color: "rgba(255,255,255,0.60)" }}>
-              {context_line}
-            </div>
-          )}
-
-          {/* Guidance */}
-          <div className={`b-action ease-spring mt-2 text-[18px] font-medium max-w-sm leading-snug${mounted ? " in" : ""}`}
-            style={{ color: "rgba(255,255,255,0.95)" }}>
-            {guidance}
-          </div>
 
           {/* NOW + Gjør nå */}
           <div className={`b-now ease-spring mt-12 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.06)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.10)", borderRadius:"36px", padding:"32px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
@@ -434,31 +430,15 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
             <div className="text-[18px] font-semibold text-white leading-snug">{actionNowText}</div>
 
-            {/* HRV / RHR data-rad */}
-            {(hrv || rhr) && (
-              <div className="flex justify-center gap-10 mt-6 pt-5" style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
-                {hrv && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color:"rgba(255,255,255,0.35)" }}>HRV</span>
-                    <span className="text-[22px] font-medium text-white">{hrv} <span className="text-[13px]" style={{ color:"rgba(255,255,255,0.5)" }}>ms</span></span>
-                  </div>
-                )}
-                {rhr && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color:"rgba(255,255,255,0.35)" }}>Hvilepuls</span>
-                    <span className="text-[22px] font-medium text-white">{rhr} <span className="text-[13px]" style={{ color:"rgba(255,255,255,0.5)" }}>bpm</span></span>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* HRV/RHR vises over kortet — ikke her */}
 
-            {/* Ask the Munk CTA */}
+            {/* Ask the Munk CTA — fylt gull-knapp */}
             <button
               onClick={() => window.location.href = "/ask"}
-              className="w-full mt-6 pt-5 text-center text-[11px] tracking-[0.2em] uppercase"
-              style={{ color:"rgba(212,175,55,0.80)", background:"none", border:"none", borderTop:"1px solid rgba(255,255,255,0.05)", cursor:"pointer", paddingTop:"20px", width:"100%", marginTop:"20px" }}
+              className="w-full mt-8 rounded-2xl text-[11px] uppercase tracking-[0.3em] font-semibold transition-opacity hover:opacity-90 active:opacity-80"
+              style={{ padding:"18px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
             >
-              Spør Munken om disse signalene →
+              Spør Munken om signalene →
             </button>
           </div>
 
