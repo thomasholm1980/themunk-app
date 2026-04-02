@@ -433,63 +433,13 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className="text-[18px] font-semibold text-white leading-snug">{actionNowText}</div>
           </div>
 
-          {/* Ask the Munk */}
-          <div
-            className={`card-press b-ask ease-spring mt-4 w-full munk-card-gold cursor-pointer${mounted ? " in" : ""}`}
-            onClick={() => window.location.href = "/ask"}
-          >
-            <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "#D4AF37" }}>
-              Spør Munken
-            </div>
-            <div className="text-[17px] font-semibold text-white mb-2">
-              Dagens signaler er klare. Hva vil du forstå?
-            </div>
-            <div className="text-[13px]" style={{ color: "rgba(212,175,55,0.80)" }}>
-              Trykk for å spørre →
-            </div>
-          </div>
+          {/* Ask the Munk — flyttet til meny (Steg 4) */}
 
-          {/* Se mønsteret */}
-          <div
-            className={`card-press b-monster ease-spring mt-4 w-full munk-card cursor-pointer text-left${mounted ? " in" : ""}`}
-            onClick={() => window.location.href = "/monster"}
-          >
-            <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>
-              Siste 7 dager
-            </div>
-            <div className="text-[17px] font-semibold text-white mb-1">
-              Se mønsteret
-            </div>
-            <div className="text-[15px] leading-snug mb-3" style={{ color: "rgba(255,255,255,0.65)" }}>
-              Se om stresset bygger seg opp eller slipper taket
-            </div>
-            <div className="text-[13px]" style={{ color: "rgba(255,255,255,0.40)" }}>
-              Åpne →
-            </div>
-          </div>
+          {/* Se mønsteret — flyttet til meny (Steg 4) */}
 
-          {/* Reflection entry */}
-          <div
-            className={`card-press b-reflect ease-spring mt-4 w-full munk-card cursor-pointer${mounted ? " in" : ""}`}
-            onClick={() => setShowReflection(true)}
-          >
-            <div className="flex justify-between items-center">
-              <div className="text-left">
-                <div className="text-[11px] tracking-[0.25em] uppercase mb-1" style={{ color: "#D4AF37" }}>
-                  Dagens refleksjon
-                </div>
-                <div className="text-[17px] text-white">
-                  Hvordan kjentes kroppen nå?
-                </div>
-              </div>
-              <div className="text-[20px]" style={{ color: "rgba(212,175,55,0.60)" }}>→</div>
-            </div>
-          </div>
+          {/* Refleksjon — flyttet til meny (Steg 4) */}
 
-          {/* Context Surface */}
-          <div className={`b-reflect ease-spring mt-4 w-full${mounted ? " in" : ""}`}>
-            <ContextSurfaceCard patternCode={context_pattern ?? null} />
-          </div>
+          {/* Context Surface — flyttet til meny (Steg 4) */}
 
         </div>
       </div>
