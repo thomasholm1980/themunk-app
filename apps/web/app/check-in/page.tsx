@@ -98,8 +98,8 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       <AtmosphereOrbs />
       <style>{`
         @keyframes heartGlow {
-          0%,100%{opacity:0.35;transform:translate(-50%,-50%) scale(0.88);filter:blur(22px);}
-          50%{opacity:0.95;transform:translate(-50%,-50%) scale(1.12);filter:blur(38px);}
+          0%,100%{opacity:0.30;transform:translate(-50%,-50%) scale(0.90);filter:blur(30px);}
+          50%{opacity:0.75;transform:translate(-50%,-50%) scale(1.06);filter:blur(42px);}
         }
         @keyframes munkFloat { 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-7px);} }
         .msg-visible{opacity:1;transform:translateY(0);transition:opacity 600ms ease,transform 600ms ease;}
@@ -109,7 +109,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       `}</style>
 
       <div className="fade-in relative flex items-center justify-center mb-10" style={{ animationDelay:"0ms",width:"240px",height:"260px",zIndex:1 }}>
-        <div style={{ position:"absolute",top:"50%",left:"50%",width:"130px",height:"130px",borderRadius:"50%",
+        <div style={{ position:"absolute",top:"38%",left:"50%",width:"130px",height:"130px",borderRadius:"50%",
           background:"radial-gradient(circle, #D4AF37 0%, transparent 70%)",
           animation:mode==="loading"?"heartGlow 6s ease-in-out infinite":"none",
           pointerEvents:"none",zIndex:0 }} />
