@@ -197,7 +197,12 @@ export default function CheckInPage() {
 
   useEffect(() => {
     setDateLabel(getOsloDateLabel());
-    if (sessionStorage.getItem("munk_awake") === "true") { setMode("loading"); runFetch(); }
+    // isAwake: sjekk URL-parameter FØRST, deretter sessionStorage
+    const params = new URLSearchParams(window.location.search);
+    const awakeParam = params.get('awake') === 'true';
+    if (awakeParam) sessionStorage.setItem('munk_awake', 'true');
+    const isAwake = awakeParam || sessionStorage.getItem("munk_awake") === "true";
+    if (isAwake) { setMode("loading"); runFetch(); }
   }, []);
 
   async function runFetch() {
