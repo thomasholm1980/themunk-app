@@ -11,6 +11,8 @@ export type RatnaContract = {
   guidance: string;
   context_line?: string | null;
   context_pattern?: string | null;
+  hrv?: number | null;
+  rhr?: number | null;
 };
 
 type Props = {
@@ -272,7 +274,7 @@ function ReflectionSheet({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", onRendered }: Props) {
-  const { state, insight, guidance, context_line, context_pattern } = contract;
+  const { state, insight, guidance, context_line, context_pattern, hrv, rhr } = contract;
   const expr = STATE_EXPRESSION[state];
   const [mounted, setMounted] = useState(false);
   const [timeBucket, setTimeBucket] = useState<TimeBucket>("morning");
@@ -419,7 +421,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           </div>
 
           {/* NOW + Gjør nå */}
-          <div className={`b-now ease-spring mt-12 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.03)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"36px", padding:"32px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
+          <div className={`b-now ease-spring mt-12 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.06)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.10)", borderRadius:"36px", padding:"32px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
             {/* Edge-light */}
             <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
@@ -431,6 +433,33 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               Gjør nå
             </div>
             <div className="text-[18px] font-semibold text-white leading-snug">{actionNowText}</div>
+
+            {/* HRV / RHR data-rad */}
+            {(hrv || rhr) && (
+              <div className="flex justify-center gap-10 mt-6 pt-5" style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+                {hrv && (
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color:"rgba(255,255,255,0.35)" }}>HRV</span>
+                    <span className="text-[22px] font-medium text-white">{hrv} <span className="text-[13px]" style={{ color:"rgba(255,255,255,0.5)" }}>ms</span></span>
+                  </div>
+                )}
+                {rhr && (
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color:"rgba(255,255,255,0.35)" }}>Hvilepuls</span>
+                    <span className="text-[22px] font-medium text-white">{rhr} <span className="text-[13px]" style={{ color:"rgba(255,255,255,0.5)" }}>bpm</span></span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Ask the Munk CTA */}
+            <button
+              onClick={() => window.location.href = "/ask"}
+              className="w-full mt-6 pt-5 text-center text-[11px] tracking-[0.2em] uppercase"
+              style={{ borderTop:"1px solid rgba(255,255,255,0.05)", color:"rgba(212,175,55,0.80)", background:"none", border:"none", borderTop:"1px solid rgba(255,255,255,0.05)", cursor:"pointer", paddingTop:"20px" }}
+            >
+              Spør Munken om disse signalene →
+            </button>
           </div>
 
           {/* Ask the Munk — flyttet til meny (Steg 4) */}

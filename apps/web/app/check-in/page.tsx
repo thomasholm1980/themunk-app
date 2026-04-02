@@ -272,7 +272,7 @@ export default function CheckInPage() {
           if (res.ok) {
             const json: StateResponse = await res.json();
             if (json.contract && json.state) {
-              setRatnaContract({ state:json.contract.state, insight:json.contract.forecast?.headline??json.contract.morningInsight?.message??null, guidance:json.contract.guidance.line });
+              setRatnaContract({ state:json.contract.state, insight:json.contract.forecast?.headline??json.contract.morningInsight?.message??null, guidance:json.contract.guidance.line, hrv:(json as any).hrv_rmssd??null, rhr:(json as any).resting_hr??null });
               sessionStorage.setItem("munk_awake","true"); setShowBanner(true); setMode("ready"); clearInterval(interval); return;
             }
           }
