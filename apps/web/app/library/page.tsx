@@ -47,10 +47,23 @@ function PollCard() {
   )
 }
 
-function CardItem({ card }: { card: LibraryCard }) {
-  const [saved, setSaved] = useState(false)
+function CardItem({ card, initialSaved }: { card: LibraryCard; initialSaved: boolean }) {
+  const [saved, setSaved] = useState(initialSaved)
+  const [glowing, setGlowing] = useState(false)
   const isTips = card.type === 'tips'
   const isPoll = card.type === 'poll'
+
+  async function toggleSave() {
+    if (saved) {
+      setSaved(false)
+      await fetch('/api/library/save', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content_id: card.id }) })
+    } else {
+      setGlowing(true)
+      setSaved(true)
+      setTimeout(() => setGlowing(false), 600)
+      await fetch('/api/library/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content_id: card.id }) })
+    }
+  }
   return (
     <div style={{ background: isTips ? 'rgba(212,175,55,0.05)' : 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${isTips ? 'rgba(212,175,55,0.20)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '24px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: isTips ? 'linear-gradient(to right, transparent, rgba(212,175,55,0.15), transparent)' : 'linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)' }} />
@@ -61,7 +74,7 @@ function CardItem({ card }: { card: LibraryCard }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           {card.duration && <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.30)' }}>{card.duration}</span>}
           <div style={{ display: 'flex', gap: '12px', marginLeft: 'auto' }}>
-            <button onClick={() => setSaved(s => !s)} style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: saved ? 'rgba(212,175,55,0.80)' : 'rgba(255,255,255,0.30)', background: 'none', border: 'none', cursor: 'pointer' }}>{saved ? '✦ Lagret' : '+ Lagre'}</button>
+            <button onClick={toggleSave} style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: saved ? 'rgba(212,175,55,0.80)' : 'rgba(255,255,255,0.30)', background: 'none', border: 'none', cursor: 'pointer', textShadow: glowing ? '0 0 12px rgba(212,175,55,0.9)' : 'none', transition: 'all 300ms ease' }}>{saved ? '✦ Lagret' : '+ Lagre'}</button>
             {card.url && <button onClick={() => window.open(card.url, '_blank')} style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.50)', background: 'none', border: 'none', cursor: 'pointer' }}>Åpne →</button>}
           </div>
         </div>
@@ -74,7 +87,15 @@ export default function LibraryPage() {
   const atm = useAtmosphere()
   const [heroText, setHeroText] = useState<string | null>(null)
 
+  const [savedIds, setSavedIds] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<'all' | 'saved'>('all')
+
   useEffect(() => {
+    fetch('/api/library/save')
+      .then(r => r.json())
+      .then(j => setSavedIds(j.saved ?? []))
+      .catch(() => {})
+
     fetch('/api/state/today', { headers: { 'x-user-id': 'thomas' } })
       .then(r => r.json())
       .then(json => {
@@ -111,8 +132,22 @@ export default function LibraryPage() {
         </div>
 
         {/* Feed */}
+        {/* Filter-tabs */}
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+          {(['all', 'saved'] as const).map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} style={{ fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === tab ? '#D4AF37' : 'rgba(255,255,255,0.30)', borderBottom: activeTab === tab ? '1px solid rgba(212,175,55,0.50)' : '1px solid transparent', paddingBottom: '4px' }}>
+              {tab === 'all' ? 'Valgt for deg' : 'Mine lagrede'}
+            </button>
+          ))}
+        </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {CARDS.map(card => <CardItem key={card.id} card={card} />)}
+          {CARDS
+            .filter(card => activeTab === 'all' || savedIds.includes(card.id))
+            .map(card => <CardItem key={card.id} card={card} initialSaved={savedIds.includes(card.id)} />)}
+          {activeTab === 'saved' && savedIds.length === 0 && (
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: '40px' }}>Ingen lagrede kort ennå. Trykk + Lagre på innhold du vil beholde.</p>
+          )}
         </div>
       </div>
 
