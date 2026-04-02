@@ -123,7 +123,7 @@ export default function AskPage() {
 
         {/* ← Tilbake */}
         <button
-          onClick={() => window.location.href = '/check-in'}
+          onClick={() => { sessionStorage.setItem('munk_awake', 'true'); window.location.href = '/check-in'; }}
           style={{
             alignSelf: 'flex-start', fontSize: '13px',
             color: 'rgba(255,255,255,0.50)', background: 'none',
