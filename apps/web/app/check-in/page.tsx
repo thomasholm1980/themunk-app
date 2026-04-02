@@ -109,7 +109,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
       `}</style>
 
       <div className="fade-in relative flex items-center justify-center mb-10" style={{ animationDelay:"0ms",width:"240px",height:"260px",zIndex:1 }}>
-        <div style={{ position:"absolute",top:"38%",left:"50%",width:"130px",height:"130px",borderRadius:"50%",
+        <div style={{ position:"absolute",top:"40%",left:"46%",width:"110px",height:"110px",borderRadius:"50%",
           background:"radial-gradient(circle, #D4AF37 0%, transparent 70%)",
           animation:mode==="loading"?"heartGlow 6s ease-in-out infinite":"none",
           pointerEvents:"none",zIndex:0 }} />
