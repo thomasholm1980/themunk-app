@@ -78,18 +78,11 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     setShowStoreFallback(false);
     setHasOpenedOura(true);
     window.location.href = "oura://";
-
     const start = Date.now();
     const timer = setTimeout(() => {
-      if (Date.now() - start < 3000) {
-        setShowStoreFallback(true);
-      }
+      if (Date.now() - start < 3000) setShowStoreFallback(true);
     }, 2500);
-
-    const onBlur = () => {
-      clearTimeout(timer);
-      window.removeEventListener("blur", onBlur);
-    };
+    const onBlur = () => { clearTimeout(timer); window.removeEventListener("blur", onBlur); };
     window.addEventListener("blur", onBlur);
   }
 
@@ -113,7 +106,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
   return (
     <main
       className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-8 text-center"
-      style={{ background: bg }}
+      style={{ background: getBgGradient(timeBucket) }}
     >
       <style>{`
         @keyframes heartGlow {
@@ -130,40 +123,27 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
-      {/* Munk + centered orb */}
       <div className="fade-in relative flex items-center justify-center mb-10"
         style={{ animationDelay: "0ms", width: "240px", height: "260px" }}>
         <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: "130px",
-          height: "130px",
-          borderRadius: "50%",
+          position: "absolute", top: "50%", left: "50%",
+          width: "130px", height: "130px", borderRadius: "50%",
           background: "radial-gradient(circle, #D4AF37 0%, transparent 70%)",
           transform: "translate(-50%, -50%)",
           animation: isLoading ? "heartGlow 6s ease-in-out infinite" : "none",
-          pointerEvents: "none",
-          zIndex: 0,
+          pointerEvents: "none", zIndex: 0,
         }} />
         <img
           src="/assets/munk-transparent.png"
           alt="Munk"
-          style={{
-            width: "220px",
-            position: "relative",
-            zIndex: 1,
-            animation: "munkFloat 6s ease-in-out infinite",
-          }}
+          style={{ width: "220px", position: "relative", zIndex: 1, animation: "munkFloat 6s ease-in-out infinite" }}
           className="select-none"
           draggable={false}
         />
       </div>
 
-      {/* Content */}
       <div className="flex flex-col items-center gap-5" style={{ minHeight: "140px" }}>
 
-        {/* Loading */}
         {isLoading && (
           <div className="flex flex-col items-center gap-3">
             <p className={msgVisible ? "msg-visible" : "msg-hidden"}
@@ -176,7 +156,6 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
           </div>
         )}
 
-        {/* Idle */}
         {isIdle && (
           <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay: "200ms" }}>
             <p style={{ fontSize: "30px", color: "rgba(255,255,255,0.95)", lineHeight: 1.2 }}>
@@ -191,7 +170,6 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
           </div>
         )}
 
-        {/* No data */}
         {isNoData && (
           <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay: "0ms" }}>
             <p style={{ fontSize: "22px", color: "rgba(255,255,255,0.90)", lineHeight: 1.35, maxWidth: "280px" }}>
@@ -200,51 +178,32 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
             <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.50)", maxWidth: "260px", lineHeight: 1.65 }}>
               Åpne Oura-appen for å bekrefte at ringen din har synkronisert dagens data.
             </p>
-
-            {/* Primary action */}
             <button onClick={openOura}
               style={{ ...ghostButton, marginTop: "8px", color: "#D4AF37", borderColor: "rgba(212,175,55,0.30)" }}>
               Åpne Oura
             </button>
-
-            {/* Store fallback — only if deep link failed */}
             {showStoreFallback && (
-              <div className="fade-in flex flex-col items-center gap-2" style={{ animationDelay: "0ms", marginTop: "24px" }}>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.05em" }}>
-                  Ikke installert?
-                </p>
+              <div className="fade-in flex flex-col items-center gap-2" style={{ marginTop: "24px" }}>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.05em" }}>Ikke installert?</p>
                 <div className="flex gap-5">
                   <a href="https://apps.apple.com/app/oura/id1043837948" target="_blank" rel="noopener"
-                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.65)", textDecoration: "none" }}>
-                    App Store →
-                  </a>
+                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.65)", textDecoration: "none" }}>App Store →</a>
                   <a href="https://play.google.com/store/apps/details?id=com.ouraring.oura" target="_blank" rel="noopener"
-                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.65)", textDecoration: "none" }}>
-                    Google Play →
-                  </a>
+                    style={{ fontSize: "13px", color: "rgba(212,175,55,0.65)", textDecoration: "none" }}>Google Play →</a>
                 </div>
               </div>
             )}
-
-            {/* Secondary — text link only, appears after user has tried Oura */}
             {hasOpenedOura && (
-              <button onClick={onWake}
-                style={{
-                  marginTop: "28px",
-                  background: "none",
-                  border: "none",
-                  color: "rgba(255,255,255,0.30)",
-                  fontSize: "13px",
-                  letterSpacing: "0.08em",
-                  cursor: "pointer",
-                  padding: "8px",
-                }}>
+              <button onClick={onWake} style={{
+                marginTop: "28px", background: "none", border: "none",
+                color: "rgba(255,255,255,0.30)", fontSize: "13px",
+                letterSpacing: "0.08em", cursor: "pointer", padding: "8px",
+              }}>
                 Prøv igjen →
               </button>
             )}
           </div>
         )}
-
       </div>
     </main>
   );
@@ -272,7 +231,50 @@ export default function CheckInPage() {
 
   useEffect(() => {
     setDateLabel(new Date().toLocaleDateString("no-NO", { weekday: "long", day: "numeric", month: "long" }));
+
+    // isAwake: if session has seen data today, skip idle
+    const isAwake = sessionStorage.getItem("munk_awake");
+    if (isAwake === "true") {
+      setMode("loading");
+      runFetch();
+    }
   }, []);
+
+  async function runFetch() {
+    try {
+      const res = await fetch("/api/state/today", { headers: { "x-user-id": USER_ID } });
+      if (res.ok) {
+        const json: StateResponse = await res.json();
+        if (json.contract && json.state) {
+          let context_line: string | null = null;
+          let context_pattern: string | null = null;
+          try {
+            const patternRes = await fetch("/api/patterns/today");
+            if (patternRes.ok) {
+              const patternJson = await patternRes.json();
+              if (patternJson.sufficient_data && patternJson.patterns?.length > 0) {
+                context_pattern = patternJson.patterns[0]?.code ?? null;
+                const { resolvePatternExpression } = await import("@themunk/core/state/pattern-expression-v1");
+                const expr = resolvePatternExpression(patternJson.patterns, patternJson.sufficient_data);
+                if (expr.show_context_line) context_line = expr.context_line;
+              }
+            }
+          } catch {}
+          setRatnaContract({
+            state: json.contract.state,
+            insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
+            guidance: json.contract.guidance.line,
+            context_line,
+            context_pattern,
+          });
+          setMode("ready");
+          return;
+        }
+      }
+    } catch {}
+    setMode("idle");
+    sessionStorage.removeItem("munk_awake");
+  }
 
   function handleWake() {
     if (mode === "loading") return;
@@ -285,7 +287,6 @@ export default function CheckInPage() {
           const json: StateResponse = await res.json();
           if (json.contract && json.state) {
             logMorningEvent('wake_monk_state_found', { state: json.state, day_key: json.day_key });
-
             let context_line: string | null = null;
             let context_pattern: string | null = null;
             try {
@@ -300,7 +301,6 @@ export default function CheckInPage() {
                 }
               }
             } catch {}
-
             setRatnaContract({
               state: json.contract.state,
               insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
@@ -308,6 +308,7 @@ export default function CheckInPage() {
               context_line,
               context_pattern,
             });
+            sessionStorage.setItem("munk_awake", "true");
             setMode("ready");
             return;
           }
@@ -338,6 +339,7 @@ export default function CheckInPage() {
                 insight: json.contract.forecast?.headline ?? json.contract.morningInsight?.message ?? null,
                 guidance: json.contract.guidance.line,
               });
+              sessionStorage.setItem("munk_awake", "true");
               setShowBanner(true);
               setMode("ready");
               clearInterval(interval);
@@ -345,7 +347,6 @@ export default function CheckInPage() {
             }
           }
         } catch {}
-
         if (Date.now() - start >= WAKE_POLL_MAX_MS) {
           clearInterval(interval);
           setMode("no_data");

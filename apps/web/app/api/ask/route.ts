@@ -38,7 +38,33 @@ function logTelemetry(event: string, meta?: Record<string, unknown>): void {
   try { console.log('[ask-munk]', { event, ...meta }) } catch { /* never throws */ }
 }
 
-const SYSTEM_PROMPT = `Du er The Munk. Du forklarer stress. Du chatter ikke. Du underholder ikke. Du spekulerer ikke.
+const SYSTEM_PROMPT = `Du er The Munk. Du tolker kroppens tilstander. Du chatter ikke. Du underholder ikke. Du spekulerer ikke.
+
+MUNKENS STEMME:
+Du snakker som en rolig, maskulin guide som kjenner kroppen godt.
+Du bruker ikke klinisk eller teknisk språk.
+Du oversetter signaler til menneskelig forståelse.
+Du er aldri bekymret. Du er alltid rolig og tydelig.
+
+BANNLYSTE ORD OG FRASER (bruk ALDRI disse):
+- "data", "score", "prosent", "parameter"
+- "HRV" (med mindre brukeren spør eksplisitt om HRV)
+- "ubrukt stress"
+- "basert på", "det kan være", "kanskje", "muligens"
+- AI-fraser som "Jeg forstår at...", "Det er viktig å..."
+- interne koder: YELLOW, GREEN, RED
+
+MUNKENS VOKABULAR (bruk disse i stedet):
+- "hjertets rytme" (i stedet for HRV)
+- "nervøs balanse" (i stedet for stressnivå)
+- "restitusjonsgjeld" (i stedet for recovery deficit)
+- "metabolsk fokus" (i stedet for fordøyelse/processing)
+- "kroppens signaler" (i stedet for data)
+- "tilstand" (i stedet for score eller resultat)
+
+TOLKNINGSLOGIKK:
+Når kroppen har brukt natten på noe annet enn restitusjon (f.eks. fordøyelse, sykdom, uro):
+→ "Jeg ser at kroppen din har brukt natten på å prosessere mer enn bare drømmer. Når systemet må fokusere på metabolsk arbeid, må restitusjonen vike. Ta det rolig i dag — la kroppen fullføre det den startet på i natt."
 
 OUTPUTFORMAT (STRENGT — kun JSON, ingen markdown, ingen preamble):
 {
@@ -49,139 +75,111 @@ OUTPUTFORMAT (STRENGT — kun JSON, ingen markdown, ingen preamble):
 
 SPRÅKREGLER (UFRAVIKELIGE):
 - Kun norsk
-- Bruk ordet "stress" i svaret
+- Bruk ordet "stress" minst én gang i svaret
 - Maks 2 setninger per felt
 - Ikke klinisk språk
 - Ikke AI-fraser
-- Ikke "kanskje", "det kan være", "basert på"
 - Ikke emojis
-- Ikke unødvendig fylltekst
-- Ikke bruk interne koder som YELLOW, GREEN, RED — bruk kun norske beskrivelser
+- Ikke unødvendig fylltekst`
 
-TONE:
-- Rolig
-- Jordnær
-- Direkte
-- Maskulin
-
-VARIASJON (PÅKREVD):
-- what_to_do skal variere mellom svar — ikke gjenta samme råd
-- Unngå å starte flere felt med "Prioriter søvn"
-- Gi konkret handling tilpasset spørsmålet, ikke generisk restitusjonsfrase
-
-ATFERDSREGLER:
-- Forankre alltid svaret i stress
-- Foretrekk enkle forklaringer fremfor tekniske
-- Hvis kontekst finnes → bruk den
-- Hvis ingen kontekst → svar generelt men fortsatt forankret
-
-GRENSESNITT:
-Hvis spørsmålet er utenfor domenet stress/restitusjon/kropp:
-short_answer: "Dette handler ikke om stress i kroppen."
-why_it_matters: "Munken hjelper deg å forstå stress og belastning — ikke annet."
-what_to_do: "Hold fokus på hvordan kroppen din reagerer og hva du trenger i dag."
-
-FORBUD:
-- Ingen diagnoser
-- Ingen medisinske råd
-- Ikke terapeut
-- Ikke ChatGPT
-- Ikke lange essays`
+const STATE_FALLBACK_SLUGS: Record<string, string> = {
+  GREEN:  'green-state-foundation',
+  YELLOW: 'yellow-state-support',
+  RED:    'red-state-recovery',
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const body     = await req.json()
-    const question = body.question?.trim()
-
-    if (!question || question.length < 3) {
-      return NextResponse.json({ error: 'Question required' }, { status: 400 })
+    const body = await req.json()
+    const question = (body.question ?? '').trim()
+    if (!question) {
+      return NextResponse.json({ error: 'Spørsmål mangler' }, { status: 400 })
     }
-
-    if (question.length > 500) {
-      return NextResponse.json({ error: 'Question too long' }, { status: 400 })
-    }
-
-    logTelemetry('ask_munk_question_submitted', { length: question.length })
 
     const supabase = getServiceClient()
-    const day_key  = getOsloDayKey()
+    const dayKey = getOsloDayKey()
+
     let groundingContext = ''
 
     try {
-      const [stateRes, reflectionRes, patternRes] = await Promise.all([
-        supabase.from('daily_state').select('state, confidence, hrv, rhr, sleep_score, recovery_score').eq('user_id', USER_ID).eq('day_key', day_key).maybeSingle(),
-        supabase.from('reflection_memory').select('body_feeling, brief_accuracy, day_direction').eq('user_id', USER_ID).eq('day_key', day_key).maybeSingle(),
-        supabase.from('pattern_memory').select('pattern_codes, sufficient_data').eq('user_id', USER_ID).eq('day_key', day_key).maybeSingle(),
-      ])
+      const { data: stateRow } = await supabase
+        .from('daily_state')
+        .select('state, contract')
+        .eq('user_id', USER_ID)
+        .eq('day_key', dayKey)
+        .maybeSingle()
 
-      const state      = stateRes.data
-      const reflection = reflectionRes.data
-      const pattern    = patternRes.data
-
-      if (state) {
-        const stateLabel = STATE_LABEL[state.state] ?? 'ukjent stressnivå'
-        groundingContext += `\nDAGENS TILSTAND: ${stateLabel} (sikkerhet: ${state.confidence})`
-        if (state.hrv)            groundingContext += `, HRV: ${state.hrv}`
-        if (state.rhr)            groundingContext += `, hvilepuls: ${state.rhr}`
-        if (state.sleep_score)    groundingContext += `, søvnscore: ${state.sleep_score}`
-        if (state.recovery_score) groundingContext += `, restitusjon: ${state.recovery_score}`
-      }
-      if (reflection) {
-        groundingContext += `\nDAGENS REFLEKSJON: kroppen kjennes ${reflection.body_feeling ?? 'ukjent'}, dag utviklet seg ${reflection.day_direction ?? 'ukjent'}`
-      }
-      if (pattern?.sufficient_data && pattern.pattern_codes?.length > 0) {
-        const norwegianPatterns = (pattern.pattern_codes as string[])
-          .map((code: string) => PATTERN_LABEL[code] ?? code)
-        groundingContext += `\nAKTIVE MØNSTRE: ${norwegianPatterns.join('; ')}`
-      }
-
-      const activePattern = pattern?.sufficient_data && pattern.pattern_codes?.length > 0
-        ? pattern.pattern_codes[0] as string
+      const state = stateRow
+        ? { state: stateRow.state, contract: stateRow.contract }
         : null
 
-      // State-based fallback when no pattern — inject one relevant library item
-      const STATE_FALLBACK_SLUGS: Record<string, string | null> = {
-        RED:    'seed-stress-accumulation-005',
-        YELLOW: 'seed-stress-accumulation-005',
-        GREEN:  null,
+      if (state?.state) {
+        const label = STATE_LABEL[state.state] ?? state.state
+        groundingContext += `\nDAGENS TILSTAND: ${label}`
+      }
+
+      if (state?.contract?.guidance?.line) {
+        groundingContext += `\nDAGENS VEILEDNING: ${state.contract.guidance.line}`
+      }
+
+      const { data: reflectionRow } = await supabase
+        .from('reflection_memory')
+        .select('body_feeling, brief_accuracy, day_direction')
+        .eq('user_id', USER_ID)
+        .eq('day_key', dayKey)
+        .maybeSingle()
+
+      if (reflectionRow) {
+        if (reflectionRow.body_feeling)
+          groundingContext += `\nKROPPEN I DAG: ${reflectionRow.body_feeling}`
+        if (reflectionRow.brief_accuracy)
+          groundingContext += `\nTRAFF VURDERINGEN: ${reflectionRow.brief_accuracy}`
+        if (reflectionRow.day_direction)
+          groundingContext += `\nDAGEN UTVIKLET SEG: ${reflectionRow.day_direction}`
+      }
+
+      const { data: patternRow } = await supabase
+        .from('pattern_memory')
+        .select('patterns, sufficient_data')
+        .eq('user_id', USER_ID)
+        .eq('day_key', dayKey)
+        .maybeSingle()
+
+      const pattern = patternRow ?? null
+      const activePattern = pattern?.patterns?.[0]?.code ?? null
+
+      if (activePattern) {
+        const patternLabel = PATTERN_LABEL[activePattern] ?? activePattern
+        groundingContext += `\nAKTIVT MØNSTER: ${patternLabel}`
       }
 
       if (activePattern) {
-        const PATTERN_TAG_MAP: Record<string, string[]> = {
-          repeated_elevated_stress:        ['chronic_stress', 'allostatic_load', 'physiological', 'work_stress'],
-          subjective_load_above_baseline:  ['work_stress', 'chronic_stress', 'regulation'],
-          recovery_mismatch:               ['recovery', 'sleep_debt', 'physiological'],
-          day_drift_negative:              ['acute_stress', 'regulation', 'sleep_debt'],
-        }
-        const targetTags = PATTERN_TAG_MAP[activePattern] ?? []
+        const targetTags = [activePattern, state?.state?.toLowerCase()].filter(Boolean) as string[]
+        const { data: libItems } = await supabase
+          .from('content_library')
+          .select('title, summary, slug, stress_tags')
+          .eq('trust_status', 'approved')
+          .eq('library_status', 'available')
+          .limit(10)
 
-        if (targetTags.length > 0) {
-          const { data: libItems } = await supabase
-            .from('content_library')
-            .select('title, summary, topic_tags, stress_tags, slug')
-            .eq('trust_status', 'approved')
-            .eq('library_status', 'available')
+        if (libItems && libItems.length > 0) {
+          const scored = libItems
+            .map((item: any) => ({
+              item,
+              score: (item.stress_tags as string[]).filter((t: string) => targetTags.includes(t)).length,
+            }))
+            .filter((s: any) => s.score > 0)
+            .sort((a: any, b: any) => b.score - a.score)
 
-          if (libItems && libItems.length > 0) {
-            const scored = libItems
-              .map((item: any) => ({
-                item,
-                score: (item.stress_tags as string[]).filter((t: string) => targetTags.includes(t)).length,
-              }))
-              .filter((s: any) => s.score > 0)
-              .sort((a: any, b: any) => b.score - a.score)
-
-            if (scored.length > 0) {
-              const best = scored[0].item
-              groundingContext += `\nRELEVANT KONTEKST: "${best.title}" — ${best.summary ?? ''}`
-              logTelemetry('ask_munk_context_used', { pattern: activePattern, title: best.title })
-            } else {
-              logTelemetry('ask_munk_context_not_used', { reason: 'no_tag_match', pattern: activePattern })
-            }
+          if (scored.length > 0) {
+            const best = scored[0].item
+            groundingContext += `\nRELEVANT KONTEKST: "${best.title}" — ${best.summary ?? ''}`
+            logTelemetry('ask_munk_context_used', { pattern: activePattern, title: best.title })
+          } else {
+            logTelemetry('ask_munk_context_not_used', { reason: 'no_tag_match', pattern: activePattern })
           }
         }
       } else if (!pattern?.sufficient_data && state?.state) {
-        // State-based fallback — inject one quiet support item when no pattern exists
         const fallbackSlug = STATE_FALLBACK_SLUGS[state.state] ?? null
         if (fallbackSlug) {
           const { data: fallbackItems } = await supabase
