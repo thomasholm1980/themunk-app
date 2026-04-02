@@ -297,7 +297,20 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
   return (
     <div className={`min-h-screen min-h-[100dvh] w-full relative overflow-hidden ${bgClass}`}
-      style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: "background 3s ease-in-out" }}>
+      style={{ background: `radial-gradient(circle at 50% 30%, rgba(45,90,70,0.18) 0%, transparent 55%), linear-gradient(180deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: "background 12s ease-in-out" }}>
+
+      {/* Grain texture */}
+      <svg aria-hidden="true" style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",opacity:0.015,pointerEvents:"none",zIndex:1,mixBlendMode:"overlay" }}>
+        <filter id="brief-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#brief-grain)" />
+      </svg>
+      {/* Ambient Orb 1 — topp-venstre */}
+      <div style={{ position:"fixed",top:"-20%",left:"-20%",width:"80vw",height:"80vw",borderRadius:"50%",background:"radial-gradient(circle, rgba(26,77,46,0.03) 0%, transparent 70%)",filter:"blur(160px)",pointerEvents:"none",zIndex:0 }} />
+      {/* Ambient Orb 2 — bunn-høyre */}
+      <div style={{ position:"fixed",bottom:"-30%",right:"-25%",width:"90vw",height:"90vw",borderRadius:"50%",background:"radial-gradient(circle, rgba(14,47,26,0.02) 0%, transparent 70%)",filter:"blur(180px)",pointerEvents:"none",zIndex:0 }} />
 
       {/* Reflection Sheet */}
       {showReflection && (
@@ -343,12 +356,12 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         <div className="w-full max-w-xl flex flex-col items-center text-center px-5">
 
           {/* Date */}
-          <div className="text-[11px] tracking-[0.28em] uppercase mb-1" style={{ color: "#ffffff" }}>
+          <div className="text-[11px] tracking-[0.28em] uppercase mb-4" style={{ color: "#ffffff", paddingTop: "8px" }}>
             {dateLabel}
           </div>
 
           {/* Munk */}
-          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "8px" }}>
+          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "8px", marginTop: "-5vh" }}>
             <div style={{
               "--amplitude": expr.breathAmplitude,
               "--posture": expr.postureOffset,
@@ -375,10 +388,10 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
           {/* Stress level */}
           <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
-            <div className="text-[11px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.40)" }}>
+            <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(212,175,55,0.40)" }}>
               Stressnivå
             </div>
-            <div className="text-[40px] leading-[1.1] font-semibold text-white">
+            <div className="text-[34px] leading-[1.15] font-medium tracking-tight" style={{ color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>
               {STATE_LABEL[state]}
             </div>
           </div>
