@@ -45,16 +45,28 @@ const LOADING_MESSAGES = [
 function AtmosphereOrbs() {
   return (
     <>
-      <svg aria-hidden="true" style={{ position:"absolute",top:0,left:0,width:"100%",height:"100%",opacity:0.025,pointerEvents:"none",zIndex:0 }}>
-        <filter id="munk-noise">
+      {/* Grain texture — opacity 0.015 */}
+      <svg aria-hidden="true" style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",opacity:0.015,pointerEvents:"none",zIndex:1,mixBlendMode:"overlay" }}>
+        <filter id="munk-grain">
           <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
           <feColorMatrix type="saturate" values="0" />
         </filter>
-        <rect width="100%" height="100%" filter="url(#munk-noise)" />
+        <rect width="100%" height="100%" filter="url(#munk-grain)" />
       </svg>
-      <div className="munk-orb-drift-1" style={{ position:"absolute",top:"5%",left:"10%",width:"200px",height:"200px",borderRadius:"50%",background:"radial-gradient(circle, rgba(212,175,55,0.025) 0%, transparent 70%)",filter:"blur(80px)",pointerEvents:"none",zIndex:0 }} />
-      <div className="munk-orb-drift-2" style={{ position:"absolute",top:"50%",left:"60%",width:"220px",height:"220px",borderRadius:"50%",background:"radial-gradient(circle, rgba(30,80,40,0.04) 0%, transparent 70%)",filter:"blur(80px)",pointerEvents:"none",zIndex:0 }} />
-      <div className="munk-orb-drift-3" style={{ position:"absolute",top:"70%",left:"20%",width:"180px",height:"180px",borderRadius:"50%",background:"radial-gradient(circle, rgba(212,175,55,0.04) 0%, transparent 70%)",filter:"blur(100px)",pointerEvents:"none",zIndex:0 }} />
+      {/* Orb 1 — topp-venstre, 80vw, #1A4D2E 3% */}
+      <div className="munk-orb-drift-1" style={{
+        position:"fixed", top:"-20%", left:"-20%",
+        width:"80vw", height:"80vw", borderRadius:"50%",
+        background:"radial-gradient(circle, rgba(26,77,46,0.03) 0%, transparent 70%)",
+        filter:"blur(160px)", pointerEvents:"none", zIndex:0,
+      }} />
+      {/* Orb 2 — bunn-høyre, 90vw, #0E2F1A 2% */}
+      <div className="munk-orb-drift-2" style={{
+        position:"fixed", bottom:"-30%", right:"-25%",
+        width:"90vw", height:"90vw", borderRadius:"50%",
+        background:"radial-gradient(circle, rgba(14,47,26,0.02) 0%, transparent 70%)",
+        filter:"blur(180px)", pointerEvents:"none", zIndex:0,
+      }} />
     </>
   );
 }
