@@ -63,6 +63,7 @@ function generateStressData(patterns: Pattern[]): number[] {
 }
 
 export default function MonsterPage() {
+  const atm = useAtmosphere();
   const [data, setData] = useState<PatternsResponse | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeDay, setActiveDay] = useState(6); // default to today
@@ -124,7 +125,7 @@ export default function MonsterPage() {
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] w-full flex flex-col" style={{ background: APP_BG }}>
+    <div className="min-h-screen min-h-[100dvh] w-full flex flex-col" style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: "background 3s ease-in-out" }}>
       <style>{`
         .ease-in { opacity: 0; transform: translateY(6px); transition: opacity 800ms cubic-bezier(.22,1,.36,1), transform 800ms cubic-bezier(.22,1,.36,1); }
         .ease-in.v { opacity: 1; transform: translateY(0); }
