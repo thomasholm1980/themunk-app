@@ -424,22 +424,21 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
               Kroppens signaler
             </div>
             <div className="text-[17px] text-white leading-relaxed mb-5">{nowText}</div>
+
+            {/* Ask the Munk CTA — over Gjør nå */}
+            <button
+              onClick={() => window.location.href = "/ask"}
+              className="w-full mb-6 rounded-2xl text-[11px] uppercase tracking-[0.3em] font-semibold transition-opacity hover:opacity-90 active:opacity-80"
+              style={{ padding:"18px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
+            >
+              Spør Munken om signalene →
+            </button>
+
             <div className="w-full h-px mb-5" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
               Gjør nå
             </div>
             <div className="text-[18px] font-semibold text-white leading-snug">{actionNowText}</div>
-
-            {/* HRV/RHR vises over kortet — ikke her */}
-
-            {/* Ask the Munk CTA — fylt gull-knapp */}
-            <button
-              onClick={() => window.location.href = "/ask"}
-              className="w-full mt-8 rounded-2xl text-[11px] uppercase tracking-[0.3em] font-semibold transition-opacity hover:opacity-90 active:opacity-80"
-              style={{ padding:"18px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
-            >
-              Spør Munken om signalene →
-            </button>
           </div>
 
           {/* Ask the Munk — flyttet til meny (Steg 4) */}
