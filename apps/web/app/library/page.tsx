@@ -152,7 +152,7 @@ export default function LibraryPage() {
       </div>
 
       <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '72px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', background: 'rgba(8,18,16,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 32px', zIndex: 50 }}>
-        {[{ label: 'I dag', href: '/check-in?awake=true' }, { label: 'Mønster', href: '/monster' }, { label: 'Ro', href: '/ro' }].map(tab => (
+        {[{ label: 'I dag', href: '/check-in?awake=true' }, { label: 'Mønster', href: '/monster' }, { label: 'Bibliotek', href: '/library' }].map(tab => (
           <button key={tab.label} onClick={() => window.location.href = tab.href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', background: 'none', border: 'none', cursor: 'pointer' }}>
             <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'transparent', marginBottom: '2px' }} />
             <span style={{ fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.30)', fontWeight: 400 }}>{tab.label}</span>

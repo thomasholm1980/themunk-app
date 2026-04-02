@@ -466,7 +466,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         {[
           { id: "idag",    label: "I dag",    href: "/check-in" },
           { id: "monster", label: "Mønster",  href: "/monster"  },
-          { id: "ro",      label: "Ro",       href: "/ask"      },
+          { id: "ro",      label: "Bibliotek", href: "/library"  },
         ].map(tab => (
           <button
             key={tab.id}
