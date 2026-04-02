@@ -354,16 +354,16 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
       `}</style>
 
       {/* Scrollable content — padded for bottom nav */}
-      <div className="w-full flex items-start justify-center text-white pb-28" style={{ paddingTop: "8px", minHeight: "100dvh" }}>
+      <div className="w-full flex items-start justify-center text-white pb-24" style={{ paddingTop: "4px", minHeight: "100dvh" }}>
         <div className="w-full max-w-xl flex flex-col items-center text-center px-5">
 
           {/* Date */}
-          <div className="text-[11px] tracking-[0.28em] uppercase mb-4" style={{ color: "#ffffff", paddingTop: "8px" }}>
+          <div className="text-[11px] tracking-[0.28em] uppercase mb-2" style={{ color: "#ffffff", paddingTop: "4px" }}>
             {dateLabel}
           </div>
 
           {/* Munk */}
-          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "8px", marginTop: "-5vh" }}>
+          <div className={`monk-wrap ease-spring relative${mounted ? " in" : ""}`} style={{ marginBottom: "4px", marginTop: "-6vh" }}>
             <div style={{
               "--amplitude": expr.breathAmplitude,
               "--posture": expr.postureOffset,
@@ -390,7 +390,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
           {/* Stress level */}
           <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
-            <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(212,175,55,0.40)" }}>
+            <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.40)" }}>
               Stressnivå
             </div>
             <div className="text-[34px] leading-[1.15] font-medium tracking-tight" style={{ color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>
@@ -400,7 +400,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
 
           {/* Oura Data Row — under overskriften */}
           {(hrv || rhr) && (
-            <div className={`b-why ease-spring flex justify-center gap-12 mt-6 mb-2${mounted ? " in" : ""}`} style={{ opacity: 0.85 }}>
+            <div className={`b-why ease-spring flex justify-center gap-12 mt-3 mb-1${mounted ? " in" : ""}`} style={{ opacity: 0.85 }}>
               {hrv && (
                 <div className="flex flex-col items-center">
                   <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>HRV (Oura)</span>
@@ -417,28 +417,28 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           )}
 
           {/* NOW + Gjør nå */}
-          <div className={`b-now ease-spring mt-12 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.06)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.10)", borderRadius:"36px", padding:"32px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
+          <div className={`b-now ease-spring mt-5 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.06)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.10)", borderRadius:"28px", padding:"22px 24px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
             {/* Edge-light */}
             <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
               Kroppens signaler
             </div>
-            <div className="text-[17px] text-white leading-relaxed mb-5">{nowText}</div>
+            <div className="text-[16px] text-white leading-snug mb-4">{nowText}</div>
 
             {/* Ask the Munk CTA — over Gjør nå */}
             <button
               onClick={() => window.location.href = "/ask"}
               className="w-full mb-6 rounded-2xl text-[11px] uppercase tracking-[0.3em] font-semibold transition-opacity hover:opacity-90 active:opacity-80"
-              style={{ padding:"18px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
+              style={{ padding:"14px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
             >
               Spør Munken om signalene →
             </button>
 
-            <div className="w-full h-px mb-5" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
-            <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
+            <div className="w-full h-px mb-3" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
+            <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
               Gjør nå
             </div>
-            <div className="text-[18px] font-semibold text-white leading-snug">{actionNowText}</div>
+            <div className="text-[16px] font-semibold text-white leading-snug">{actionNowText}</div>
           </div>
 
           {/* Ask the Munk — flyttet til meny (Steg 4) */}
