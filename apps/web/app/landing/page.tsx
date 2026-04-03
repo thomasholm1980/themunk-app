@@ -59,9 +59,24 @@ export default function LandingPage() {
             <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'40px',maxWidth:'400px' }}>
               Slutt å gjette på dagsformen. The Munk oversetter kroppens skjulte signaler til klar tale, slik at du kan styre unna utbrenthet og finne overskuddet. Hver morgen får du fasiten på din restitusjon — forklart på vanlig norsk.
             </p>
-            <div style={{ position:'relative',display:'inline-block' }}>
-              <div style={{ position:'absolute',top:'50%',left:'50%',width:'140px',height:'140px',borderRadius:'50%',background:'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)',filter:'blur(30px)',transform:'translate(-50%, -50%)',pointerEvents:'none' }} />
-              <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'180px',position:'relative',zIndex:1 }} />
+            <div style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
+              <div style={{ position:'relative',display:'inline-block' }}>
+                <div style={{ position:'absolute',top:'50%',left:'50%',width:'140px',height:'140px',borderRadius:'50%',background:'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)',filter:'blur(30px)',transform:'translate(-50%, -50%)',pointerEvents:'none' }} />
+                <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'160px',position:'relative',zIndex:1 }} />
+              </div>
+              <img
+                src="/assets/wearables.png"
+                alt="Wearables"
+                style={{
+                  width:'200px',
+                  position:'relative',
+                  zIndex:1,
+                  mixBlendMode:'screen',
+                  maskImage:'radial-gradient(ellipse 80% 80% at 60% 50%, black 40%, transparent 100%)',
+                  WebkitMaskImage:'radial-gradient(ellipse 80% 80% at 60% 50%, black 40%, transparent 100%)',
+                  opacity:0.90,
+                }}
+              />
             </div>
           </div>
 
