@@ -13,9 +13,9 @@ const MUNKENS_TIPS = [
 ];
 
 const ARTIKLER = [
-  { title: "Hvorfor søvn er stressens beste motgift", tid: "4 min" },
-  { title: "Det kroppen sier når du ikke lytter", tid: "6 min" },
-  { title: "Nervesystemet i balanse", tid: "5 min" },
+  { title: "Hvorfor søvn er stressens beste motgift", tid: "4 min", url: "https://www.themunk.ai/library" },
+  { title: "Det kroppen sier når du ikke lytter", tid: "6 min", url: "https://www.themunk.ai/library" },
+  { title: "Nervesystemet i balanse", tid: "5 min", url: "https://www.themunk.ai/library" },
 ];
 
 export default function RoPage() {
@@ -106,18 +106,18 @@ export default function RoPage() {
           </div>
 
           {/* SVG Breath Circle */}
-          <div style={{ position: "relative", width: "160px", height: "160px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "relative", width: "110px", height: "110px", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div
               className="breath-circle"
               style={{
-                width: "120px", height: "120px", borderRadius: "50%",
+                width: "80px", height: "80px", borderRadius: "50%",
                 background: "radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0.05) 60%, transparent 100%)",
                 border: "1px solid rgba(212,175,55,0.30)",
                 transform: `scale(${circleScale})`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
-              <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)" }} />
+              <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)" }} />
             </div>
           </div>
 
@@ -153,19 +153,25 @@ export default function RoPage() {
             {ARTIKLER.map((art, i) => (
               <div
                 key={i}
+                onClick={() => window.location.href = art.url}
                 style={{
-                  minWidth: "220px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  minWidth: "200px",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.10)",
                   borderRadius: "16px",
-                  padding: "20px 18px",
+                  padding: "18px 16px",
                   flexShrink: 0,
+                  cursor: "pointer",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                <div className="text-[15px] font-medium text-white mb-2" style={{ lineHeight: 1.4 }}>
+                <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
+                <div style={{ fontSize:"10px", letterSpacing:"0.2em", textTransform:"uppercase", color:"rgba(255,255,255,0.30)", marginBottom:"8px" }}>Bibliotek →</div>
+                <div style={{ fontSize:"14px", fontWeight:600, color:"rgba(255,255,255,0.90)", lineHeight:1.4, marginBottom:"8px" }}>
                   {art.title}
                 </div>
-                <div className="text-[12px]" style={{ color: "rgba(255,255,255,0.35)" }}>{art.tid} lesetid</div>
+                <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)" }}>{art.tid} lesetid</div>
               </div>
             ))}
           </div>
