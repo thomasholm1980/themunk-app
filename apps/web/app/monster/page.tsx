@@ -334,7 +334,7 @@ export default function MonsterPage() {
         {[
           { id: "idag",    label: "I dag",   href: "/check-in" },
           { id: "monster", label: "Mønster", href: "/monster"  },
-          { id: "ro",      label: "Ro",      href: "/ask"      },
+          { id: "ro",      label: "Bibliotek", href: "/library"  },
         ].map(tab => {
           const isActive = tab.id === "monster";
           return (
