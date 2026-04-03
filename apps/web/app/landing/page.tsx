@@ -57,7 +57,15 @@ export default function LandingPage() {
               Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em>
             </h1>
             <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'40px',maxWidth:'400px' }}>
-              Slutt å gjette på dagsformen. The Munk er appen som kobler seg til dine wearables og gir deg en intelligent tolkning av kroppens skjulte signaler. Slik kan du styre unna stressfellen og finne overskuddet. Få full kontroll på din faktiske restitusjon, forklart med menneskelig innsikt i stedet for bare grafer.
+              Stress setter seg i kroppen. Ikke i hodet.
+
+The Munk AI er appen som tolker signalene fra dine wearables og oversetter dem til menneskelig forståelse ved hjelp av kunstig intelligens.
+
+Du får én klar daglig beskjed: hva stressnivået ditt faktisk er, hvorfor, og hva du kan gjøre med det.
+
+Vet du hva kroppen din forteller deg akkurat nå?
+
+The Munk AI kan.
             </p>
             <div style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
               <div style={{ position:'relative',display:'inline-block' }}>
