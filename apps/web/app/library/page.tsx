@@ -91,21 +91,13 @@ export default function LibraryPage() {
   const [heroText, setHeroText] = useState<string | null>(null)
 
   const [savedIds, setSavedIds] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState<'all' | 'saved'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'saved' | 'ro'>('all')
 
   useEffect(() => {
-    // Auto-scroll til anchor hvis URL har hash
+    // Åpne Pust & Ro-fanen hvis URL har ro-hash
     const hash = window.location.hash
-    if (hash) {
-      setTimeout(() => {
-        const el = document.getElementById(hash.replace('#', ''))
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          // Highlight kortet kort
-          el.style.border = '1px solid rgba(212,175,55,0.50)'
-          setTimeout(() => { el.style.border = '' }, 2000)
-        }
-      }, 800)
+    if (hash && hash.startsWith('#ro-')) {
+      setActiveTab('ro')
     }
 
     fetch('/api/library/save')
@@ -151,16 +143,16 @@ export default function LibraryPage() {
         {/* Feed */}
         {/* Filter-tabs */}
         <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-          {(['all', 'saved'] as const).map(tab => (
+          {(['all', 'saved', 'ro'] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{ fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === tab ? '#D4AF37' : 'rgba(255,255,255,0.30)', borderBottom: activeTab === tab ? '1px solid rgba(212,175,55,0.50)' : '1px solid transparent', paddingBottom: '4px' }}>
-              {tab === 'all' ? 'Valgt for deg' : 'Mine lagrede'}
+              {tab === 'all' ? 'Valgt for deg' : tab === 'saved' ? 'Mine lagrede' : 'Pust & Ro'}
             </button>
           ))}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {CARDS
-            .filter(card => activeTab === 'all' || savedIds.includes(card.id))
+            .filter(card => activeTab === 'all' || (activeTab === 'saved' && savedIds.includes(card.id)) || (activeTab === 'ro' && ['ro-pust', 'ro-vagus', 'ro-meditasjon'].includes(card.id)))
             .map(card => <CardItem key={card.id} card={card} initialSaved={savedIds.includes(card.id)} />)}
           {activeTab === 'saved' && savedIds.length === 0 && (
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: '40px' }}>Ingen lagrede kort ennå. Trykk + Lagre på innhold du vil beholde.</p>
