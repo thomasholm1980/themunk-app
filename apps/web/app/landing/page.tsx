@@ -100,7 +100,7 @@ export default function LandingPage() {
                   </button>
                   {status==='error' && <div style={{ fontSize:'12px',color:'#f87171',marginTop:'8px' }}>Noe gikk galt. Prøv igjen.</div>}
                   <div style={{ fontSize:'10px',letterSpacing:'0.2em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.40)',marginTop:'16px',lineHeight:1.8 }}>
-                    The Munk er ansvarlig AI. Hver innsikt er forankret i din faktiske biologi (Oura) og verifisert medisinsk og fysiologisk kunnskap. Ingen "AI-slop". Bare ekte forståelse.
+                    The Munk er ansvarlig AI. Hver innsikt er forankret i din faktiske biologi (wearables) og verifisert medisinsk og fysiologisk kunnskap. Ingen "AI-slop". Bare ekte forståelse.
                   </div>
                   <div style={{ fontSize:'11px',color:'rgba(255,255,255,0.25)',marginTop:'10px',lineHeight:1.6 }}>Gratis i testperioden. Ingen binding.</div>
                 </form>
