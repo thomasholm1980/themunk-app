@@ -210,8 +210,23 @@ export default function MonsterPage() {
           </p>
         </div>
 
+        {/* Pusteøvelse CTA — over bølgen */}
+        <div className={`ease-in d2 w-full px-5 mb-4${mounted ? " v" : ""}`}>
+          <div
+            onClick={() => window.location.href = "/ro"}
+            style={{ background:"rgba(255,255,255,0.04)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"20px", padding:"14px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", position:"relative", overflow:"hidden" }}
+          >
+            <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
+            <div>
+              <div style={{ fontSize:"10px", letterSpacing:"0.25em", textTransform:"uppercase" as const, color:"rgba(212,175,55,0.60)", marginBottom:"3px" }}>Verktøy</div>
+              <div style={{ fontSize:"15px", fontWeight:600, color:"rgba(255,255,255,0.90)" }}>Pusteøvelse for å roe ned</div>
+            </div>
+            <div style={{ fontSize:"18px", color:"rgba(212,175,55,0.60)" }}>→</div>
+          </div>
+        </div>
+
         {/* Atmospheric space */}
-        <div style={{ height: "16px" }} />
+        <div style={{ height: "8px" }} />
 
         {/* SVG Stress Horizon */}
         <div className={`ease-in d3 w-full${mounted ? " v" : ""}`}>
@@ -293,34 +308,6 @@ export default function MonsterPage() {
               </text>
             ))}
           </svg>
-        </div>
-
-        {/* Pusteøvelse CTA */}
-        <div className={`ease-in d3 w-full px-5 mt-6${mounted ? " v" : ""}`}>
-          <div
-            onClick={() => window.location.href = "/ro"}
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              backdropFilter: "blur(24px)",
-              WebkitBackdropFilter: "blur(24px)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "20px",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              cursor: "pointer",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ position: "absolute", inset: "0 0 auto 0", height: "1px", background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
-            <div>
-              <div style={{ fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "rgba(212,175,55,0.60)", marginBottom: "4px" }}>Verktøy</div>
-              <div style={{ fontSize: "15px", fontWeight: 600, color: "rgba(255,255,255,0.90)" }}>Pusteøvelse for å roe ned</div>
-            </div>
-            <div style={{ fontSize: "18px", color: "rgba(212,175,55,0.60)" }}>→</div>
-          </div>
         </div>
 
         {/* Pattern cards */}
