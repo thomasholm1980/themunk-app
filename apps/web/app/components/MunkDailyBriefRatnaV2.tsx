@@ -423,7 +423,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
               Kroppens signaler
             </div>
-            <div className="text-[16px] text-white leading-snug mb-4">{nowText}</div>
+            <div className="text-[16px] text-white leading-snug mb-4">Stresset har ikke sluppet. Gi kroppen tid.</div>
 
             {/* Ask the Munk CTA — over Gjør nå */}
             <button
