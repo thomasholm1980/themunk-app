@@ -33,7 +33,19 @@ const PATTERN_MEANING: Record<string, string> = {
   hrv_suppressed:                 "Lavere restitusjon over tid gjør at kroppen tåler mindre variasjon. Det som normalt ikke merkes, kan begynne å sette spor.",
 };
 
-const DAY_LABELS = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
+// Beregn de siste 7 dagene bakover fra i dag
+function getLast7DayLabels(): string[] {
+  const labels = ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"];
+  const short = ["Søn", "Man", "Tir", "Ons", "Tor", "Fre", "Lør"];
+  const today = new Date(new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Oslo" }).format(new Date()));
+  const result = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    result.push(short[d.getDay()]);
+  }
+  return result;
+}
 
 // Catmull-Rom spline for smooth SVG path
 function catmullRomPath(points: { x: number; y: number }[]): string {
@@ -114,14 +126,15 @@ export default function MonsterPage() {
   const activeStress = stressData[activeDay];
   const glowIntensity = activeStress;
 
+  const dayLabels = getLast7DayLabels();
   const dayNarrative: Record<number, string> = {
-    0: "Mandag: Uken startet med tyngde i kroppen.",
-    1: "Tirsdag: Stresset begynte å stige stille.",
-    2: "Onsdag: Kroppen var under press midt i uken.",
-    3: "Torsdag: Belastningen nådde sitt høyeste punkt.",
-    4: "Fredag: En liten lettelse — kroppen puster litt ut.",
-    5: "Lørdag: Restitusjonen er i gang, men ikke ferdig.",
-    6: "Søndag: Kroppen jobber fortsatt med å hente seg inn.",
+    0: `${dayLabels[0]}: Slik startet uken for kroppen din.`,
+    1: `${dayLabels[1]}: Stresset begynte å stige stille.`,
+    2: `${dayLabels[2]}: Kroppen var under press.`,
+    3: `${dayLabels[3]}: Belastningen nådde sitt høyeste punkt.`,
+    4: `${dayLabels[4]}: En liten lettelse — kroppen puster litt ut.`,
+    5: `${dayLabels[5]}: Restitusjonen er i gang, men ikke ferdig.`,
+    6: `${dayLabels[6]}: I dag — kroppen jobber fortsatt med å hente seg inn.`,
   };
 
   return (
@@ -276,10 +289,38 @@ export default function MonsterPage() {
                   transition: "fill 300ms ease",
                 }}
               >
-                {DAY_LABELS[i]}
+                {getLast7DayLabels()[i]}
               </text>
             ))}
           </svg>
+        </div>
+
+        {/* Pusteøvelse CTA */}
+        <div className={`ease-in d3 w-full px-5 mt-6${mounted ? " v" : ""}`}>
+          <div
+            onClick={() => window.location.href = "/ro"}
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "20px",
+              padding: "18px 20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              cursor: "pointer",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ position: "absolute", inset: "0 0 auto 0", height: "1px", background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
+            <div>
+              <div style={{ fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "rgba(212,175,55,0.60)", marginBottom: "4px" }}>Verktøy</div>
+              <div style={{ fontSize: "15px", fontWeight: 600, color: "rgba(255,255,255,0.90)" }}>Pusteøvelse for å roe ned</div>
+            </div>
+            <div style={{ fontSize: "18px", color: "rgba(212,175,55,0.60)" }}>→</div>
+          </div>
         </div>
 
         {/* Pattern cards */}
