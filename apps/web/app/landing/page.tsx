@@ -116,7 +116,23 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* VALUE DRIVERS */}
+        {/* FOUNDER'S NOTE — The Hook */}
+        <div style={{ background:'rgba(255,255,255,0.04)',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',border:'1px solid rgba(212,175,55,0.20)',borderRadius:'28px',padding:'40px 36px',position:'relative',overflow:'hidden',marginBottom:'24px' }}>
+          <div style={{ position:'absolute',inset:'0 0 auto 0',height:'1px',background:'linear-gradient(to right, transparent, rgba(212,175,55,0.25), transparent)' }} />
+          <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(212,175,55,0.70)',marginBottom:'20px' }}>✦ Da systemet ikke strakk til</div>
+          <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'20px',color:'rgba(255,255,255,0.92)',lineHeight:1.80,marginBottom:'28px',fontWeight:400,fontStyle:'italic',maxWidth:'680px' }}>
+            "Jeg heter Thomas (45). For noen år siden merket jeg at stresset holdt på å ta overhånd, men i møte med helsevesenet fant jeg ingen verktøy som ga mening i en travel hverdag. Jeg fikk høre at jeg var 'frisk', men kroppen sa noe helt annet.
+            <br /><br />
+            Jeg nektet å godta at jeg måtte vente på smellen. Derfor bygde jeg The Munk. Jeg ville bruke AI og min egen wearable-data til å knekke koden på mitt eget stress. Dette er ikke en app laget av et geskjeftig tech-selskap – det er et system bygget av en mann som ville ha kontrollen tilbake, og som nå vil hjelpe deg med å gjøre det samme."
+          </div>
+          <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
+            <div style={{ width:'32px',height:'32px',borderRadius:'50%',background:'rgba(212,175,55,0.20)',border:'1px solid rgba(212,175,55,0.30)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px' }}>T</div>
+            <div style={{ fontSize:'13px',color:'rgba(255,255,255,0.55)',letterSpacing:'0.05em' }}>— Thomas, Founder av The Munk</div>
+          </div>
+        </div>
+
+        {/* VALUE DRIVERS — slik fungerer det */}
+        <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase',color:'rgba(255,255,255,0.30)',marginBottom:'16px' }}>Slik fungerer The Munk</div>
         <div className="cards-grid" style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',paddingBottom:'56px' }}>
           {[
             {t:'Total biologisk oversikt',b:'Vi kobler oss til Oura, Apple Watch og Garmin for å gi deg et samlet bilde av nervesystemets tilstand.'},
@@ -131,15 +147,7 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* FOUNDER'S NOTE */}
-        <div style={{ background:'rgba(255,255,255,0.03)',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'28px',padding:'40px 36px',position:'relative',overflow:'hidden',marginBottom:'64px' }}>
-          <div style={{ position:'absolute',inset:'0 0 auto 0',height:'1px',background:'linear-gradient(to right, transparent, rgba(212,175,55,0.15), transparent)' }} />
-          <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(212,175,55,0.60)',marginBottom:'16px' }}>✦ Skapt av nødvendighet</div>
-          <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'18px',color:'rgba(255,255,255,0.90)',lineHeight:1.75,marginBottom:'24px',fontWeight:400,fontStyle:'italic',maxWidth:'640px' }}>
-            "Jeg heter Thomas og jeg bygde The Munk fordi jeg var lei av å gjette på min egen dagsform. Som mann under konstant press trengte jeg et system som ikke bare ga meg grafer, men som faktisk forklarte meg hva kroppen min prøvde å si. The Munk er resultatet av min egen reise for å forstå stress ved hjelp av teknologi og AI. Det er bygget på ekte data — for å hjelpe meg selv, og for å hjelpe andre menn med å ta kontrollen tilbake."
-          </div>
-          <div style={{ fontSize:'13px',color:'rgba(255,255,255,0.50)',letterSpacing:'0.05em' }}>— Thomas, Founder av The Munk</div>
-        </div>
+
       </div>
 
       {/* CTA-seksjon */}
