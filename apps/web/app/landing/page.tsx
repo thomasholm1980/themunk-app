@@ -57,7 +57,7 @@ export default function LandingPage() {
               Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em>
             </h1>
             <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'40px',maxWidth:'400px' }}>
-              Slutt å gjette på dagsformen. The Munk kobler seg til dine wearables og oversetter kroppens skjulte signaler til klar tale – slik at du kan styre unna stressfellen og finne overskuddet. Få full kontroll på din faktiske restitusjon og dagsform – forklart på vanlig norsk.
+              Slutt å gjette på dagsformen. The Munk kobler seg til dine wearables og oversetter kroppens skjulte signaler til klar tale slik at du kan styre unna stressfellen og finne overskuddet. Få full kontroll på din faktiske restitusjon og dagsform forklart på vanlig norsk.
             </p>
             <div style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
               <div style={{ position:'relative',display:'inline-block' }}>
@@ -113,7 +113,7 @@ export default function LandingPage() {
               <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.30)',marginBottom:'12px' }}>Eksempel — daglig brief</div>
               <div style={{ display:'inline-block',background:'rgba(212,175,55,0.15)',color:'#D4AF37',fontSize:'10px',letterSpacing:'0.2em',textTransform:'uppercase' as const,padding:'4px 12px',borderRadius:'100px',marginBottom:'14px',border:'1px solid rgba(212,175,55,0.25)' }}>Moderat stress</div>
               <div style={{ fontSize:'14px',color:'rgba(255,255,255,0.90)',lineHeight:1.7,marginBottom:'16px',fontWeight:500 }}>
-                Stressnivået holder seg oppe — kroppen jobber fortsatt. Litt bevegelse, mye ro.
+                Stressnivået holder seg oppe og kroppen jobber fortsatt. Litt bevegelse, mye ro.
               </div>
               <div style={{ display:'flex',gap:'24px',paddingTop:'14px',borderTop:'1px solid rgba(255,255,255,0.06)' }}>
                 {[{v:'44 ms',l:'HRV (Oura)'},{v:'57 bpm',l:'Hvilepuls (Oura)'}].map(s => (
@@ -132,7 +132,7 @@ export default function LandingPage() {
           <div style={{ position:'absolute',inset:'0 0 auto 0',height:'1px',background:'linear-gradient(to right, transparent, rgba(212,175,55,0.25), transparent)' }} />
           <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(212,175,55,0.70)',marginBottom:'20px' }}>✦ Da systemet ikke strakk til</div>
           <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'20px',color:'rgba(255,255,255,0.92)',lineHeight:1.80,marginBottom:'28px',fontWeight:400,fontStyle:'italic',maxWidth:'680px' }}>
-            "Jeg heter Thomas (45). For noen år siden merket jeg at stresset holdt på å ta overhånd, men i møte med helsevesenet fikk jeg bare høre at jeg var 'frisk'. Kroppen min sa noe helt annet. Jeg nektet å vente på smellen. Jeg kjøpte en Oura-ring (wearable) for å måle mine egne verdier og utforske mitt eget stress. The Munk er resultatet av den reisen – et system bygget på ekte data for å hjelpe meg selv, og for å hjelpe andre menn med å ta kontrollen tilbake."
+            "Jeg heter Thomas (45). For noen år siden merket jeg at stresset holdt på å ta overhånd, men i møte med helsevesenet fikk jeg bare høre at jeg var 'frisk'. Kroppen min sa noe helt annet. Jeg nektet å vente på smellen. Jeg kjøpte en Oura-ring (wearable) for å måle mine egne verdier og utforske mitt eget stress. The Munk er resultatet av den reisen, et system bygget på ekte data for å hjelpe meg selv og for å hjelpe andre menn med å ta kontrollen tilbake."
           </div>
           <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
             <div style={{ width:'32px',height:'32px',borderRadius:'50%',background:'rgba(212,175,55,0.20)',border:'1px solid rgba(212,175,55,0.30)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px' }}>T</div>
