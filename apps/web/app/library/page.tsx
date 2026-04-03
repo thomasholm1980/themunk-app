@@ -94,6 +94,20 @@ export default function LibraryPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'saved'>('all')
 
   useEffect(() => {
+    // Auto-scroll til anchor hvis URL har hash
+    const hash = window.location.hash
+    if (hash) {
+      setTimeout(() => {
+        const el = document.getElementById(hash.replace('#', ''))
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          // Highlight kortet kort
+          el.style.border = '1px solid rgba(212,175,55,0.50)'
+          setTimeout(() => { el.style.border = '' }, 2000)
+        }
+      }, 800)
+    }
+
     fetch('/api/library/save')
       .then(r => r.json())
       .then(j => setSavedIds(j.saved ?? []))
