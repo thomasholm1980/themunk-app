@@ -60,10 +60,7 @@ export default function LandingPage() {
               <div style={{ position:'absolute',top:'50%',left:'50%',width:'140px',height:'140px',borderRadius:'50%',background:'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)',filter:'blur(30px)',transform:'translate(-50%, -50%)',pointerEvents:'none' }} />
               <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'180px',position:'relative',zIndex:1 }} />
             </div>
-            <div style={{ marginTop:'32px',paddingTop:'24px',borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-              <div style={{ fontSize:'11px',color:'rgba(255,255,255,0.30)',letterSpacing:'0.2em',textTransform:'uppercase' as const,marginBottom:'10px' }}>Basert på innsikt fra</div>
-              <div style={{ fontSize:'14px',color:'rgba(255,255,255,0.50)',lineHeight:1.6 }}>Dr. Torkil Færø · Leger om livet · Huberman Lab</div>
-            </div>
+
           </div>
 
           <div id="signup">
@@ -90,7 +87,7 @@ export default function LandingPage() {
                   {status==='error' && <div style={{ fontSize:'12px',color:'#f87171',marginTop:'8px' }}>Noe gikk galt. Prøv igjen.</div>}
                   <div style={{ fontSize:'11px',color:'rgba(255,255,255,0.25)',marginTop:'16px',lineHeight:1.6 }}>Gratis i testperioden. Ingen binding. Vi sender kun relevant informasjon.</div>
                   <div style={{ fontSize:'10px',letterSpacing:'0.2em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.25)',marginTop:'14px',lineHeight:1.8 }}>
-                    The Munk er ansvarlig AI. Hver innsikt er forankret i din faktiske biologi (Oura) og verifisert norsk helsekunnskap. Ingen "AI-slop". Bare ekte forståelse.
+                    The Munk er ansvarlig AI. Hver innsikt er forankret i din faktiske biologi (Oura) og verifisert medisinsk og fysiologisk kunnskap. Ingen "AI-slop". Bare ekte forståelse.
                   </div>
                 </form>
               )}
@@ -101,7 +98,7 @@ export default function LandingPage() {
               <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.30)',marginBottom:'12px' }}>Eksempel — daglig brief</div>
               <div style={{ display:'inline-block',background:'rgba(212,175,55,0.15)',color:'#D4AF37',fontSize:'10px',letterSpacing:'0.2em',textTransform:'uppercase' as const,padding:'4px 12px',borderRadius:'100px',marginBottom:'14px',border:'1px solid rgba(212,175,55,0.25)' }}>Moderat stress</div>
               <div style={{ fontSize:'14px',color:'rgba(255,255,255,0.70)',lineHeight:1.7,marginBottom:'16px' }}>
-                Stressnivået holder seg oppe — kroppen jobber fortsatt. Ta en pause før du trenger det.
+                Stressnivået holder seg oppe — kroppen jobber fortsatt. Litt bevegelse, mye ro.
               </div>
               <div style={{ display:'flex',gap:'24px',paddingTop:'14px',borderTop:'1px solid rgba(255,255,255,0.06)' }}>
                 {[{v:'44 ms',l:'HRV (Oura)'},{v:'57 bpm',l:'Hvilepuls (Oura)'}].map(s => (
