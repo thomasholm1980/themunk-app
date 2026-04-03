@@ -29,13 +29,13 @@ export default function LandingPage() {
       <div style={{ position:'fixed',top:'-10%',left:'-10%',width:'60vw',height:'60vw',borderRadius:'50%',background:'radial-gradient(circle, rgba(26,77,46,0.12) 0%, transparent 70%)',filter:'blur(80px)',pointerEvents:'none',zIndex:0 }} />
       <div style={{ position:'fixed',bottom:'-20%',right:'-10%',width:'70vw',height:'70vw',borderRadius:'50%',background:'radial-gradient(circle, rgba(14,47,26,0.08) 0%, transparent 70%)',filter:'blur(100px)',pointerEvents:'none',zIndex:0 }} />
 
-      <style>{`*{box-sizing:border-box;margin:0;padding:0;}.shell{max-width:960px;margin:0 auto;padding:0 44px;}@media(max-width:720px){.shell{padding:0 20px;}.hero-grid{grid-template-columns:1fr!important;}.cards-grid{grid-template-columns:1fr!important;}h1{font-size:36px!important;}}`}</style>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0;}.shell{max-width:960px;margin:0 auto;padding:0 44px;}@media(max-width:720px){.shell{padding:0 20px;}.hero-grid{grid-template-columns:1fr!important;}.cards-grid{grid-template-columns:1fr!important;}h1{font-size:36px!important;}.hero-visuals{order:-1;display:flex;justify-content:center;padding-bottom:32px;}}`}</style>
 
       <nav style={{ borderBottom:'1px solid rgba(255,255,255,0.06)',position:'sticky',top:0,zIndex:100,backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',background:'rgba(8,22,9,0.80)' }}>
         <div className="shell" style={{ display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 44px' }}>
           <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
             <img src="/assets/munk-logo.png" alt="The Munk" style={{ height:'44px',width:'44px',objectFit:'contain',borderRadius:'50%' }} />
-            <span style={{ fontFamily:'"Crimson Pro",serif',fontSize:'15px',fontWeight:600,letterSpacing:'3px',color:'#fff',textTransform:'uppercase' as const }}>
+            <span style={{ fontFamily:'"Crimson Pro",serif',fontSize:'15px',fontWeight:600,letterSpacing:'3px',color:'#FFFFFF',textTransform:'uppercase' as const }}>
               The Munk<span style={{ fontSize:'9px',color:'#D4AF37',letterSpacing:'2px',fontFamily:'"Outfit",sans-serif',fontWeight:400 }}>AI</span>
             </span>
           </div>
@@ -60,7 +60,7 @@ export default function LandingPage() {
               <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>Du får én klar daglig beskjed: hva stressnivået ditt faktisk er, hvorfor, og hva du kan gjøre med det.</p>
               <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'0' }}>Vet du hva kroppen din forteller deg akkurat nå? <strong>The Munk AI kan.</strong></p>
             </div>
-            <div style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
+            <div className="hero-visuals" style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
               <div style={{ position:'relative',display:'inline-block' }}>
                 <div style={{ position:'absolute',top:'50%',left:'50%',width:'140px',height:'140px',borderRadius:'50%',background:'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)',filter:'blur(30px)',transform:'translate(-50%, -50%)',pointerEvents:'none' }} />
                 <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'220px',position:'relative',zIndex:1 }} />
