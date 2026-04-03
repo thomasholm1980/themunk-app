@@ -181,7 +181,7 @@ export default function RoPage() {
         {[
           { label: "I dag",   href: "/check-in" },
           { label: "Mønster", href: "/monster"  },
-          { label: "Ro",      href: "/ro", active: true },
+          { label: "Bibliotek", href: "/library", active: false },
         ].map(tab => (
           <button
             key={tab.label}
