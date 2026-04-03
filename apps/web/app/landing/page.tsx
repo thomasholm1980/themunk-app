@@ -68,13 +68,9 @@ export default function LandingPage() {
                 src="/assets/wearables.png"
                 alt="Wearables"
                 style={{
-                  width:'200px',
+                  width:'280px',
                   position:'relative',
                   zIndex:1,
-                  mixBlendMode:'screen',
-                  maskImage:'radial-gradient(ellipse 80% 80% at 60% 50%, black 40%, transparent 100%)',
-                  WebkitMaskImage:'radial-gradient(ellipse 80% 80% at 60% 50%, black 40%, transparent 100%)',
-                  opacity:0.90,
                 }}
               />
             </div>
