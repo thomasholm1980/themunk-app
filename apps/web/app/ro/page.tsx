@@ -13,9 +13,9 @@ const MUNKENS_TIPS = [
 ];
 
 const ARTIKLER = [
-  { title: "Hva skjer i kroppen når du puster rolig?", tid: "3 min", url: "https://www.themunk.ai/library" },
-  { title: "Vagusnerven: kroppens robryter", tid: "5 min", url: "https://www.themunk.ai/library" },
-  { title: "Meditasjon for menn under press", tid: "4 min", url: "https://www.themunk.ai/library" },
+  { title: "Hva skjer i kroppen når du puster rolig?", tid: "3 min", url: "https://www.themunk.ai/library#ro-pust" },
+  { title: "Vagusnerven: kroppens robryter", tid: "5 min", url: "https://www.themunk.ai/library#ro-vagus" },
+  { title: "Meditasjon for menn under press", tid: "4 min", url: "https://www.themunk.ai/library#ro-meditasjon" },
 ];
 
 export default function RoPage() {
