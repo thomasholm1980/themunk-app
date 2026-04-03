@@ -62,13 +62,13 @@ export default function LandingPage() {
             <div style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
               <div style={{ position:'relative',display:'inline-block' }}>
                 <div style={{ position:'absolute',top:'50%',left:'50%',width:'140px',height:'140px',borderRadius:'50%',background:'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)',filter:'blur(30px)',transform:'translate(-50%, -50%)',pointerEvents:'none' }} />
-                <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'160px',position:'relative',zIndex:1 }} />
+                <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'220px',position:'relative',zIndex:1 }} />
               </div>
               <img
                 src="/assets/wearables.png"
                 alt="Wearables"
                 style={{
-                  width:'280px',
+                  width:'240px',
                   position:'relative',
                   zIndex:1,
                 }}
