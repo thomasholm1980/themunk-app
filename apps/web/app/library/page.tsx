@@ -130,7 +130,7 @@ export default function LibraryPage() {
         <div style={{ paddingTop: '20px', paddingBottom: '8px' }}>
           <button onClick={() => window.location.href = '/check-in?awake=true'} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.40)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 16px 0', display: 'block' }}>← Tilbake</button>
           <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '4px' }}>Bibliotek</div>
-          <div style={{ fontSize: '26px', fontWeight: 600, fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', marginBottom: '20px' }}>Valgt for deg</div>
+          <div style={{ fontSize: '26px', fontWeight: 600, fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', marginBottom: '20px' }}>Ditt bibliotek</div>
         </div>
 
         {/* Hero-kort */}
