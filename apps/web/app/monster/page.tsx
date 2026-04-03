@@ -94,7 +94,7 @@ export default function MonsterPage() {
   const stressData = data?.sufficient_data ? generateStressData(data.patterns) : [0.5, 0.55, 0.6, 0.5, 0.65, 0.6, 0.55];
 
   const W = 390;
-  const H = 220;
+  const H = 200;
   const PAD = 32;
   const usableW = W - PAD * 2;
 
@@ -222,8 +222,36 @@ export default function MonsterPage() {
           </p>
         </div>
 
-        {/* Atmospheric space */}
-        <div style={{ height: "8px" }} />
+
+
+        {/* Dag-labels over bølgen */}
+        <div className={`ease-in d3 w-full px-8 mb-2${mounted ? " v" : ""}`} style={{ display:"flex", justifyContent:"space-between" }}>
+          {getLast7DayLabels().map((label, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveDay(i)}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
+                background: "none", border: "none", cursor: "pointer", padding: "4px 0",
+              }}
+            >
+              <div style={{
+                width: i === activeDay ? "8px" : "5px",
+                height: i === activeDay ? "8px" : "5px",
+                borderRadius: "50%",
+                background: i === activeDay ? "#D4AF37" : "rgba(255,255,255,0.20)",
+                transition: "all 300ms ease",
+              }} />
+              <span style={{
+                fontSize: "9px", letterSpacing: "0.1em", textTransform: "uppercase",
+                color: i === activeDay ? "rgba(212,175,55,0.90)" : "rgba(255,255,255,0.30)",
+                transition: "color 300ms ease",
+              }}>
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
 
         {/* SVG Stress Horizon */}
         <div className={`ease-in d3 w-full${mounted ? " v" : ""}`}>
@@ -285,25 +313,7 @@ export default function MonsterPage() {
               />
             )}
 
-            {/* Day labels */}
-            {points.map((p, i) => (
-              <text
-                key={i}
-                x={p.x}
-                y={H - 2}
-                textAnchor="middle"
-                style={{
-                  fontSize: "9px",
-                  fill: i === activeDay ? "rgba(212,175,55,0.90)" : "rgba(255,255,255,0.30)",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  fontFamily: "inherit",
-                  transition: "fill 300ms ease",
-                }}
-              >
-                {getLast7DayLabels()[i]}
-              </text>
-            ))}
+            {/* Day labels vises over SVG */}
           </svg>
         </div>
 
