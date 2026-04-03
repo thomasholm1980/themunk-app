@@ -56,9 +56,9 @@ export default function LandingPage() {
             </h1>
             <div style={{ maxWidth:'400px',marginBottom:'40px' }}>
               <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>Stress setter seg i kroppen. Ikke i hodet.</p>
-              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>The Munk AI er appen som tolker signalene fra dine wearables og oversetter dem til menneskelig forståelse ved hjelp av kunstig intelligens.</p>
+              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>The Munk er appen som tolker dine wearables og oversetter signalene til menneskelig forståelse.</p>
               <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>Du får én klar daglig beskjed: hva stressnivået ditt faktisk er, hvorfor, og hva du kan gjøre med det.</p>
-              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'0' }}>Vet du hva kroppen din forteller deg akkurat nå? <strong>The Munk AI kan.</strong></p>
+              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'0' }}><strong>The Munk AI vet hva kroppen din forteller deg.</strong></p>
             </div>
             <div className="hero-visuals" style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
               <div style={{ position:'relative',display:'inline-block' }}>
