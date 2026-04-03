@@ -70,9 +70,9 @@ const NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
     evening: "Du har brukt lite av reservene i dag.",
   },
   YELLOW: {
-    morning: "Du starter med litt ubrukt stress fra natten.",
-    day:     "Stressnivået holder seg oppe — kroppen jobber fortsatt.",
-    evening: "Dagen har kostet mer enn kroppen rakk å hente inn.",
+    morning: "Hjertet ditt slår litt stivere i dag. Nervesystemet fant ikke full ro i natt — du starter med et stress-etterslep.",
+    day:     "Stresset sitter fortsatt i kroppen. Du har jobbet siden tidlig — nå trenger nervesystemet en pause.",
+    evening: "Dagen har kostet mer enn kroppen rakk å hente inn. Stresset fra i dag trenger natt for å løse seg.",
   },
   RED: {
     morning: "Kroppen er allerede belastet før dagen begynner.",
@@ -88,9 +88,9 @@ const ACTION_NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
     evening: "God kveld for tidlig søvn — bygg videre på overskuddet.",
   },
   YELLOW: {
-    morning: "Unngå store belastninger tidlig — la kroppen varme opp.",
-    day:     "Ta en pause før du trenger det.",
-    evening: "Legg telefonen bort. Kroppen trenger ro nå.",
+    morning: "Litt bevegelse, mye ro. La kroppen varme opp før du belaster den.",
+    day:     "Ta en pause før du trenger det. Stresset løser seg ikke ved å jobbe hardere.",
+    evening: "Ingen skjerm, ingen krevende samtaler. Kroppen trenger ro for å hente inn stresset fra i dag.",
   },
   RED: {
     morning: "Utsett det som kan vente. Start rolig.",
