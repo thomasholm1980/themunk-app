@@ -31,7 +31,6 @@ export default function LandingPage() {
 
       <style>{`*{box-sizing:border-box;margin:0;padding:0;}.shell{max-width:960px;margin:0 auto;padding:0 44px;}@media(max-width:720px){.shell{padding:0 20px;}.hero-grid{grid-template-columns:1fr!important;}.cards-grid{grid-template-columns:1fr!important;}h1{font-size:36px!important;}}`}</style>
 
-      {/* NAV */}
       <nav style={{ borderBottom:'1px solid rgba(255,255,255,0.06)',position:'sticky',top:0,zIndex:100,backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',background:'rgba(8,22,9,0.80)' }}>
         <div className="shell" style={{ display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 44px' }}>
           <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
@@ -47,7 +46,6 @@ export default function LandingPage() {
       <div className="shell" style={{ position:'relative',zIndex:10 }}>
         <div className="hero-grid" style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'56px',padding:'72px 0 56px',alignItems:'start' }}>
 
-          {/* VENSTRE */}
           <div>
             <div style={{ display:'flex',alignItems:'center',gap:'8px',fontSize:'11px',color:'rgba(212,175,55,0.70)',fontWeight:500,letterSpacing:'0.2em',textTransform:'uppercase' as const,marginBottom:'28px' }}>
               <span style={{ width:'6px',height:'6px',borderRadius:'50%',background:'#D4AF37',display:'inline-block' }}></span>
@@ -56,35 +54,21 @@ export default function LandingPage() {
             <h1 style={{ fontFamily:'"Crimson Pro",serif',fontSize:'52px',lineHeight:1.1,color:'rgba(255,255,255,0.95)',marginBottom:'24px',fontWeight:400 }}>
               Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em>
             </h1>
-            <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'40px',maxWidth:'400px' }}>
-              Stress setter seg i kroppen. Ikke i hodet.
-
-The Munk AI er appen som tolker signalene fra dine wearables og oversetter dem til menneskelig forståelse ved hjelp av kunstig intelligens.
-
-Du får én klar daglig beskjed: hva stressnivået ditt faktisk er, hvorfor, og hva du kan gjøre med det.
-
-Vet du hva kroppen din forteller deg akkurat nå?
-
-The Munk AI kan.
-            </p>
+            <div style={{ maxWidth:'400px',marginBottom:'40px' }}>
+              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>Stress setter seg i kroppen. Ikke i hodet.</p>
+              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>The Munk AI er appen som tolker signalene fra dine wearables og oversetter dem til menneskelig forståelse ved hjelp av kunstig intelligens.</p>
+              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'24px' }}>Du får én klar daglig beskjed: hva stressnivået ditt faktisk er, hvorfor, og hva du kan gjøre med det.</p>
+              <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'0' }}>Vet du hva kroppen din forteller deg akkurat nå? <strong>The Munk AI kan.</strong></p>
+            </div>
             <div style={{ position:'relative',display:'flex',alignItems:'center',gap:'0px' }}>
               <div style={{ position:'relative',display:'inline-block' }}>
                 <div style={{ position:'absolute',top:'50%',left:'50%',width:'140px',height:'140px',borderRadius:'50%',background:'radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)',filter:'blur(30px)',transform:'translate(-50%, -50%)',pointerEvents:'none' }} />
                 <img src="/assets/munk-transparent.png" alt="Munk" style={{ width:'220px',position:'relative',zIndex:1 }} />
               </div>
-              <img
-                src="/assets/wearables.png"
-                alt="Wearables"
-                style={{
-                  width:'200px',
-                  position:'relative',
-                  zIndex:1,
-                }}
-              />
+              <img src="/assets/wearables.png" alt="Wearables" style={{ width:'200px',position:'relative',zIndex:1 }} />
             </div>
           </div>
 
-          {/* HØYRE — signup */}
           <div id="signup">
             <div style={{ background:'rgba(255,255,255,0.03)',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'32px',padding:'36px 32px',position:'relative',overflow:'hidden',marginBottom:'16px' }}>
               <div style={{ position:'absolute',inset:'0 0 auto 0',height:'1px',background:'linear-gradient(to right, transparent, rgba(255,255,255,0.10), transparent)' }} />
@@ -108,17 +92,16 @@ The Munk AI kan.
                   </button>
                   {status==='error' && <div style={{ fontSize:'12px',color:'#f87171',marginTop:'8px' }}>Noe gikk galt. Prøv igjen.</div>}
                   <div style={{ fontSize:'10px',letterSpacing:'0.2em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.40)',marginTop:'16px',lineHeight:1.8 }}>
-                    The Munk er ansvarlig AI. Hver innsikt er forankret i din faktiske biologi (wearables) og verifisert medisinsk og fysiologisk kunnskap. Ingen "AI-slop". Bare ekte forståelse.
+                    The Munk er ansvarlig AI. Hver innsikt er forankret i din faktiske biologi (wearables) og verifisert medisinsk og fysiologisk kunnskap. Ingen &quot;AI-slop&quot;. Bare ekte forståelse.
                   </div>
                   <div style={{ fontSize:'11px',color:'rgba(255,255,255,0.25)',marginTop:'10px',lineHeight:1.6 }}>Gratis i testperioden. Ingen binding.</div>
                 </form>
               )}
             </div>
 
-            {/* Brief-teaser */}
             <div style={{ background:'rgba(255,255,255,0.03)',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'24px',padding:'24px',position:'relative',overflow:'hidden' }}>
               <div style={{ position:'absolute',inset:'0 0 auto 0',height:'1px',background:'linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)' }} />
-              <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.30)',marginBottom:'12px' }}>Eksempel — daglig brief</div>
+              <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(255,255,255,0.30)',marginBottom:'12px' }}>Eksempel: daglig brief</div>
               <div style={{ display:'inline-block',background:'rgba(212,175,55,0.15)',color:'#D4AF37',fontSize:'10px',letterSpacing:'0.2em',textTransform:'uppercase' as const,padding:'4px 12px',borderRadius:'100px',marginBottom:'14px',border:'1px solid rgba(212,175,55,0.25)' }}>Moderat stress</div>
               <div style={{ fontSize:'14px',color:'rgba(255,255,255,0.90)',lineHeight:1.7,marginBottom:'16px',fontWeight:500 }}>
                 Stressnivået holder seg oppe og kroppen jobber fortsatt. Litt bevegelse, mye ro.
@@ -135,12 +118,11 @@ The Munk AI kan.
           </div>
         </div>
 
-        {/* FOUNDER'S NOTE — The Hook */}
         <div style={{ background:'rgba(255,255,255,0.04)',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',border:'1px solid rgba(212,175,55,0.20)',borderRadius:'28px',padding:'40px 36px',position:'relative',overflow:'hidden',marginBottom:'24px' }}>
           <div style={{ position:'absolute',inset:'0 0 auto 0',height:'1px',background:'linear-gradient(to right, transparent, rgba(212,175,55,0.25), transparent)' }} />
           <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase' as const,color:'rgba(212,175,55,0.70)',marginBottom:'20px' }}>✦ Da systemet ikke strakk til</div>
           <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'20px',color:'rgba(255,255,255,0.92)',lineHeight:1.80,marginBottom:'28px',fontWeight:400,fontStyle:'italic',maxWidth:'680px' }}>
-            "Jeg heter Thomas (45). For noen år siden merket jeg at stresset holdt på å ta overhånd, men i møte med helsevesenet fikk jeg bare høre at jeg var 'frisk'. Kroppen min sa noe helt annet. Jeg nektet å vente på smellen. Jeg kjøpte en Oura-ring (wearable) for å måle mine egne verdier og utforske mitt eget stress. The Munk er resultatet av den reisen, et system bygget på ekte data for å hjelpe meg selv og for å hjelpe andre menn med å ta kontrollen tilbake."
+            &quot;Jeg heter Thomas (45). For noen år siden merket jeg at stresset holdt på å ta overhånd, men i møte med helsevesenet fikk jeg bare høre at jeg var &apos;frisk&apos;. Kroppen min sa noe helt annet. Jeg nektet å vente på smellen. Jeg kjøpte en Oura-ring (wearable) for å måle mine egne verdier og utforske mitt eget stress. The Munk er resultatet av den reisen, et system bygget på ekte data for å hjelpe meg selv og for å hjelpe andre menn med å ta kontrollen tilbake.&quot;
           </div>
           <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
             <div style={{ width:'32px',height:'32px',borderRadius:'50%',background:'rgba(212,175,55,0.20)',border:'1px solid rgba(212,175,55,0.30)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px' }}>T</div>
@@ -148,7 +130,6 @@ The Munk AI kan.
           </div>
         </div>
 
-        {/* VALUE DRIVERS — slik fungerer det */}
         <div style={{ fontSize:'10px',letterSpacing:'0.28em',textTransform:'uppercase',color:'rgba(255,255,255,0.30)',marginBottom:'16px' }}>Slik fungerer The Munk</div>
         <div className="cards-grid" style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',paddingBottom:'56px' }}>
           {[
@@ -163,11 +144,8 @@ The Munk AI kan.
             </div>
           ))}
         </div>
-
-
       </div>
 
-      {/* CTA-seksjon */}
       <div style={{ borderTop:'1px solid rgba(255,255,255,0.06)',padding:'64px 0',position:'relative',zIndex:10 }}>
         <div className="shell">
           <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'38px',color:'rgba(255,255,255,0.95)',fontWeight:400,marginBottom:'12px' }}>Gratis i testperioden</div>
@@ -176,7 +154,6 @@ The Munk AI kan.
         </div>
       </div>
 
-      {/* FOOTER */}
       <div style={{ borderTop:'1px solid rgba(255,255,255,0.05)',padding:'28px 0',position:'relative',zIndex:10 }}>
         <div className="shell">
           <div style={{ fontSize:'13px',color:'rgba(255,255,255,0.40)',marginBottom:'6px' }}>Følg utviklingen av The Munk</div>
