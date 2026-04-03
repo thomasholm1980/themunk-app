@@ -13,9 +13,9 @@ const MUNKENS_TIPS = [
 ];
 
 const ARTIKLER = [
-  { title: "Hvorfor søvn er stressens beste motgift", tid: "4 min", url: "https://www.themunk.ai/library" },
-  { title: "Det kroppen sier når du ikke lytter", tid: "6 min", url: "https://www.themunk.ai/library" },
-  { title: "Nervesystemet i balanse", tid: "5 min", url: "https://www.themunk.ai/library" },
+  { title: "Hva skjer i kroppen når du puster rolig?", tid: "3 min", url: "https://www.themunk.ai/library" },
+  { title: "Vagusnerven: kroppens robryter", tid: "5 min", url: "https://www.themunk.ai/library" },
+  { title: "Meditasjon for menn under press", tid: "4 min", url: "https://www.themunk.ai/library" },
 ];
 
 export default function RoPage() {
@@ -86,48 +86,36 @@ export default function RoPage() {
         {/* Quick Breath Hero */}
         <div
           className={`fade-up w-full cursor-pointer`}
-          style={{
-            animationDelay: "100ms",
-            background: "rgba(255,255,255,0.04)",
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "24px",
-            padding: "32px 24px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "24px",
-          }}
+          style={{ animationDelay: "100ms", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", padding: "16px 20px", display: "flex", flexDirection: "row", alignItems: "center", gap: "16px" }}
           onClick={() => setBreathActive(b => !b)}
         >
-          <div className="text-[11px] tracking-[0.28em] uppercase" style={{ color: "rgba(255,255,255,0.45)" }}>
+          <div className="text-[11px] tracking-[0.28em] uppercase" style={{ display: "none" }}>
             Pusteøvelse
           </div>
 
           {/* SVG Breath Circle */}
-          <div style={{ position: "relative", width: "110px", height: "110px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "relative", width: "80px", height: "80px", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div
               className="breath-circle"
               style={{
-                width: "80px", height: "80px", borderRadius: "50%",
+                width: "60px", height: "60px", borderRadius: "50%",
                 background: "radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0.05) 60%, transparent 100%)",
                 border: "1px solid rgba(212,175,55,0.30)",
                 transform: `scale(${circleScale})`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
-              <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)" }} />
+              <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)" }} />
             </div>
           </div>
 
-          <div className="text-[17px] text-white" style={{ letterSpacing: "0.02em" }}>
-            {phaseLabel[phase]}
-          </div>
+          <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(255,255,255,0.40)", marginBottom: "4px" }}>Pusteøvelse</div>
+              <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.90)" }}>{phaseLabel[phase]}</div>
+              {breathActive && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.30)", marginTop: "4px" }}>Trykk for å stoppe</div>}
+            </div>
 
-          {breathActive && (
-            <div className="text-[12px]" style={{ color: "rgba(255,255,255,0.30)" }}>Trykk for å stoppe</div>
-          )}
+
         </div>
 
         {/* Munkens tips */}
