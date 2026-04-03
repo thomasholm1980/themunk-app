@@ -68,7 +68,7 @@ export default function LandingPage() {
                 src="/assets/wearables.png"
                 alt="Wearables"
                 style={{
-                  width:'240px',
+                  width:'200px',
                   position:'relative',
                   zIndex:1,
                 }}
