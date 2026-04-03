@@ -202,20 +202,9 @@ export default function MonsterPage() {
           />
         </div>
 
-        {/* Day narrative */}
-        <div className={`ease-in d2 text-center px-8 mb-6${mounted ? " v" : ""}`}
-          style={{ minHeight: "48px" }}>
-          <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.70)", lineHeight: 1.6, transition: "opacity 400ms ease" }}>
-            {dayNarrative[activeDay]}
-          </p>
-        </div>
-
-        {/* Pusteøvelse CTA — over bølgen */}
+        {/* Pusteøvelse CTA — under Munken */}
         <div className={`ease-in d2 w-full px-5 mb-4${mounted ? " v" : ""}`}>
-          <div
-            onClick={() => window.location.href = "/ro"}
-            style={{ background:"rgba(255,255,255,0.04)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"20px", padding:"14px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", position:"relative", overflow:"hidden" }}
-          >
+          <div onClick={() => window.location.href = "/ro"} style={{ background:"rgba(255,255,255,0.04)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"20px", padding:"14px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", position:"relative", overflow:"hidden" }}>
             <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <div>
               <div style={{ fontSize:"10px", letterSpacing:"0.25em", textTransform:"uppercase" as const, color:"rgba(212,175,55,0.60)", marginBottom:"3px" }}>Verktøy</div>
@@ -223,6 +212,14 @@ export default function MonsterPage() {
             </div>
             <div style={{ fontSize:"18px", color:"rgba(212,175,55,0.60)" }}>→</div>
           </div>
+        </div>
+
+        {/* Day narrative */}
+        <div className={`ease-in d2 text-center px-8 mb-6${mounted ? " v" : ""}`}
+          style={{ minHeight: "48px" }}>
+          <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.70)", lineHeight: 1.6, transition: "opacity 400ms ease" }}>
+            {dayNarrative[activeDay]}
+          </p>
         </div>
 
         {/* Atmospheric space */}
@@ -308,6 +305,11 @@ export default function MonsterPage() {
               </text>
             ))}
           </svg>
+        </div>
+
+        {/* Drag-hint */}
+        <div style={{ textAlign:"center", fontSize:"11px", color:"rgba(255,255,255,0.20)", letterSpacing:"0.15em", marginTop:"8px", marginBottom:"4px" }}>
+          ← Dra for å utforske uken →
         </div>
 
         {/* Pattern cards */}
