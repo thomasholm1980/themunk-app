@@ -77,8 +77,9 @@ export default function LandingPage() {
             </div>
 
             <h1 style={{ fontFamily:'"Crimson Pro",serif',fontSize:'48px',lineHeight:1.1,color:'rgba(255,255,255,0.95)',marginBottom:'20px',fontWeight:400 }}>
-              Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em></h1><p style={{ fontFamily:'serif',fontSize:'20px',color:'#D4AF37',fontStyle:'italic',fontWeight:400,marginBottom:'24px',lineHeight:1.5 }}>Wearablen måler. The Munk AI tolker. Du mestrer.</p><h1 style={{ display:'none' }}
+              Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em>
             </h1>
+            <p style={{ fontFamily:'serif',fontSize:'20px',color:'#D4AF37',fontStyle:'italic',fontWeight:400,marginBottom:'24px',lineHeight:1.5 }}>Wearablen måler. The Munk AI tolker. Du mestrer.</p>
 
             <div className="hero-text-block" style={{ maxWidth:'400px',marginBottom:'32px' }}>
               <p style={{ fontSize:'16px',lineHeight:1.75,color:'rgba(255,255,255,0.90)',fontWeight:500,marginBottom:'20px' }}>Stress setter seg i kroppen. Ikke i hodet.</p>
