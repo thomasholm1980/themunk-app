@@ -108,7 +108,7 @@ Målet er enkelt:
 
 Vi sier ifra så snart vi åpner.
 
-– The Munk`,
+– Thomas, Founder of The Munk`,
     MessageStream: 'outbound',
   })
 }
