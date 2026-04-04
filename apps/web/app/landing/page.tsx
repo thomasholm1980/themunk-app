@@ -63,7 +63,7 @@ export default function LandingPage() {
         <div className="hero-grid">
           <div className="hero-left">
 
-            <div className="eyebrow" style={{ display:'flex',alignItems:'center',gap:'8px',fontSize:'11px',color:'rgba(212,175,55,0.70)',fontWeight:500,letterSpacing:'0.2em',textTransform:'uppercase' as const,marginBottom:'20px' }}>
+            <div className="eyebrow" style={{ display:'flex',alignItems:'center',gap:'8px',fontSize:'14px',color:'#D4AF37',fontWeight:500,letterSpacing:'0.25em',textTransform:'uppercase' as const,marginBottom:'28px',marginTop:'8px' }}>
               <span style={{ width:'6px',height:'6px',borderRadius:'50%',background:'#D4AF37',display:'inline-block' }}></span>
               KAN DU MÅLE DET – KAN DU MESTRE DET
             </div>
