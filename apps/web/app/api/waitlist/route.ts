@@ -86,7 +86,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
 async function sendConfirmationEmail(to: string) {
   const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN!)
   await client.sendEmail({
-    From: 'The Munk <hei@themunk.ai>',
+    From: 'Thomas – Founder of The Munk <hei@themunk.ai>',
     To: to,
     Subject: 'Du er på listen – The Munk',
     HtmlBody: EMAIL_HTML,
