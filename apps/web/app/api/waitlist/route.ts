@@ -64,7 +64,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
               <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Målet er enkelt:</p>
               <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Å gjøre stress tydeligere, roligere og mer håndterbart.</p>
               <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Vi sier ifra så snart vi åpner.</p>
-              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">– The Munk</p>
+              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">– Thomas, Founder of The Munk</p>
             </td>
           </tr>
 
