@@ -65,7 +65,7 @@ export default function LandingPage() {
 
             <div className="eyebrow" style={{ display:'flex',alignItems:'center',gap:'8px',fontSize:'11px',color:'rgba(212,175,55,0.70)',fontWeight:500,letterSpacing:'0.2em',textTransform:'uppercase' as const,marginBottom:'20px' }}>
               <span style={{ width:'6px',height:'6px',borderRadius:'50%',background:'#D4AF37',display:'inline-block' }}></span>
-              Stress-forståelse for norske menn
+              KAN DU MÅLE DET – KAN DU MESTRE DET
             </div>
 
             <div className="hero-visuals">
@@ -77,7 +77,7 @@ export default function LandingPage() {
             </div>
 
             <h1 style={{ fontFamily:'"Crimson Pro",serif',fontSize:'48px',lineHeight:1.1,color:'rgba(255,255,255,0.95)',marginBottom:'20px',fontWeight:400 }}>
-              Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em>
+              Du er mer<br />stresset enn<br /><em style={{ color:'#D4AF37',fontStyle:'italic' }}>du tror.</em></h1><p style={{ fontFamily:'serif',fontSize:'20px',color:'#D4AF37',fontStyle:'italic',fontWeight:400,marginBottom:'24px',lineHeight:1.5 }}>Wearablen måler. The Munk AI tolker. Du mestrer.</p><h1 style={{ display:'none' }}
             </h1>
 
             <div className="hero-text-block" style={{ maxWidth:'400px',marginBottom:'32px' }}>
@@ -168,7 +168,7 @@ export default function LandingPage() {
 
       <div style={{ borderTop:'1px solid rgba(255,255,255,0.06)',padding:'64px 0',position:'relative',zIndex:10 }}>
         <div className="shell">
-          <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'38px',color:'rgba(255,255,255,0.95)',fontWeight:400,marginBottom:'12px' }}>Gratis i testperioden</div>
+          <div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'28px',color:'#D4AF37',fontStyle:'italic',fontWeight:400,marginBottom:'8px' }}>Kan du måle det – kan du mestre det.</div><div style={{ fontFamily:'"Crimson Pro",serif',fontSize:'38px',color:'rgba(255,255,255,0.95)',fontWeight:400,marginBottom:'12px' }}>Gratis i testperioden</div>
           <div style={{ fontSize:'14px',color:'rgba(255,255,255,0.90)',marginBottom:'32px',fontWeight:500 }}>Begrenset antall plasser. Ingen binding.</div>
           <a href="#signup" style={{ background:'rgba(212,175,55,0.90)',color:'#0d1a15',fontFamily:'"Outfit",sans-serif',fontSize:'12px',fontWeight:600,padding:'14px 32px',border:'none',borderRadius:'100px',display:'inline-block',textDecoration:'none',letterSpacing:'0.2em',textTransform:'uppercase' as const }}>Bli med i testen</a>
         </div>
