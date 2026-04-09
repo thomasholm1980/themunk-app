@@ -181,12 +181,12 @@ export default function AskPage() {
           )}
         </div>
 
-        <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", padding: "20px", marginBottom: "24px" }}>
+        <div style={{ background: "rgba(18,38,32,0.40)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "24px", padding: "2rem", margin: "0 0 24px 0" }}>
         {/* Label */}
         <div style={{
           textAlign: 'center', fontSize: '11px',
           letterSpacing: '0.30em', textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.90)', marginBottom: '8px', fontWeight: 600,
+          color: '#ffffff', marginBottom: '8px', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.5)',
         }}>
           Spør Munken
         </div>
@@ -194,14 +194,14 @@ export default function AskPage() {
         {/* Headline */}
         <div style={{
           textAlign: 'center', fontSize: '21px', fontWeight: 600,
-          lineHeight: 1.25, color: 'rgba(255,255,255,0.96)', textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+          lineHeight: 1.25, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           letterSpacing: '-0.01em', marginBottom: '10px',
         }}>
           Få en rolig forklaring på stresset ditt
         </div>
         <div style={{
           textAlign: 'center', fontSize: '14px', fontWeight: 400,
-          lineHeight: 1.45, color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+          lineHeight: 1.45, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           marginTop: '4px', marginBottom: '0',
         }}>
           Dagens signaler er klare. Nå kan du spørre hva de betyr.
