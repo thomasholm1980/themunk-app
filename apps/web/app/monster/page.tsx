@@ -139,6 +139,13 @@ export default function MonsterPage() {
 
   return (
     <div className="min-h-screen min-h-[100dvh] w-full flex flex-col" style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: "background 3s ease-in-out" }}>
+
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.70) 0%, rgba(8,18,16,0.80) 100%)" }} />
+      </div>
+
+
       <style>{`
         .ease-in { opacity: 0; transform: translateY(6px); transition: opacity 800ms cubic-bezier(.22,1,.36,1), transform 800ms cubic-bezier(.22,1,.36,1); }
         .ease-in.v { opacity: 1; transform: translateY(0); }

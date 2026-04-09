@@ -86,9 +86,15 @@ export default function AskPage() {
 
   return (
     <main
+
       className="min-h-screen text-white flex flex-col items-center px-6"
-      style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: 'background 3s ease-in-out', paddingTop: '20px', paddingBottom: '88px' }}
+      style={{ background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: 'background 3s ease-in-out', paddingTop: '20px', paddingBottom: '88px', position: 'relative' }}
     >
+
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28 }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.70) 0%, rgba(8,18,16,0.80) 100%)" }} />
+      </div>
       <style>{`
         @keyframes glowBreath {
           0%,100% { opacity: 0.55; transform: translate(-50%,-50%) scale(1); }
