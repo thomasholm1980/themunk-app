@@ -122,17 +122,17 @@ export default function AskPage() {
         .a-s:nth-child(1) { animation-delay: 0ms; }
         .a-s:nth-child(3) { animation-delay: 70ms; }
         .a-s:nth-child(5) { animation-delay: 140ms; }
-        textarea::placeholder { color: rgba(255,255,255,0.50) !important; }
+        textarea::placeholder { color: rgba(255,255,255,0.70) !important; font-weight: 500; }
       `}</style>
 
-      <div className="w-full max-w-sm flex flex-col">
+      <div className="w-full max-w-sm flex flex-col" style={{ background: "rgba(0,30,15,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: "24px", padding: "24px 20px" }}>
 
         {/* ← Tilbake */}
         <button
           onClick={() => { window.location.href = '/check-in?awake=true'; }}
           style={{
             alignSelf: 'flex-start', fontSize: '13px',
-            color: 'rgba(255,255,255,0.50)', background: 'none',
+            color: 'rgba(255,255,255,0.80)', background: 'none',
             border: 'none', padding: 0, marginBottom: '20px',
             letterSpacing: '0.02em', cursor: 'pointer',
           }}
@@ -215,7 +215,7 @@ export default function AskPage() {
           rows={1}
           style={{
             width: '100%', background: 'transparent',
-            border: 'none', borderBottom: '1.5px solid rgba(255,255,255,0.28)',
+            border: 'none', borderBottom: '1.5px solid rgba(212,175,55,0.60)',
             borderRadius: 0, padding: '0 0 10px 0',
             lineHeight: '1.60', fontSize: '15px',
             color: 'rgba(255,255,255,0.94)',
@@ -235,6 +235,7 @@ export default function AskPage() {
             background: '#D4AF37',
             border: '1.5px solid #D4AF37',
             color: '#0D1A17',
+            opacity: 1,
             cursor: question.trim() && !isWaiting ? 'pointer' : 'default',
           }}
         >
