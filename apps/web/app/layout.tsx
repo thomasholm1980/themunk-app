@@ -12,6 +12,7 @@ const crimsonPro = Crimson_Pro({
 export const metadata: Metadata = {
   title: "The Munk",
   description: "Daily health intelligence",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
