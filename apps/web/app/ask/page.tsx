@@ -125,7 +125,7 @@ export default function AskPage() {
         textarea::placeholder { color: rgba(255,255,255,0.70) !important; font-weight: 500; }
       `}</style>
 
-      <div className="w-full max-w-sm flex flex-col" style={{ background: "rgba(0,20,10,0.30)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", borderRadius: "24px", padding: "24px 20px" }}>
+      <div className="w-full max-w-sm flex flex-col" style={{ background: "rgba(0,20,0,0.40)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: "24px", padding: "24px 20px", border: "1px solid rgba(255,255,255,0.05)" }}>
 
         {/* ← Tilbake */}
         <button
