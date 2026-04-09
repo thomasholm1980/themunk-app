@@ -56,8 +56,8 @@ const EMAIL_HTML = `<!DOCTYPE html>
               <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Vi kombinerer fysiologiske data med generativ AI for å gi deg en roligere og mer menneskelig forståelse av:</p>
 
               <ul style="margin:0 0 20px;padding-left:24px;">
-                <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvordan kroppen din faktisk har det</li>
-                <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvorfor dagen kjennes som den gjør</li>
+                <li style="font-family:Georgia,serif;font-size:16px;color:#ffffff;line-height:1.75;margin-bottom:6px;">hvordan kroppen din faktisk har det</li>
+                <li style="font-family:Georgia,serif;font-size:16px;color:#ffffff;line-height:1.75;margin-bottom:6px;">hvorfor dagen kjennes som den gjør</li>
                 <li style="font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">og hva du bør gjøre videre</li>
               </ul>
 
