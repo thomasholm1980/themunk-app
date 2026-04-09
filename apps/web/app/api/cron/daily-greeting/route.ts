@@ -47,25 +47,24 @@ export async function GET(req: NextRequest) {
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
-  const prompt = `Du er Munken. En rolig men direkte mentor som gir korte kommandoer.
+  const prompt = `Du er Munken. En rolig men direkte mentor.
 
 Dagens tilstand:
 - Stressnivaa: ${stressLabel} (${state.state})
 - Hjertets rytme (HRV): ${state.hrv ?? 'ukjent'} ms
 - Hvilepuls: ${state.rhr ?? 'ukjent'} bpm
 
-Skriv 3 setninger paa norsk:
-1. Bare "Thomas."
-2. En observasjon om kroppens signaler og restitusjonsbehov
-3. En direkte kommando (eks: "Senk skuldrene og finn roen i 10 minutter.")
+Skriv en e-post paa norsk med denne strukturen:
+1. "Thomas."
+2. En setning om at en travel dag kan faa hvem som helst til aa glemme kroppens signaler
+3. En observasjon basert paa dagens HRV og hvilepuls om at kroppen kan vaere under press
+4. En direkte oppfordring: stopp opp i fem minutter, finn pusten, naviger med intensjon
 
 Regler:
 - Bruk "restitusjon" ikke "hvile"
-- Bruk "systemet" eller "fysiologisk balanse" ikke "nervoees balanse"
 - Bruk "hjertets rytme" for HRV
-- Direkte kommandoer, ikke forslag
-- Ingen "kanskje", ingen "basert paa", ingen "data", ingen "score"
-- Bare de tre setningene. Ingenting annet.`
+- Ingen "kanskje", ingen "data", ingen "score"
+- Maks 4 setninger totalt. Ingenting annet.`
 
   const response = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
@@ -99,7 +98,7 @@ Regler:
               <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:18px;color:#f0ebe3;line-height:1.8;">${munkText}</p>
               <a href="https://www.themunk.ai/check-in"
                 style="display:inline-block;margin-top:8px;padding:14px 28px;background:#D4AF37;color:#0D1A17;font-family:Georgia,serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:4px;">
-                Sjekk stresset ditt
+                Sjekk dagens status
               </a>
             </td>
           </tr>
@@ -119,9 +118,9 @@ Regler:
   await postmarkClient.sendEmail({
     From: 'Thomas - Founder of The Munk <hei@themunk.ai>',
     To: 'thomas@themunk.ai',
-    Subject: 'Munken sjekker inn',
+    Subject: 'Thomas. Har du sjekket inn med Munken i dag?',
     HtmlBody: emailHtml,
-    TextBody: munkText + '\n\nSjekk stresset ditt: https://www.themunk.ai/check-in',
+    TextBody: munkText + '\n\nSjekk dagens status: https://www.themunk.ai/check-in',
     MessageStream: 'outbound',
   })
 
