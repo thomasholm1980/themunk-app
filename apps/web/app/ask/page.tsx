@@ -125,7 +125,7 @@ export default function AskPage() {
         textarea::placeholder { color: rgba(255,255,255,0.70) !important; font-weight: 500; }
       `}</style>
 
-      <div className="w-full max-w-sm flex flex-col" style={{ padding: "24px 20px" }}>
+      <div className="w-full max-w-sm flex flex-col">
 
         {/* ← Tilbake */}
         <button
@@ -181,6 +181,7 @@ export default function AskPage() {
           )}
         </div>
 
+        <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", padding: "20px", marginBottom: "24px" }}>
         {/* Label */}
         <div style={{
           textAlign: 'center', fontSize: '11px',
@@ -241,6 +242,7 @@ export default function AskPage() {
         >
           {isWaiting ? 'Munken lytter til hjertet ditt...' : 'Spør'}
         </button>
+        </div>
 
         {/* Starter prompts */}
         {!answer && !isWaiting && (
