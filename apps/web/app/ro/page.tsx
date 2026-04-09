@@ -71,7 +71,7 @@ export default function RoPage() {
 
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28 }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.70) 0%, rgba(8,18,16,0.80) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.55) 0%, rgba(8,18,16,0.65) 100%)" }} />
       </div>
       <style>{`
         .fade-up { opacity: 0; transform: translateY(10px); animation: fuAnim 700ms cubic-bezier(.22,1,.36,1) forwards; }

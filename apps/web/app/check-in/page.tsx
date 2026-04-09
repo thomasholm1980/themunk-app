@@ -108,6 +108,11 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
     <main className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-8 text-center relative overflow-hidden"
       style={{ background:`linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition:"background 3s ease-in-out" }}>
       <AtmosphereOrbs />
+
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28, filter: "brightness(1.40) contrast(1.20) saturate(1.15)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.52) 0%, rgba(8,18,16,0.60) 100%)" }} />
+      </div>
       <style>{`
         @keyframes heartGlow {
           0%,100%{opacity:0.30;transform:translate(-50%,-50%) scale(0.90);filter:blur(30px);}
