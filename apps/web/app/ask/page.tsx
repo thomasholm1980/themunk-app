@@ -185,7 +185,7 @@ export default function AskPage() {
         <div style={{
           textAlign: 'center', fontSize: '11px',
           letterSpacing: '0.30em', textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.52)', marginBottom: '8px',
+          color: 'rgba(255,255,255,0.90)', marginBottom: '8px', fontWeight: 600,
         }}>
           Spør Munken
         </div>
@@ -200,7 +200,7 @@ export default function AskPage() {
         </div>
         <div style={{
           textAlign: 'center', fontSize: '14px', fontWeight: 400,
-          lineHeight: 1.45, color: 'rgba(255,255,255,0.62)',
+          lineHeight: 1.45, color: 'rgba(255,255,255,0.85)',
           marginTop: '4px', marginBottom: '0',
         }}>
           Dagens signaler er klare. Nå kan du spørre hva de betyr.
@@ -232,13 +232,13 @@ export default function AskPage() {
             borderRadius: '13px', fontSize: '15px',
             fontWeight: 700, letterSpacing: '0.10em',
             marginBottom: '20px', transition: 'all 0.2s ease',
-            background: question.trim() && !isWaiting
+            background: !isWaiting
               ? 'rgba(255,200,80,0.22)'
               : 'rgba(255,255,255,0.08)',
             border: question.trim() && !isWaiting
               ? '1.5px solid rgba(255,200,80,0.50)'
               : '1.5px solid rgba(255,255,255,0.16)',
-            color: question.trim() && !isWaiting
+            color: !isWaiting
               ? 'rgba(255,255,255,1.00)'
               : 'rgba(255,255,255,0.28)',
             cursor: question.trim() && !isWaiting ? 'pointer' : 'default',
@@ -252,7 +252,7 @@ export default function AskPage() {
           <div className="fade-in">
             <div style={{
               fontSize: '11px', letterSpacing: '0.24em',
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.92)', fontWeight: 500,
               marginBottom: '12px',
             }}>
               Eller velg et spørsmål
@@ -264,7 +264,7 @@ export default function AskPage() {
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',
                   fontSize: '14px', padding: '11px 0',
-                  color: 'rgba(255,255,255,0.70)',
+                  color: 'rgba(255,255,255,0.92)', fontWeight: 500,
                   background: 'transparent', border: 'none',
                   borderBottom: i < STARTER_PROMPTS.length - 1
                     ? '1px solid rgba(255,255,255,0.09)' : 'none',
