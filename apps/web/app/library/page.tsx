@@ -220,6 +220,11 @@ export default function LibraryPage() {
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.52) 0%, rgba(8,18,16,0.60) 100%)" }} />
       </div>
+
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf-bright.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28, filter: "brightness(1.40) contrast(1.20) saturate(1.15)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.52) 0%, rgba(8,18,16,0.60) 100%)" }} />
+      </div>
       <svg aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.015, pointerEvents: 'none', zIndex: 1, mixBlendMode: 'overlay' as const }}>
         <filter id="lib-grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" /><feColorMatrix type="saturate" values="0" /></filter>
         <rect width="100%" height="100%" filter="url(#lib-grain)" />
