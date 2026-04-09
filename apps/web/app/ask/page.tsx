@@ -232,15 +232,9 @@ export default function AskPage() {
             borderRadius: '13px', fontSize: '15px',
             fontWeight: 700, letterSpacing: '0.10em',
             marginBottom: '20px', transition: 'all 0.2s ease',
-            background: !isWaiting
-              ? 'rgba(255,200,80,0.22)'
-              : 'rgba(255,255,255,0.08)',
-            border: question.trim() && !isWaiting
-              ? '1.5px solid rgba(255,200,80,0.50)'
-              : '1.5px solid rgba(255,255,255,0.16)',
-            color: !isWaiting
-              ? 'rgba(255,255,255,1.00)'
-              : 'rgba(255,255,255,0.28)',
+            background: '#D4AF37',
+            border: '1.5px solid #D4AF37',
+            color: '#0D1A17',
             cursor: question.trim() && !isWaiting ? 'pointer' : 'default',
           }}
         >
