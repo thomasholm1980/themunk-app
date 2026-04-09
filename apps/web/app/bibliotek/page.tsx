@@ -90,8 +90,6 @@ export default function BibliotekPage() {
       fontFamily: 'Georgia, serif',
       paddingBottom: '100px',
     }}>
-
-      {/* Header */}
       <div style={{ padding: '48px 24px 24px', textAlign: 'center' }}>
         <p style={{ margin: '0 0 8px', fontSize: '11px', letterSpacing: '3px', color: '#D4AF37', textTransform: 'uppercase' }}>
           The Munk
@@ -103,14 +101,8 @@ export default function BibliotekPage() {
           </p>
         )}
       </div>
-
-      {/* URL input */}
       <div style={{ padding: '0 24px 32px' }}>
-        <div style={{
-          background: '#162C27',
-          borderRadius: '12px',
-          padding: '20px',
-        }}>
+        <div style={{ background: '#162C27', borderRadius: '12px', padding: '20px' }}>
           <p style={{ margin: '0 0 12px', fontSize: '13px', letterSpacing: '1px', color: '#D4AF37', textTransform: 'uppercase' }}>
             Legg til lenke
           </p>
@@ -153,8 +145,6 @@ export default function BibliotekPage() {
           </button>
         </div>
       </div>
-
-      {/* Filter tabs */}
       <div style={{ padding: '0 24px 24px', display: 'flex', gap: '8px' }}>
         {['alle', 'stress', 'recovery', 'focus'].map((cat) => (
           <button
@@ -176,25 +166,17 @@ export default function BibliotekPage() {
           </button>
         ))}
       </div>
-
-      {/* Items */}
       <div style={{ padding: '0 24px' }}>
         {loading && (
           <p style={{ textAlign: 'center', color: '#aaa', fontSize: '14px' }}>Laster...</p>
         )}
         {!loading && sortedItems().length === 0 && (
           <p style={{ textAlign: 'center', color: '#aaa', fontSize: '14px' }}>
-            Ingen lenker ennå. Lim inn en URL over.
+            Ingen lenker enda. Lim inn en URL over.
           </p>
         )}
         {sortedItems().map((item) => (
-          
-            key={item.id}
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: 'none' }}
-          >
+          <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{
               background: '#162C27',
               borderRadius: '12px',
@@ -226,8 +208,6 @@ export default function BibliotekPage() {
           </a>
         ))}
       </div>
-
-      {/* Bottom nav */}
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: '#0a1a16',
@@ -238,7 +218,7 @@ export default function BibliotekPage() {
       }}>
         {[
           { label: 'I dag', href: '/check-in' },
-          { label: 'Mønster', href: '/monster' },
+          { label: 'Monster', href: '/monster' },
           { label: 'Bibliotek', href: '/bibliotek' },
         ].map((tab) => (
           <a key={tab.href} href={tab.href} style={{
