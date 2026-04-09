@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.86.1",
     "@supabase/supabase-js": "^2.39.0",
     "@themunk/core": "*",
     "@types/nodemailer": "^7.0.11",
