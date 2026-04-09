@@ -15,6 +15,16 @@ interface LibraryCard {
   duration?: string
 }
 
+type LibraryItem = {
+  id: string
+  url: string
+  title: string
+  summary: string
+  category: 'stress' | 'recovery' | 'focus'
+  tags: string[]
+  created_at: string
+}
+
 const CARDS: LibraryCard[] = [
   { id: 'tips-1', type: 'tips', source: 'MUNKENS TIPS', title: 'Hva HRV faktisk betyr', description: 'HRV-tallet ditt forteller ikke hvor stresset du er akkurat nå. Det forteller hvor godt kroppen din har restituert seg. Lavt tall = kroppen jobber fortsatt. Høyt tall = kroppen er klar.' },
   { id: 'podcast-1', type: 'podcast', source: 'SPOTIFY · PODCAST', title: 'Leger om livet med Torkil Færø', description: 'Lege Torkil Færø snakker om HRV, optimal stressbalanse, mat, søvn og restitusjon. Norges fremste stemme på kropp og stress.', url: 'https://open.spotify.com/episode/7osLNbvZPeb8gRBqfDEIav', duration: 'Lang · Norsk' },
@@ -31,6 +41,12 @@ const CARDS: LibraryCard[] = [
   { id: 'ro-vagus', type: 'article', source: 'MUNKENS INNSIKT', title: 'Vagusnerven: kroppens robryter', description: 'Vagusnerven er broen mellom hjernen og dine indre organer. Ved å stimulere denne nerven gjennom dyp pust, øker du din HRV. Høyere HRV betyr at nervesystemet ditt er mer fleksibelt og takler livets belastninger bedre.' },
   { id: 'ro-meditasjon', type: 'article', source: 'MUNKENS INNSIKT', title: 'Meditasjon for menn under press', description: 'Dette handler ikke om røkelse, men om mental service på motoren. Over 70% av menn som bruker AI-støtte rapporterer at anonymiteten gjør det lettere å jobbe med mentalt stress. 5 minutter daglig er nok til å bryte mønsteret av kronisk beredskap.' },
 ]
+
+const CATEGORY_LABELS: Record<string, string> = {
+  stress: 'Stress',
+  recovery: 'Restitusjon',
+  focus: 'Fokus',
+}
 
 const TYPE_ICON: Record<CardType, string> = { hero: '✦', podcast: '🎙', tips: '✦', video: '▶', instagram: '◈', article: '◎', poll: '◐' }
 
@@ -86,19 +102,89 @@ function CardItem({ card, initialSaved }: { card: LibraryCard; initialSaved: boo
   )
 }
 
+function UserLibraryItem({ item }: { item: LibraryItem }) {
+  return (
+    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+      <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+          <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.35)' }}>◎ DIN LENKE</div>
+          <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: '#D4AF37', background: 'rgba(212,175,55,0.10)', padding: '3px 10px', borderRadius: '12px' }}>
+            {CATEGORY_LABELS[item.category] ?? item.category}
+          </span>
+        </div>
+        <div style={{ fontSize: '17px', fontWeight: 600, color: 'rgba(255,255,255,0.95)', lineHeight: 1.3, marginBottom: '10px', fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif' }}>{item.title}</div>
+        <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.60)', lineHeight: 1.6, margin: 0 }}>{item.summary}</p>
+        <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '11px', color: 'rgba(255,255,255,0.30)', letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>
+          Åpne →
+        </div>
+      </div>
+    </a>
+  )
+}
+
+function AddUrlSection({ onAdded }: { onAdded: () => void }) {
+  const [url, setUrl] = useState('')
+  const [adding, setAdding] = useState(false)
+  const [error, setError] = useState('')
+
+  async function addItem() {
+    if (!url.trim()) return
+    setAdding(true)
+    setError('')
+    try {
+      const res = await fetch('/api/library/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url.trim() }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        setUrl('')
+        onAdded()
+      } else {
+        setError('Kunne ikke lagre. Prøv igjen.')
+      }
+    } catch {
+      setError('Nettverksfeil. Prøv igjen.')
+    }
+    setAdding(false)
+  }
+
+  return (
+    <div style={{ background: 'rgba(212,175,55,0.04)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.15), transparent)' }} />
+      <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase' as const, color: 'rgba(212,175,55,0.60)', marginBottom: '14px' }}>✦ LEGG TIL LENKE</div>
+      <input
+        type="url"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && addItem()}
+        placeholder="https://..."
+        style={{ width: '100%', padding: '12px 16px', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: '12px', color: '#f0ebe3', fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', fontSize: '14px', boxSizing: 'border-box' as const, marginBottom: '10px', outline: 'none' }}
+      />
+      {error && <p style={{ fontSize: '12px', color: 'rgba(255,80,80,0.80)', margin: '0 0 10px' }}>{error}</p>}
+      <button
+        onClick={addItem}
+        disabled={adding || !url.trim()}
+        style={{ width: '100%', padding: '13px', background: adding || !url.trim() ? 'rgba(212,175,55,0.30)' : '#D4AF37', color: '#0D1A17', border: 'none', borderRadius: '12px', fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', fontSize: '12px', letterSpacing: '0.20em', textTransform: 'uppercase' as const, cursor: adding || !url.trim() ? 'not-allowed' : 'pointer', transition: 'background 200ms ease' }}
+      >
+        {adding ? 'Analyserer...' : 'Lagre og analyser'}
+      </button>
+    </div>
+  )
+}
+
 export default function LibraryPage() {
   const atm = useAtmosphere()
   const [heroText, setHeroText] = useState<string | null>(null)
-
   const [savedIds, setSavedIds] = useState<string[]>([])
+  const [userItems, setUserItems] = useState<LibraryItem[]>([])
   const [activeTab, setActiveTab] = useState<'all' | 'saved' | 'ro'>('all')
 
   useEffect(() => {
-    // Åpne Pust & Ro-fanen hvis URL har ro-hash
     const hash = window.location.hash
-    if (hash && hash.startsWith('#ro-')) {
-      setActiveTab('ro')
-    }
+    if (hash && hash.startsWith('#ro-')) setActiveTab('ro')
 
     fetch('/api/library/save')
       .then(r => r.json())
@@ -117,7 +203,16 @@ export default function LibraryPage() {
         }
       })
       .catch(() => setHeroText('Kroppen din sender signaler hele dagen. Her er innhold som hjelper deg lese dem bedre.'))
+
+    fetchUserItems()
   }, [])
+
+  function fetchUserItems() {
+    fetch('/api/library/items')
+      .then(r => r.json())
+      .then(j => setUserItems(j.items ?? []))
+      .catch(() => {})
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: 'background 3s ease-in-out', color: '#fff', paddingBottom: '96px' }}>
@@ -133,15 +228,17 @@ export default function LibraryPage() {
           <div style={{ fontSize: '26px', fontWeight: 600, fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', marginBottom: '20px' }}>Ditt bibliotek</div>
         </div>
 
-        {/* Hero-kort */}
+        {/* Dagens innsikt */}
         <div style={{ background: 'rgba(212,175,55,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(212,175,55,0.18)', borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.20), transparent)' }} />
           <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.60)', marginBottom: '10px' }}>✦ DAGENS INNSIKT</div>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.80)', lineHeight: 1.6 }}>{heroText ?? 'Laster dagens signaler...'}</p>
         </div>
 
-        {/* Feed */}
-        {/* Filter-tabs */}
+        {/* URL-input */}
+        <AddUrlSection onAdded={fetchUserItems} />
+
+        {/* Tabs */}
         <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
           {(['all', 'saved', 'ro'] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{ fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === tab ? '#D4AF37' : 'rgba(255,255,255,0.30)', borderBottom: activeTab === tab ? '1px solid rgba(212,175,55,0.50)' : '1px solid transparent', paddingBottom: '4px' }}>
@@ -150,13 +247,36 @@ export default function LibraryPage() {
           ))}
         </div>
 
+        {/* Innhold */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {CARDS
-            .filter(card => activeTab === 'all' || (activeTab === 'saved' && savedIds.includes(card.id)) || (activeTab === 'ro' && ['ro-pust', 'ro-vagus', 'ro-meditasjon'].includes(card.id)))
-            .map(card => <CardItem key={card.id} card={card} initialSaved={savedIds.includes(card.id)} />)}
-          {activeTab === 'saved' && savedIds.length === 0 && (
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: '40px' }}>Ingen lagrede kort ennå. Trykk + Lagre på innhold du vil beholde.</p>
+
+          {/* Mine lagrede: bruker-tillagte items fra library_items + lagrede kuraterte kort */}
+          {activeTab === 'saved' && (
+            <>
+              {userItems.length > 0 && (
+                <>
+                  <div style={{ fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '4px' }}>Dine lenker</div>
+                  {userItems.map(item => <UserLibraryItem key={item.id} item={item} />)}
+                </>
+              )}
+              {savedIds.length > 0 && (
+                <>
+                  <div style={{ fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginTop: userItems.length > 0 ? '8px' : '0', marginBottom: '4px' }}>Lagret innhold</div>
+                  {CARDS.filter(c => savedIds.includes(c.id)).map(card => <CardItem key={card.id} card={card} initialSaved={true} />)}
+                </>
+              )}
+              {userItems.length === 0 && savedIds.length === 0 && (
+                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: '40px' }}>Ingen lagrede kort ennå. Lim inn en URL over eller trykk + Lagre på innhold.</p>
+              )}
+            </>
           )}
+
+          {/* Valgt for deg */}
+          {activeTab === 'all' && CARDS.map(card => <CardItem key={card.id} card={card} initialSaved={savedIds.includes(card.id)} />)}
+
+          {/* Pust & Ro */}
+          {activeTab === 'ro' && CARDS.filter(c => ['ro-pust', 'ro-vagus', 'ro-meditasjon'].includes(c.id)).map(card => <CardItem key={card.id} card={card} initialSaved={savedIds.includes(card.id)} />)}
+
         </div>
       </div>
 
