@@ -19,7 +19,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div style={{ width:'100%', minHeight:'100vh', background:'linear-gradient(160deg, #081609 0%, #112915 100%)', fontFamily:'"Outfit",sans-serif', color:'#fff', position:'relative', overflow:'hidden' }}>
+    <div style={{ width:'100%', minHeight:'100vh', background:"url('/images/munk-bg-leaf.jpg') center/cover fixed, #051405", fontFamily:'"Outfit",sans-serif', color:'#fff', position:'relative', overflow:'hidden' }}>
       <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
 
       <svg aria-hidden="true" style={{ position:'fixed',top:0,left:0,width:'100%',height:'100%',opacity:0.015,pointerEvents:'none',zIndex:1,mixBlendMode:'overlay' }}>
