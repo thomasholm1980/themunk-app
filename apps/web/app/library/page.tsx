@@ -218,7 +218,6 @@ export default function LibraryPage() {
     <div style={{ minHeight: '100vh', background: `linear-gradient(160deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: 'background 3s ease-in-out', color: '#fff', paddingBottom: '96px' }}>
 
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28, filter: "brightness(1.40) contrast(1.20) saturate(1.15)" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.52) 0%, rgba(8,18,16,0.60) 100%)" }} />
       </div>
       <svg aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.015, pointerEvents: 'none', zIndex: 1, mixBlendMode: 'overlay' as const }}>
