@@ -5,6 +5,19 @@ import Anthropic from '@anthropic-ai/sdk'
 
 export const runtime = 'nodejs'
 
+const USER_ID = 'thomas'
+
+function getOsloDayKey(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Oslo',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(date)
+  const day   = parts.find((p) => p.type === 'day')?.value
+  const month = parts.find((p) => p.type === 'month')?.value
+  const year  = parts.find((p) => p.type === 'year')?.value
+  return `${year}-${month}-${day}`
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -16,26 +29,30 @@ export async function GET(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
+  const day_key = getOsloDayKey()
+
   const { data: state, error } = await supabase
     .from('daily_state')
-    .select('stress_level, hrv_ms, rhr_bpm, computed_at')
-    .order('computed_at', { ascending: false })
-    .limit(1)
+    .select('state, hrv, rhr, computed_at')
+    .eq('user_id', USER_ID)
+    .eq('day_key', day_key)
     .maybeSingle()
 
   if (error || !state) {
-    console.error('[daily-greeting] ingen daily_state funnet')
+    console.error('[daily-greeting] ingen daily_state funnet', { day_key })
     return NextResponse.json({ error: 'Ingen state' }, { status: 500 })
   }
+
+  const stressLabel = state.state === 'GREEN' ? 'lavt' : state.state === 'YELLOW' ? 'moderat' : 'høyt'
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
   const prompt = `Du er Munken. En rolig, direkte stemme som tolker kroppens signaler.
 
 Dagens tilstand:
-- Stressnivaa: ${state.stress_level}
-- Hjertets rytme (HRV): ${state.hrv_ms} ms
-- Hvilepuls: ${state.rhr_bpm} bpm
+- Stressnivaa: ${stressLabel} (${state.state})
+- Hjertets rytme (HRV): ${state.hrv ?? 'ukjent'} ms
+- Hvilepuls: ${state.rhr ?? 'ukjent'} bpm
 
 Skriv en kort paaminnelse til Thomas paa norsk. Maks 3 setninger.
 1. Bare "Thomas."
@@ -84,10 +101,7 @@ Ingen introduksjoner. Ingen Hei. Ingen avslutningshilsen. Bare de tre setningene
           </tr>
           <tr>
             <td align="center" style="padding:24px 0 0;">
-              <a href="https://www.themunk.ai"
-                style="font-family:Georgia,serif;font-size:11px;color:#555;text-decoration:none;letter-spacing:1px;">
-                themunk.ai
-              </a>
+              <a href="https://www.themunk.ai" style="font-family:Georgia,serif;font-size:11px;color:#555;text-decoration:none;letter-spacing:1px;">themunk.ai</a>
             </td>
           </tr>
         </table>
