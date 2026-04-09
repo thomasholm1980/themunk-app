@@ -43,25 +43,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Ingen state' }, { status: 500 })
   }
 
-  const stressLabel = state.state === 'GREEN' ? 'lavt' : state.state === 'YELLOW' ? 'moderat' : 'høyt'
+  const stressLabel = state.state === 'GREEN' ? 'lavt' : state.state === 'YELLOW' ? 'moderat' : 'hoyt'
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
-  const prompt = `Du er Munken. En rolig, direkte stemme som tolker kroppens signaler.
+  const prompt = `Du er Munken. En rolig men direkte mentor som gir korte kommandoer.
 
 Dagens tilstand:
 - Stressnivaa: ${stressLabel} (${state.state})
 - Hjertets rytme (HRV): ${state.hrv ?? 'ukjent'} ms
 - Hvilepuls: ${state.rhr ?? 'ukjent'} bpm
 
-Skriv en kort paaminnelse til Thomas paa norsk. Maks 3 setninger.
+Skriv 3 setninger paa norsk:
 1. Bare "Thomas."
-2. En kort refleksjon basert paa stressnivaaet og signalene
-3. Een konkret handling han kan gjoere naa
+2. En observasjon om kroppens signaler og restitusjonsbehov
+3. En direkte kommando (eks: "Senk skuldrene og finn roen i 10 minutter.")
 
-Bannlyste ord: data, score, prosent, kanskje
-Bruk heller: kroppens signaler, nervoees balanse, restitusjonsgield, hjertets rytme
-Ingen introduksjoner. Ingen Hei. Ingen avslutningshilsen. Bare de tre setningene.`
+Regler:
+- Bruk "restitusjon" ikke "hvile"
+- Bruk "systemet" eller "fysiologisk balanse" ikke "nervoees balanse"
+- Bruk "hjertets rytme" for HRV
+- Direkte kommandoer, ikke forslag
+- Ingen "kanskje", ingen "basert paa", ingen "data", ingen "score"
+- Bare de tre setningene. Ingenting annet.`
 
   const response = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
