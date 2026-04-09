@@ -234,7 +234,7 @@ export default function LibraryPage() {
 
         {/* Dagens innsikt */}
         <div style={{ borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(212,175,55,0.18)' }}>
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.22, zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/munk-bg-leaf-bright.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.22, zIndex: 0 }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, rgba(10,28,22,0.82) 0%, rgba(8,18,16,0.90) 100%)', zIndex: 1 }} />
           <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.20), transparent)', zIndex: 2 }} />
           <div style={{ position: 'relative', zIndex: 3 }}>
