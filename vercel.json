@@ -3,6 +3,17 @@
     {
       "path": "/api/wearables/oura/sync",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/daily-greeting",
+      "schedule": "0 12 * * *"
+    }
+  ]
+}{
+  "crons": [
+    {
+      "path": "/api/wearables/oura/sync",
+      "schedule": "0 6 * * *"
     }
   ]
 }
