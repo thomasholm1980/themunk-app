@@ -145,6 +145,11 @@ export default function MonsterPage() {
       </div>
 
 
+
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", opacity: 0.28, filter: "brightness(1.40) contrast(1.20) saturate(1.15)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,28,22,0.52) 0%, rgba(8,18,16,0.60) 100%)" }} />
+      </div>
       <style>{`
         .ease-in { opacity: 0; transform: translateY(6px); transition: opacity 800ms cubic-bezier(.22,1,.36,1), transform 800ms cubic-bezier(.22,1,.36,1); }
         .ease-in.v { opacity: 1; transform: translateY(0); }
