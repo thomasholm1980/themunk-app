@@ -11,11 +11,11 @@ const EMAIL_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Du er på listen – The Munk</title>
 </head>
-<body style="margin:0;padding:0;background:#f5f2ee;font-family:Georgia,serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f2ee;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#051405;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#051405;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:8px;overflow:hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#0a1e0a;border-radius:12px;overflow:hidden;border:1px solid rgba(212,175,55,0.15);">
 
           <!-- Logo -->
           <tr>
@@ -24,7 +24,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
                 alt="The Munk"
                 width="56"
                 style="display:block;border-radius:50%;" />
-              <p style="margin:12px 0 0;font-family:Georgia,serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#888;">
+              <p style="margin:12px 0 0;font-family:Georgia,serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#D4AF37;">
                 THE MUNK
               </p>
             </td>
@@ -33,7 +33,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
           <!-- Title -->
           <tr>
             <td align="center" style="padding:0 40px 8px;">
-              <h1 style="margin:0;font-family:Georgia,serif;font-size:26px;font-weight:400;color:#1a1a1a;line-height:1.3;">
+              <h1 style="margin:0;font-family:Georgia,serif;font-size:28px;font-weight:400;color:#ffffff;line-height:1.3;">
                 Du er på listen.
               </h1>
             </td>
@@ -42,37 +42,37 @@ const EMAIL_HTML = `<!DOCTYPE html>
           <!-- Divider -->
           <tr>
             <td align="center" style="padding:16px 40px;">
-              <div style="width:40px;height:1px;background:#d4c9b8;"></div>
+              <div style="width:40px;height:1px;background:#D4AF37;opacity:0.4;"></div>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
             <td style="padding:0 40px 16px;">
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Hei,</p>
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Du er nå på ventelisten til The Munk.</p>
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">The Munk er bygget for å hjelpe deg å forstå stresset ditt bedre – ikke bare se tall.</p>
-              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Ved å bruke data fra wearables som klokker, helseringer og armbånd, tolker The Munk signalene fra kroppen din og gjør dem lettere å forstå i en travel hverdag.</p>
-              <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Vi kombinerer fysiologiske data med generativ AI for å gi deg en roligere og mer menneskelig forståelse av:</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Hei,</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Du er nå på ventelisten til The Munk.</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">The Munk er bygget for å hjelpe deg å forstå stresset ditt bedre – ikke bare se tall.</p>
+              <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Ved å bruke data fra wearables som klokker, helseringer og armbånd, tolker The Munk signalene fra kroppen din og gjør dem lettere å forstå i en travel hverdag.</p>
+              <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Vi kombinerer fysiologiske data med generativ AI for å gi deg en roligere og mer menneskelig forståelse av:</p>
 
               <ul style="margin:0 0 20px;padding-left:24px;">
                 <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvordan kroppen din faktisk har det</li>
                 <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;margin-bottom:6px;">hvorfor dagen kjennes som den gjør</li>
-                <li style="font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">og hva du bør gjøre videre</li>
+                <li style="font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">og hva du bør gjøre videre</li>
               </ul>
 
-              <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Målet er enkelt:</p>
-              <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Å gjøre stress tydeligere, roligere og mer håndterbart.</p>
-              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">Vi sier ifra så snart vi åpner.</p>
-              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:#2a2a2a;line-height:1.75;">– Thomas, Founder of The Munk</p>
+              <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Målet er enkelt:</p>
+              <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Å gjøre stress tydeligere, roligere og mer håndterbart.</p>
+              <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Vi sier ifra så snart vi åpner.</p>
+              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">– Thomas, Founder of The Munk</p>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
             <td align="center" style="padding:32px 40px 40px;">
-              <div style="width:40px;height:1px;background:#d4c9b8;margin-bottom:20px;"></div>
-              <a href="https://www.themunk.ai" style="font-family:Georgia,serif;font-size:12px;color:#aaa;text-decoration:none;letter-spacing:1px;">themunk.ai</a>
+              <div style="width:40px;height:1px;background:rgba(212,175,55,0.3);margin-bottom:20px;"></div>
+              <a href="https://www.themunk.ai" style="font-family:Georgia,serif;font-size:12px;color:rgba(212,175,55,0.6);text-decoration:none;letter-spacing:2px;text-transform:uppercase;">themunk.ai</a>
             </td>
           </tr>
 
