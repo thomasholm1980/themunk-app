@@ -300,6 +300,11 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
   return (
     <div className={`min-h-screen min-h-[100dvh] w-full relative overflow-hidden ${bgClass}`}
       style={{ background: `radial-gradient(circle at 50% 30%, rgba(45,90,70,0.18) 0%, transparent 55%), linear-gradient(180deg, ${atm.gradientFrom} 0%, ${atm.gradientTo} 100%)`, transition: "background 12s ease-in-out" }}>
+      {/* Forest background */}
+      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none" }}>
+        <div style={{ position:"absolute", inset:0, backgroundImage:"url('/images/munk-bg-forest.jpg')", backgroundSize:"cover", backgroundPosition:"center", backgroundAttachment:"fixed", opacity:0.18 }} />
+        <div style={{ position:"absolute", inset:0, background:"linear-gradient(180deg, rgba(10,28,22,0.55) 0%, rgba(8,18,16,0.65) 100%)" }} />
+      </div>
 
       {/* Grain texture */}
       <svg aria-hidden="true" style={{ position:"fixed",top:0,left:0,width:"100%",height:"100%",opacity:0.015,pointerEvents:"none",zIndex:1,mixBlendMode:"overlay" }}>

@@ -229,10 +229,14 @@ export default function LibraryPage() {
         </div>
 
         {/* Dagens innsikt */}
-        <div style={{ background: 'rgba(212,175,55,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(212,175,55,0.18)', borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.20), transparent)' }} />
+        <div style={{ borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(212,175,55,0.18)' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/munk-bg-leaf.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.22, zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, rgba(10,28,22,0.82) 0%, rgba(8,18,16,0.90) 100%)', zIndex: 1 }} />
+          <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.20), transparent)', zIndex: 2 }} />
+          <div style={{ position: 'relative', zIndex: 3 }}>
           <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.60)', marginBottom: '10px' }}>✦ DAGENS INNSIKT</div>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.80)', lineHeight: 1.6 }}>{heroText ?? 'Laster dagens signaler...'}</p>
+          </div>
         </div>
 
         {/* URL-input */}
