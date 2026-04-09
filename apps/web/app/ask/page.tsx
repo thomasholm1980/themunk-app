@@ -125,7 +125,7 @@ export default function AskPage() {
         textarea::placeholder { color: rgba(255,255,255,0.70) !important; font-weight: 500; }
       `}</style>
 
-      <div className="w-full max-w-sm flex flex-col" style={{ background: "rgba(0,20,0,0.40)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: "24px", padding: "24px 20px", border: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="w-full max-w-sm flex flex-col" style={{ background: "rgba(0,20,0,0.15)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRadius: "24px", padding: "24px 20px" }}>
 
         {/* ← Tilbake */}
         <button
@@ -193,14 +193,14 @@ export default function AskPage() {
         {/* Headline */}
         <div style={{
           textAlign: 'center', fontSize: '21px', fontWeight: 600,
-          lineHeight: 1.25, color: 'rgba(255,255,255,0.96)',
+          lineHeight: 1.25, color: 'rgba(255,255,255,0.96)', textShadow: '0 1px 3px rgba(0,0,0,0.8)',
           letterSpacing: '-0.01em', marginBottom: '10px',
         }}>
           Få en rolig forklaring på stresset ditt
         </div>
         <div style={{
           textAlign: 'center', fontSize: '14px', fontWeight: 400,
-          lineHeight: 1.45, color: 'rgba(255,255,255,0.85)',
+          lineHeight: 1.45, color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 3px rgba(0,0,0,0.8)',
           marginTop: '4px', marginBottom: '0',
         }}>
           Dagens signaler er klare. Nå kan du spørre hva de betyr.
