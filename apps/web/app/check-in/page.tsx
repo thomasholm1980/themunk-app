@@ -173,11 +173,9 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
                 </div>
               </div>
             )}
-            {hasOpenedOura && (
-              <button onClick={onWake} style={{ marginTop:"28px",background:"none",border:"none",color:"rgba(255,255,255,0.30)",fontSize:"13px",letterSpacing:"0.08em",cursor:"pointer",padding:"8px" }}>
-                Prøv igjen →
-              </button>
-            )}
+            <button onClick={onWake} style={{ marginTop:"28px",background:"none",border:"none",color:"rgba(212,175,55,0.60)",fontSize:"13px",letterSpacing:"0.08em",cursor:"pointer",padding:"8px" }}>
+              Jeg har synket Oura – sjekk på nytt
+            </button>
           </div>
         )}
       </div>
