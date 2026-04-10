@@ -4,6 +4,7 @@ import MunkDailyBriefRatnaV2 from "../components/MunkDailyBriefRatnaV2";
 import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
 import { logMorningEvent } from "../../lib/telemetry";
 import { useAtmosphere } from "../../hooks/useAtmosphere";
+import LegalOnboarding from "../components/LegalOnboarding";
 
 const USER_ID = "thomas";
 const WAKE_POLL_INTERVAL_MS = 3000;
@@ -43,6 +44,7 @@ const LOADING_MESSAGES = [
 ];
 
 function AtmosphereOrbs() {
+
   return (
     <>
       {/* Grain texture — opacity 0.015 */}
@@ -194,6 +196,14 @@ function ReadyBanner({ onDismiss }: { onDismiss: () => void }) {
 
 export default function CheckInPage() {
   const [mode, setMode] = useState<Mode>("idle");
+  const [consentChecked, setConsentChecked] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetch('/api/legal-consent', { headers: { 'x-user-id': USER_ID } })
+      .then(r => r.json())
+      .then(d => setConsentChecked(d.consented === true))
+      .catch(() => setConsentChecked(false));
+  }, []);
   const [ratnaContract, setRatnaContract] = useState<RatnaContract | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [dateLabel, setDateLabel] = useState("");
@@ -303,5 +313,9 @@ export default function CheckInPage() {
       </>
     );
   }
+  if (consentChecked === null) return null;
+  if (consentChecked === false) return (
+    <LegalOnboarding userId={USER_ID} onConsented={() => setConsentChecked(true)} />
+  );
   return <WaitingState onWake={handleWake} mode={mode} />;
 }
