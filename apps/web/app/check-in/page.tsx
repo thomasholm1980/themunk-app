@@ -148,9 +148,9 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
         {mode === "idle" && (
           <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay:"200ms" }}>
             <p className="munk-heading" style={{ fontSize:"30px",lineHeight:1.2 }}>
-              {timeBucket==="morning"?"God morgen":timeBucket==="day"?"Munken er våken":"Munken roer ned"}
+              {IS_DEMO ? "The Munk is ready" : (timeBucket==="morning"?"God morgen":timeBucket==="day"?"Munken er våken":"Munken roer ned")}
             </p>
-            <p style={{ fontSize:"16px",color:"rgba(255,255,255,0.45)" }}>Trykk for å se dagens stressnivå.</p>
+            <p style={{ fontSize:"16px",color:"rgba(255,255,255,0.45)" }}>{IS_DEMO ? "Tap to see your stress level." : "Trykk for å se dagens stressnivå."}</p>
             <button onClick={onWake} style={ghostButton}>
               {IS_DEMO ? "Meet the Munk" : (timeBucket==="morning"?"Vekk munken":"Møt munken")}
             </button>
