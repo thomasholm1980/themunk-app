@@ -5,8 +5,9 @@ import type { RatnaContract } from "../components/MunkDailyBriefRatnaV2";
 import { logMorningEvent } from "../../lib/telemetry";
 import { useAtmosphere } from "../../hooks/useAtmosphere";
 import LegalOnboarding from "../components/LegalOnboarding";
+import { IS_DEMO, DEMO_CONTRACT, DEMO_USER_ID } from "../../lib/mockData";
 
-const USER_ID = "thomas";
+const USER_ID = IS_DEMO ? DEMO_USER_ID : "thomas";
 const WAKE_POLL_INTERVAL_MS = 3000;
 const WAKE_POLL_MAX_MS = 20000;
 
@@ -303,6 +304,23 @@ export default function CheckInPage() {
       }, WAKE_POLL_INTERVAL_MS);
     }
     run();
+  }
+
+  const demoBadge = IS_DEMO ? (
+    <div style={{ position: "fixed", top: "12px", left: "50%", transform: "translateX(-50%)", zIndex: 999,
+      background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.30)",
+      borderRadius: "20px", padding: "4px 14px", fontSize: "11px",
+      color: "rgba(212,175,55,0.80)", letterSpacing: "0.08em" }}>
+      Munk Demo Mode – Simulerte data
+    </div>
+  ) : null;
+
+  if (IS_DEMO && mode !== "ready") {
+    return (<>{demoBadge}<WaitingState onWake={() => {
+      setRatnaContract({ state: DEMO_CONTRACT.state, insight: DEMO_CONTRACT.insight,
+        guidance: DEMO_CONTRACT.guidance, hrv: DEMO_CONTRACT.hrv_rmssd, rhr: DEMO_CONTRACT.resting_hr });
+      setMode("ready");
+    }} mode={mode} /></>);
   }
 
   if (mode==="ready"&&ratnaContract) {
