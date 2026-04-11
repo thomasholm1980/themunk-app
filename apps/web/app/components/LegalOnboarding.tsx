@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { IS_DEMO } from '../../lib/mockData'
 
 interface Props {
   userId: string
@@ -9,7 +10,7 @@ interface Props {
 export default function LegalOnboarding({ userId, onConsented }: Props) {
   const [checked, setChecked] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [lang, setLang] = useState<'no' | 'en'>('no')
+  const [lang, setLang] = useState<'no' | 'en'>(IS_DEMO ? 'en' : 'no')
 
   async function handleAccept() {
     if (!checked) return

@@ -152,20 +152,20 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
             </p>
             <p style={{ fontSize:"16px",color:"rgba(255,255,255,0.45)" }}>Trykk for å se dagens stressnivå.</p>
             <button onClick={onWake} style={ghostButton}>
-              {timeBucket==="morning"?"Vekk munken":"Møt munken"}
+              {IS_DEMO ? "Meet the Munk" : (timeBucket==="morning"?"Vekk munken":"Møt munken")}
             </button>
           </div>
         )}
         {mode === "no_data" && (
           <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay:"0ms" }}>
             <p style={{ fontSize:"22px",color:"rgba(255,255,255,0.90)",lineHeight:1.35,maxWidth:"280px" }}>
-              Munken venter på kroppens signaler
+              {IS_DEMO ? "The Munk awaits your body's signals" : "Munken venter på kroppens signaler"}
             </p>
             <p style={{ fontSize:"15px",color:"rgba(255,255,255,0.50)",maxWidth:"260px",lineHeight:1.65 }}>
-              Åpne Oura-appen for å bekrefte at ringen din har synkronisert dagens data.
+              {IS_DEMO ? "Open the Oura app to confirm your ring has synced today's data." : "Åpne Oura-appen for å bekrefte at ringen din har synkronisert dagens data."}
             </p>
             <button onClick={openOura} style={{ ...ghostButton,marginTop:"8px",color:"#D4AF37",borderColor:"rgba(212,175,55,0.30)" }}>
-              Åpne Oura
+              {IS_DEMO ? "Open Oura" : "Åpne Oura"}
             </button>
             {showStoreFallback && (
               <div className="fade-in flex flex-col items-center gap-2" style={{ marginTop:"24px" }}>
@@ -177,7 +177,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
               </div>
             )}
             <button onClick={onWake} style={{ marginTop:"28px",background:"none",border:"none",color:"rgba(212,175,55,0.60)",fontSize:"13px",letterSpacing:"0.08em",cursor:"pointer",padding:"8px" }}>
-              Jeg har synket Oura – sjekk på nytt
+              {IS_DEMO ? "I have synced Oura – check again" : "Jeg har synket Oura – sjekk på nytt"}
             </button>
           </div>
         )}
@@ -306,13 +306,49 @@ export default function CheckInPage() {
     run();
   }
 
+  const osloHour = (() => {
+    const parts = new Intl.DateTimeFormat("no", {
+      timeZone: "Europe/Oslo", hour: "numeric", hour12: false
+    }).formatToParts(new Date());
+    return parseInt(parts.find(p => p.type === "hour")?.value ?? "12");
+  })();
+
+  const demoTimeBlock = IS_DEMO && mode === "ready" ? (() => {
+    if (osloHour >= 12 && osloHour < 15) return {
+      label: "MERIDIAN CHECK-IN",
+      title: "Stoisk pivot — midt i dagen",
+      text: "Halvparten av dagen er bak deg. Nervesystemet ditt viser moderat belastning. Nå er det tid for ett bevisst valg: hva slipper du, og hva beholder du frem til kvelden?"
+    };
+    if (osloHour >= 20 && osloHour < 23) return {
+      label: "EVENING REFLECTION",
+      title: "Kvelden tilhører restitusjonen",
+      text: "Kroppen din har gjort jobben. HRV på 52ms tilsier at du er klar for dyp restitusjon. Slipp dagens agenda. Det som ikke ble gjort i dag, var ikke ment for i dag."
+    };
+    return null;
+  })() : null;
+
   const demoBadge = IS_DEMO ? (
-    <div style={{ position: "fixed", top: "12px", left: "50%", transform: "translateX(-50%)", zIndex: 999,
-      background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.30)",
-      borderRadius: "20px", padding: "4px 14px", fontSize: "11px",
-      color: "rgba(212,175,55,0.80)", letterSpacing: "0.08em" }}>
-      Munk Demo Mode – Simulerte data
-    </div>
+    <>
+      <div style={{ position: "fixed", top: "12px", left: "50%", transform: "translateX(-50%)", zIndex: 999,
+        background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.30)",
+        borderRadius: "20px", padding: "4px 14px", fontSize: "11px",
+        color: "rgba(212,175,55,0.80)", letterSpacing: "0.08em" }}>
+        Munk Demo Mode – Simulated data for evaluation
+      </div>
+      {demoTimeBlock && (
+        <div style={{ position: "fixed", bottom: "100px", left: "50%", transform: "translateX(-50%)",
+          zIndex: 999, width: "90%", maxWidth: "360px",
+          background: "rgba(10,28,22,0.92)", backdropFilter: "blur(20px)",
+          border: "1px solid rgba(212,175,55,0.25)", borderRadius: "16px",
+          padding: "20px 24px" }}>
+          <p style={{ color: "#D4AF37", fontSize: "10px", letterSpacing: "0.15em",
+            textTransform: "uppercase", marginBottom: "8px" }}>{demoTimeBlock.label}</p>
+          <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "17px",
+            fontFamily: "var(--font-crimson)", marginBottom: "10px" }}>{demoTimeBlock.title}</p>
+          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "13px", lineHeight: 1.7 }}>{demoTimeBlock.text}</p>
+        </div>
+      )}
+    </>
   ) : null;
 
   if (IS_DEMO && mode !== "ready") {
