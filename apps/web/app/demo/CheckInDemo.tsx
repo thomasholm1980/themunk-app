@@ -1,16 +1,84 @@
 'use client'
-import { useState, useEffect } from 'react'
-import MunkDailyBriefRatnaV2 from '../components/MunkDailyBriefRatnaV2'
+import { useEffect, useState } from 'react'
 import { DEMO_CONTRACT } from '../../lib/mockData'
 
-type Mode = "idle" | "ready"
+type SystemState = "GREEN" | "YELLOW" | "RED"
+
+const STATE_LABEL: Record<SystemState, string> = {
+  GREEN:  "Well recovered",
+  YELLOW: "Moderate stress",
+  RED:    "High stress",
+}
+
+const NOW_TEXT: Record<SystemState, Record<string, string>> = {
+  GREEN: {
+    morning: "You start the day in good balance.",
+    day:     "Your body remains stable through the day.",
+    evening: "You have used little of your reserves today.",
+  },
+  YELLOW: {
+    morning: "Your heart beats a little stiffer today. The nervous system did not fully recover overnight — you start with a stress carryover.",
+    day:     "Stress is still present in the body. You have been working since early — now the nervous system needs a break.",
+    evening: "The day has cost more than the body managed to recover. Tonight's sleep will resolve the remaining stress.",
+  },
+  RED: {
+    morning: "The body is already under load before the day begins.",
+    day:     "Stress level is high — the body is under pressure right now.",
+    evening: "Today's load is still present in the body.",
+  },
+}
+
+const ACTION_TEXT: Record<SystemState, Record<string, string>> = {
+  GREEN: {
+    morning: "Use your energy — today you can handle more.",
+    day:     "Keep the pace. You have margin.",
+    evening: "Good evening for early sleep — build on the surplus.",
+  },
+  YELLOW: {
+    morning: "Light movement, plenty of rest. Let the body warm up before loading it.",
+    day:     "Take a break before you need one. Stress does not resolve by working harder.",
+    evening: "No screens, no demanding conversations. The body needs calm to recover from today.",
+  },
+  RED: {
+    morning: "Postpone what can wait. Start slowly.",
+    day:     "Lower the intensity. The body cannot handle more right now.",
+    evening: "No screens, no demanding conversations. Only rest.",
+  },
+}
+
+function getTimeBucket(): string {
+  const hour = parseInt(
+    new Intl.DateTimeFormat("en", {
+      timeZone: "Europe/Oslo",
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date()), 10
+  )
+  if (hour >= 4 && hour < 11) return "morning"
+  if (hour >= 11 && hour < 17) return "day"
+  return "evening"
+}
 
 export default function CheckInDemo() {
-  const [mode, setMode] = useState<Mode>("idle")
-  const [ratnaContract, setRatnaContract] = useState<any>(null)
+  const [mode, setMode] = useState<"idle" | "ready">("idle")
+  const [mounted, setMounted] = useState(false)
+  const [timeBucket, setTimeBucket] = useState("morning")
+
+  useEffect(() => {
+    setTimeBucket(getTimeBucket())
+    requestAnimationFrame(() => setMounted(true))
+  }, [])
+
+  const state = DEMO_CONTRACT.state as SystemState
+  const hrv = DEMO_CONTRACT.hrv_rmssd
+  const rhr = DEMO_CONTRACT.resting_hr
+  const insight = DEMO_CONTRACT.insight
+  const guidance = DEMO_CONTRACT.guidance
+  const nowText = NOW_TEXT[state][timeBucket]
+  const actionText = ACTION_TEXT[state][timeBucket]
 
   const osloHour = (() => {
-    const parts = new Intl.DateTimeFormat("no", {
+    const parts = new Intl.DateTimeFormat("en", {
       timeZone: "Europe/Oslo", hour: "numeric", hour12: false
     }).formatToParts(new Date())
     return parseInt(parts.find(p => p.type === "hour")?.value ?? "12")
@@ -20,7 +88,7 @@ export default function CheckInDemo() {
     if (osloHour >= 12 && osloHour < 15) return {
       label: "MERIDIAN CHECK-IN",
       title: "Stoic pivot — midday",
-      text: "Half the day is behind you. Your nervous system shows moderate load. Now is the time for one conscious choice: what do you release, and what do you carry forward?"
+      text: "Half the day is behind you. Your nervous system shows moderate load. Now is the time for one conscious choice: what do you release, and what do you carry forward to the evening?"
     }
     if (osloHour >= 20 && osloHour < 23) return {
       label: "EVENING REFLECTION",
@@ -30,38 +98,31 @@ export default function CheckInDemo() {
     return null
   })()
 
-  function handleWake() {
-    setRatnaContract({
-      state: DEMO_CONTRACT.state,
-      insight: DEMO_CONTRACT.insight,
-      guidance: DEMO_CONTRACT.guidance,
-      hrv: DEMO_CONTRACT.hrv_rmssd,
-      rhr: DEMO_CONTRACT.resting_hr
-    })
-    setMode("ready")
-  }
-
   const today = new Date().toLocaleDateString("en-GB", {
     weekday: "long", day: "numeric", month: "long"
   })
 
   return (
-    <main style={{
+    <div style={{
       minHeight: "100vh", width: "100%", position: "relative",
-      display: "flex", flexDirection: "column", alignItems: "center",
-      justifyContent: "center", overflow: "hidden",
-      fontFamily: '"Crimson Pro", serif'
+      overflow: "hidden", fontFamily: '"Crimson Pro", serif',
+      background: "linear-gradient(180deg, #0a1c16 0%, #081210 100%)"
     }}>
-      <div style={{
-        position: "fixed", inset: 0, zIndex: 0,
-        backgroundImage: "url('/images/munk-bg-leaf.jpg')",
-        backgroundSize: "cover", backgroundPosition: "center",
-        opacity: 0.28, filter: "brightness(1.40) contrast(1.20) saturate(1.15)"
-      }} />
-      <div style={{
-        position: "fixed", inset: 0, zIndex: 0,
-        background: "linear-gradient(180deg, rgba(10,28,22,0.52) 0%, rgba(8,18,16,0.60) 100%)"
-      }} />
+      {/* Background */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: "url('/images/munk-bg-leaf-bright.jpg')",
+          backgroundSize: "cover", backgroundPosition: "center",
+          opacity: 0.28, filter: "brightness(1.40) contrast(1.20) saturate(1.15)"
+        }} />
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(180deg, rgba(10,28,22,0.55) 0%, rgba(8,18,16,0.65) 100%)"
+        }} />
+      </div>
+
+      {/* Demo badge */}
       <div style={{
         position: "fixed", top: "12px", left: "50%", transform: "translateX(-50%)",
         zIndex: 999, background: "rgba(212,175,55,0.15)",
@@ -72,62 +133,254 @@ export default function CheckInDemo() {
         Munk Demo Mode – Simulated data for evaluation
       </div>
 
-      {mode === "ready" && ratnaContract ? (
-        <>
-          {timeBlock && (
-            <div style={{
-              position: "fixed", bottom: "100px", left: "50%", transform: "translateX(-50%)",
-              zIndex: 999, width: "90%", maxWidth: "360px",
-              background: "rgba(10,28,22,0.92)", backdropFilter: "blur(20px)",
-              border: "1px solid rgba(212,175,55,0.25)", borderRadius: "16px",
-              padding: "20px 24px"
-            }}>
-              <p style={{ color: "#D4AF37", fontSize: "10px", letterSpacing: "0.15em",
-                textTransform: "uppercase", marginBottom: "8px" }}>{timeBlock.label}</p>
-              <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "17px",
-                marginBottom: "10px" }}>{timeBlock.title}</p>
-              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "13px",
-                lineHeight: 1.7 }}>{timeBlock.text}</p>
-            </div>
-          )}
-          <MunkDailyBriefRatnaV2
-            contract={ratnaContract}
-            dateLabel={today}
-            onRendered={() => {}}
-          />
-        </>
-      ) : (
+      {/* Content */}
+      <div style={{
+        width: "100%", display: "flex", alignItems: "flex-start",
+        justifyContent: "center", paddingBottom: "96px", minHeight: "100vh"
+      }}>
         <div style={{
-          position: "relative", zIndex: 10, display: "flex", flexDirection: "column",
-          alignItems: "center", gap: "24px", textAlign: "center", padding: "0 24px"
+          width: "100%", maxWidth: "560px", display: "flex",
+          flexDirection: "column", alignItems: "center",
+          textAlign: "center", padding: "0 20px"
         }}>
-          <div style={{ position: "relative" }}>
+
+          {/* Date */}
+          <div style={{
+            fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
+            color: "#ffffff", paddingTop: "52px", marginBottom: "8px"
+          }}>
+            {today}
+          </div>
+
+          {/* Munk figure */}
+          <div style={{ position: "relative", marginBottom: "4px", marginTop: "-4vh" }}>
             <div style={{
-              position: "absolute", top: "50%", left: "50%",
-              width: "140px", height: "140px", borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%)",
-              filter: "blur(30px)", transform: "translate(-50%, -50%)"
+              position: "absolute", top: "42%", left: "50%",
+              width: "70px", height: "70px", borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(255,160,50,0.85) 0%, rgba(255,100,20,0.4) 40%, transparent 70%)",
+              transform: "translate(-50%, -50%)", pointerEvents: "none"
             }} />
             <img src="/assets/munk-transparent.png" alt="The Munk"
-              style={{ width: "180px", position: "relative", zIndex: 1 }} />
+              style={{ width: "160px", position: "relative", zIndex: 1 }} />
           </div>
-          <h1 style={{ fontSize: "26px", color: "rgba(255,255,255,0.95)",
-            fontWeight: 400, margin: 0 }}>
-            The Munk is ready
-          </h1>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)", margin: 0 }}>
-            Tap to see your stress level.
-          </p>
-          <button onClick={handleWake} style={{
-            background: "none", border: "1px solid rgba(255,255,255,0.20)",
-            borderRadius: "24px", color: "rgba(255,255,255,0.80)",
-            fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase",
-            padding: "14px 32px", cursor: "pointer", marginTop: "8px"
-          }}>
-            Meet the Munk
-          </button>
+
+          {mode === "idle" ? (
+            <>
+              <h1 style={{
+                fontSize: "26px", color: "rgba(255,255,255,0.95)",
+                fontWeight: 400, margin: "16px 0 8px"
+              }}>
+                The Munk is ready
+              </h1>
+              <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)", margin: "0 0 24px" }}>
+                Tap to see your stress level.
+              </p>
+              <button onClick={() => setMode("ready")} style={{
+                background: "none", border: "1px solid rgba(255,255,255,0.20)",
+                borderRadius: "24px", color: "rgba(255,255,255,0.80)",
+                fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase",
+                padding: "14px 32px", cursor: "pointer"
+              }}>
+                Meet the Munk
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Stress level */}
+              <div style={{ marginTop: "12px", marginBottom: "4px" }}>
+                <div style={{
+                  fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase",
+                  color: "rgba(212,175,55,0.40)", marginBottom: "8px", fontWeight: 600
+                }}>
+                  Stress level
+                </div>
+                <div style={{
+                  fontSize: "34px", lineHeight: 1.15, fontWeight: 500,
+                  color: "rgba(255,255,255,0.95)",
+                  fontFamily: "var(--font-crimson), ui-serif, Georgia, serif"
+                }}>
+                  {STATE_LABEL[state]}
+                </div>
+              </div>
+
+              {/* HRV + RHR */}
+              <div style={{
+                display: "flex", justifyContent: "center", gap: "48px",
+                marginTop: "12px", marginBottom: "4px", opacity: 0.85
+              }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <span style={{
+                    fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.3em",
+                    color: "rgba(212,175,55,0.55)", marginBottom: "4px"
+                  }}>HRV (Oura)</span>
+                  <span style={{
+                    fontSize: "20px", fontWeight: 500, fontStyle: "italic",
+                    color: "rgba(255,255,255,0.90)",
+                    fontFamily: "var(--font-crimson), ui-serif, Georgia, serif"
+                  }}>{hrv} ms</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <span style={{
+                    fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.3em",
+                    color: "rgba(212,175,55,0.55)", marginBottom: "4px"
+                  }}>Resting HR (Oura)</span>
+                  <span style={{
+                    fontSize: "20px", fontWeight: 500, fontStyle: "italic",
+                    color: "rgba(255,255,255,0.90)",
+                    fontFamily: "var(--font-crimson), ui-serif, Georgia, serif"
+                  }}>{rhr} bpm</span>
+                </div>
+              </div>
+
+              {/* Insight card */}
+              <div style={{
+                marginTop: "20px", width: "100%",
+                background: "rgba(255,255,255,0.06)", backdropFilter: "blur(30px)",
+                border: "1px solid rgba(255,255,255,0.10)", borderRadius: "28px",
+                padding: "22px 24px", position: "relative", overflow: "hidden"
+              }}>
+                <div style={{
+                  position: "absolute", inset: "0 0 auto 0", height: "1px",
+                  background: "linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)"
+                }} />
+                <div style={{
+                  fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase",
+                  color: "rgba(255,255,255,0.40)", marginBottom: "12px", fontWeight: 600
+                }}>
+                  Body signals
+                </div>
+                <div style={{
+                  fontSize: "16px", color: "rgba(255,255,255,0.85)", lineHeight: 1.7,
+                  marginBottom: "16px"
+                }}>
+                  {nowText}
+                </div>
+
+                <button style={{
+                  width: "100%", marginBottom: "20px", borderRadius: "16px",
+                  fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.3em",
+                  fontWeight: 600, padding: "14px",
+                  background: "rgba(212,175,55,0.90)", color: "#0d1a15",
+                  cursor: "pointer", border: "none"
+                }}>
+                  Ask The Munk about your signals →
+                </button>
+
+                <div style={{
+                  width: "100%", height: "1px", marginBottom: "12px",
+                  background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)"
+                }} />
+                <div style={{
+                  fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase",
+                  color: "rgba(212,175,55,0.50)", marginBottom: "8px", fontWeight: 600
+                }}>
+                  Do now
+                </div>
+                <div style={{
+                  fontSize: "16px", fontWeight: 600, color: "rgba(255,255,255,0.95)"
+                }}>
+                  {actionText}
+                </div>
+              </div>
+
+              {/* Stoic insight */}
+              {insight && (
+                <div style={{
+                  marginTop: "16px", width: "100%",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px",
+                  padding: "18px 22px"
+                }}>
+                  <div style={{
+                    fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase",
+                    color: "rgba(212,175,55,0.40)", marginBottom: "10px", fontWeight: 600
+                  }}>
+                    The Munk's reading
+                  </div>
+                  <div style={{
+                    fontSize: "15px", color: "rgba(255,255,255,0.75)",
+                    lineHeight: 1.75, fontStyle: "italic"
+                  }}>
+                    {insight}
+                  </div>
+                </div>
+              )}
+
+              {/* Guidance */}
+              <div style={{
+                marginTop: "16px", width: "100%",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px",
+                padding: "18px 22px"
+              }}>
+                <div style={{
+                  fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase",
+                  color: "rgba(212,175,55,0.40)", marginBottom: "10px", fontWeight: 600
+                }}>
+                  Today's guidance
+                </div>
+                <div style={{
+                  fontSize: "15px", color: "rgba(255,255,255,0.75)", lineHeight: 1.75
+                }}>
+                  {guidance}
+                </div>
+              </div>
+
+              {/* Time block */}
+              {timeBlock && (
+                <div style={{
+                  marginTop: "16px", width: "100%",
+                  background: "rgba(212,175,55,0.06)",
+                  border: "1px solid rgba(212,175,55,0.20)", borderRadius: "20px",
+                  padding: "18px 22px"
+                }}>
+                  <div style={{
+                    fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase",
+                    color: "#D4AF37", marginBottom: "8px"
+                  }}>
+                    {timeBlock.label}
+                  </div>
+                  <div style={{
+                    fontSize: "17px", color: "rgba(255,255,255,0.95)", marginBottom: "10px"
+                  }}>
+                    {timeBlock.title}
+                  </div>
+                  <div style={{
+                    fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.7
+                  }}>
+                    {timeBlock.text}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
-      )}
-    </main>
+      </div>
+
+      {/* Bottom nav */}
+      <nav style={{
+        position: "fixed", bottom: 0, left: 0, right: 0,
+        display: "flex", justifyContent: "space-around", alignItems: "center",
+        height: "72px", padding: "0 32px",
+        background: "rgba(8,18,16,0.85)", backdropFilter: "blur(20px)",
+        borderTop: "1px solid rgba(255,255,255,0.06)"
+      }}>
+        {[
+          { label: "Today",   href: "/demo"    },
+          { label: "Pattern", href: "/monster" },
+          { label: "Library", href: "/library" },
+        ].map(tab => (
+          <button key={tab.label} onClick={() => window.location.href = tab.href}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase",
+              color: tab.href === "/demo" ? "#D4AF37" : "rgba(255,255,255,0.30)",
+              fontWeight: tab.href === "/demo" ? 500 : 400
+            }}>
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+    </div>
   )
 }
