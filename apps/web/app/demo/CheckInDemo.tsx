@@ -176,10 +176,10 @@ export default function CheckInDemo() {
                 Tap to see your stress level.
               </p>
               <button onClick={() => setMode("ready")} style={{
-                background: "none", border: "1px solid rgba(255,255,255,0.20)",
-                borderRadius: "24px", color: "rgba(255,255,255,0.80)",
+                background: "rgba(212,175,55,0.90)", border: "none",
+                borderRadius: "24px", color: "#0d1a15",
                 fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase",
-                padding: "14px 32px", cursor: "pointer"
+                padding: "14px 32px", cursor: "pointer", fontWeight: 600
               }}>
                 Meet the Munk
               </button>
