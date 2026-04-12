@@ -176,7 +176,7 @@ export default function CheckInDemo() {
                 Tap to see your stress level.
               </p>
               <button onClick={() => setMode("ready")} style={{
-                background: "rgba(212,175,55,0.90)", border: "none",
+                background: "#D4AF37", border: "none",
                 borderRadius: "24px", color: "#0d1a15",
                 fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase",
                 padding: "14px 32px", cursor: "pointer", fontWeight: 600
