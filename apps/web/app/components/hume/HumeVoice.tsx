@@ -44,6 +44,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
           onTranscript(data.message?.content ?? '')
         }
         
+        console.log('[Hume] message received:', data.type, JSON.stringify(data).slice(0, 200))
         if (data.type === 'assistant_message') {
           const emotions: EmotionScore[] = data.models?.prosody?.scores
             ? Object.entries(data.models.prosody.scores)
