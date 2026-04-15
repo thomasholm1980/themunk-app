@@ -45,10 +45,10 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
     setState('connecting')
     try {
       const res = await fetch('/api/hume/token')
-      const { token } = await res.json()
+      const { token, api_key } = await res.json()
 
       const ws = new WebSocket(
-        `wss://api.hume.ai/v0/evi/chat?access_token=${token}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
+        `wss://api.hume.ai/v0/evi/chat?api_key=${api_key}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
       )
       wsRef.current = ws
 
@@ -56,18 +56,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
         setState('listening')
         console.log('[Hume] WebSocket connected')
 
-        ws.send(JSON.stringify({
-          type: 'session_settings',
-          system_prompt: {
-            text: 'You are The Munk, a Stoic AI mentor. Listen carefully and respond with empathy and stoic wisdom. Keep responses brief and powerful.'
-          },
-          audio: {
-            encoding: 'linear16',
-            sample_rate: 16000,
-            channels: 1
-          }
-        }))
-        console.log('[Hume] session_settings sent (linear16, 16kHz)')
+        console.log('[Hume] connected, using api_key + config_id from URL')
 
         startMicrophone()
       }

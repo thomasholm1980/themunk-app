@@ -22,7 +22,7 @@ export async function GET() {
     }
     const data = JSON.parse(raw)
     const tokenLength = (data.access_token || '').length
-    return NextResponse.json({ token: data.access_token, token_length: tokenLength, keys_in_response: Object.keys(data) })
+    return NextResponse.json({ token: data.access_token, api_key: apiKey })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
