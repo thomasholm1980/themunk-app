@@ -27,7 +27,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
       const { api_key } = await res.json()
 
       const ws = new WebSocket(
-        \`wss://api.hume.ai/v0/evi/chat?api_key=\${api_key}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206\`
+        `wss://api.hume.ai/v0/evi/chat?api_key=${api_key}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
       )
       wsRef.current = ws
 
