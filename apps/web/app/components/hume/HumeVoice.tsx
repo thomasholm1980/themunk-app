@@ -13,65 +13,46 @@ interface Props {
   onTranscript: (text: string) => void
 }
 
-// AudioWorklet processor code as inline string
-const PCM_PROCESSOR = `
-class PCMProcessor extends AudioWorkletProcessor {
-  process(inputs) {
-    const input = inputs[0]
-    if (input && input[0]) {
-      const float32 = input[0]
-      const int16 = new Int16Array(float32.length)
-      for (let i = 0; i < float32.length; i++) {
-        const s = Math.max(-1, Math.min(1, float32[i]))
-        int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF
-      }
-      this.port.postMessage(int16.buffer, [int16.buffer])
-    }
-    return true
-  }
-}
-registerProcessor('pcm-processor', PCMProcessor)
-`
-
 export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
   const [state, setState] = useState<HumeState>('idle')
   const [error, setError] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
-  const audioContextRef = useRef<AudioContext | null>(null)
-  const workletNodeRef = useRef<AudioWorkletNode | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
   async function startSession() {
     setState('connecting')
     try {
       const res = await fetch('/api/hume/token')
-      const { token, api_key } = await res.json()
+      const { api_key } = await res.json()
 
       const ws = new WebSocket(
-        `wss://api.hume.ai/v0/evi/chat?api_key=${api_key}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
+        \`wss://api.hume.ai/v0/evi/chat?api_key=\${api_key}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206\`
       )
       wsRef.current = ws
 
       ws.onopen = () => {
         setState('listening')
         console.log('[Hume] WebSocket connected')
-
         console.log('[Hume] connected, using api_key + config_id from URL')
-
         startMicrophone()
       }
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data)
-        console.log('[Hume] received:', data.type, JSON.stringify(data).slice(0, 300))
+        console.log('[Hume] received:', data.type)
+
+        if (data.type === 'chat_metadata') {
+          console.log('[Hume] chat_id:', data.chat_id)
+        }
 
         if (data.type === 'user_message') {
           onTranscript(data.message?.content ?? '')
-          console.log('[Hume] user transcript:', data.message?.content)
+          console.log('[Hume] user said:', data.message?.content)
         }
 
         if (data.type === 'assistant_message') {
-          console.log('[Hume] assistant_message received!')
+          console.log('[Hume] assistant:', data.message?.content)
           const emotions: EmotionScore[] = data.models?.prosody?.scores
             ? Object.entries(data.models.prosody.scores)
                 .map(([name, score]) => ({ name, score: score as number }))
@@ -82,8 +63,12 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
           if (emotions.length > 0) onEmotionDetected(emotions)
         }
 
+        if (data.type === 'audio_output') {
+          // Audio playback - ignore for now, focus on emotions
+        }
+
         if (data.type === 'error') {
-          console.error('[Hume] error from server:', data)
+          console.error('[Hume] server error:', data)
         }
       }
 
@@ -109,42 +94,31 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 16000,
-          channelCount: 1,
           echoCancellation: true,
-          noiseSuppression: true
+          noiseSuppression: true,
+          autoGainControl: true
         }
       })
       streamRef.current = stream
 
-      const audioContext = new AudioContext({ sampleRate: 16000 })
-      audioContextRef.current = audioContext
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      mediaRecorderRef.current = recorder
 
-      const blob = new Blob([PCM_PROCESSOR], { type: 'application/javascript' })
-      const url = URL.createObjectURL(blob)
-      await audioContext.audioWorklet.addModule(url)
-      URL.revokeObjectURL(url)
-
-      const source = audioContext.createMediaStreamSource(stream)
-      const workletNode = new AudioWorkletNode(audioContext, 'pcm-processor')
-      workletNodeRef.current = workletNode
-
-      workletNode.port.onmessage = (e) => {
-        const pcmBuffer = e.data as ArrayBuffer
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          const base64 = btoa(
-            String.fromCharCode(...new Uint8Array(pcmBuffer))
-          )
-          wsRef.current.send(JSON.stringify({
-            type: 'audio_input',
-            data: base64
-          }))
+      recorder.ondataavailable = (e) => {
+        if (wsRef.current?.readyState === WebSocket.OPEN && e.data.size > 0) {
+          e.data.arrayBuffer().then(buffer => {
+            const bytes = new Uint8Array(buffer)
+            const base64 = btoa(String.fromCharCode(...bytes))
+            wsRef.current?.send(JSON.stringify({
+              type: 'audio_input',
+              data: base64
+            }))
+          })
         }
       }
 
-      source.connect(workletNode)
-      workletNode.connect(audioContext.destination)
-      console.log('[Hume] microphone started (PCM linear16, 16kHz)')
+      recorder.start(100)
+      console.log('[Hume] microphone started (webm, 100ms chunks)')
 
     } catch (err) {
       console.error('[Hume] microphone error:', err)
@@ -154,8 +128,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
   }
 
   function stopSession() {
-    workletNodeRef.current?.disconnect()
-    audioContextRef.current?.close()
+    mediaRecorderRef.current?.stop()
     streamRef.current?.getTracks().forEach(t => t.stop())
     wsRef.current?.close()
     setState('idle')
