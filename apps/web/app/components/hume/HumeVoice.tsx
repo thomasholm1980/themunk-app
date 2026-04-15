@@ -34,6 +34,12 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
 
       ws.onopen = () => {
         setState('listening')
+        // Send session config with system prompt
+        ws.send(JSON.stringify({
+          type: 'session_settings',
+          system_prompt: 'You are The Munk, a Stoic AI mentor. Listen carefully and respond with empathy and stoic wisdom. Keep responses brief and powerful.',
+          audio: { encoding: 'webm/opus', sample_rate: 48000 }
+        }))
         startMicrophone()
       }
 
