@@ -91,7 +91,14 @@ export async function POST() {
         )
 
       if (wearableError) {
-        results.push({ day_key, status: 'wearable_error' })
+        console.error('[backfill] wearable_logs insert failed', {
+          day_key,
+          code: wearableError.code,
+          message: wearableError.message,
+          details: wearableError.details,
+          hint: wearableError.hint,
+        })
+        results.push({ day_key, status: 'wearable_error', error: wearableError.message })
         continue
       }
 
