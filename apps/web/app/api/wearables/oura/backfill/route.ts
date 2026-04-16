@@ -55,7 +55,7 @@ export async function POST() {
   })
 
   const dayKeys = getOsloDayKeys(BACKFILL_DAYS)
-  const results: { day_key: string; status: string }[] = []
+  const results: { day_key: string; status: string; error?: string }[] = []
 
   for (const day_key of dayKeys) {
     try {
