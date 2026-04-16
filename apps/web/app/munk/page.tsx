@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import HumeVoice from '../components/hume/HumeVoice'
+import HumeConsentModal from '../components/hume/HumeConsentModal'
 import { analyzeDissonance, DissonanceResult, HumeEmotions, OuraContext } from '../../lib/dissonanceEngine'
 import { startBinaural, stopBinaural } from '../../lib/binauralEngine'
 
@@ -12,6 +13,9 @@ export default function MunkPage() {
   const [transcript, setTranscript] = useState<string>('')
   const [ouraContext, setOuraContext] = useState<OuraContext | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [consentChecked, setConsentChecked] = useState(false)
+  const [hasConsent, setHasConsent] = useState(false)
+  const [showConsentModal, setShowConsentModal] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -29,6 +33,17 @@ export default function MunkPage() {
         }
       })
       .catch(() => {})
+
+    // Check Hume biometric consent status
+    fetch('/api/consents/hume/status')
+      .then(r => r.json())
+      .then(data => {
+        setHasConsent(data.consented === true)
+        setConsentChecked(true)
+      })
+      .catch(() => {
+        setConsentChecked(true)
+      })
   }, [])
 
   function handleEmotionDetected(emotions: { name: string; score: number }[]) {
@@ -108,10 +123,37 @@ export default function MunkPage() {
               </p>
             )}
             <div style={{ marginTop: '8px' }}>
-              <HumeVoice
-                onEmotionDetected={handleEmotionDetected}
-                onTranscript={t => { setTranscript(t); setPageState('listening') }}
-              />
+              {hasConsent ? (
+                <HumeVoice
+                  onEmotionDetected={handleEmotionDetected}
+                  onTranscript={t => { setTranscript(t); setPageState('listening') }}
+                />
+              ) : (
+                <button
+                  onClick={() => setShowConsentModal(true)}
+                  disabled={!consentChecked}
+                  style={{
+                    background: 'rgba(212,175,55,0.20)',
+                    color: 'rgba(255,255,255,0.60)',
+                    border: '1px solid rgba(212,175,55,0.40)',
+                    borderRadius: '50%',
+                    width: '80px',
+                    height: '80px',
+                    fontSize: '28px',
+                    cursor: consentChecked ? 'pointer' : 'wait',
+                    opacity: consentChecked ? 1 : 0.5,
+                    boxShadow: 'none'
+                  }}
+                  title="Emotion analysis requires consent"
+                >
+                  \uD83D\uDD12
+                </button>
+              )}
+              {!hasConsent && consentChecked && (
+                <p style={{ fontSize: '11px', color: 'rgba(212,175,55,0.60)', marginTop: '12px', letterSpacing: '0.05em' }}>
+                  Tap to review and enable voice emotion analysis
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -168,6 +210,16 @@ export default function MunkPage() {
           </div>
         )}
       </div>
+
+      {showConsentModal && (
+        <HumeConsentModal
+          onConsented={() => {
+            setHasConsent(true)
+            setShowConsentModal(false)
+          }}
+          onDeclined={() => setShowConsentModal(false)}
+        />
+      )}
     </div>
   )
 }
