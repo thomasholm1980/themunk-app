@@ -457,46 +457,6 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         </div>
       </div>
 
-      {/* Fixed Bottom Navigation */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 flex justify-around items-center px-8"
-        style={{
-          height: "72px",
-          background: "rgba(8,18,16,0.85)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        {[
-          { id: "idag",    label: "I dag",    href: "/check-in" },
-          { id: "monster", label: "Mønster",  href: "/monster"  },
-          { id: "ro",      label: "Bibliotek", href: "/library"  },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id as typeof activeTab);
-              window.location.href = tab.href;
-            }}
-            className="flex flex-col items-center gap-1"
-          >
-            {activeTab === tab.id && (
-              <div style={{ width:"4px", height:"4px", background:"#D4AF37", borderRadius:"50%", marginBottom:"2px" }} />
-            )}
-            {activeTab !== tab.id && <div style={{ width:"4px", height:"4px", marginBottom:"2px" }} />}
-            <span
-              className="text-[11px] tracking-[0.18em] uppercase"
-              style={{
-                color: activeTab === tab.id ? "#D4AF37" : "rgba(255,255,255,0.30)",
-                fontWeight: activeTab === tab.id ? 500 : 400,
-              }}
-            >
-              {tab.label}
-            </span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   );
