@@ -24,17 +24,17 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
     setState('connecting')
     try {
       const res = await fetch('/api/hume/token')
-      const { api_key } = await res.json()
+      const { access_token } = await res.json()
 
       const ws = new WebSocket(
-        `wss://api.hume.ai/v0/evi/chat?api_key=${api_key}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
+        `wss://api.hume.ai/v0/evi/chat?access_token=${access_token}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
       )
       wsRef.current = ws
 
       ws.onopen = () => {
         setState('listening')
         console.log('[Hume] WebSocket connected')
-        console.log('[Hume] connected, using api_key + config_id from URL')
+        console.log('[Hume] connected, using access_token + config_id from URL')
         startMicrophone()
       }
 
@@ -43,23 +43,19 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
         console.log('[Hume] received:', data.type)
 
         if (data.type === 'chat_metadata') {
-          console.log('[Hume] chat_id:', data.chat_id)
         }
 
         if (data.type === 'user_message') {
           onTranscript(data.message?.content ?? '')
-          console.log('[Hume] user said:', data.message?.content)
         }
 
         if (data.type === 'assistant_message') {
-          console.log('[Hume] assistant:', data.message?.content)
           const emotions: EmotionScore[] = data.models?.prosody?.scores
             ? Object.entries(data.models.prosody.scores)
                 .map(([name, score]) => ({ name, score: score as number }))
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 3)
             : []
-          console.log('[Hume] top emotions:', emotions)
           if (emotions.length > 0) onEmotionDetected(emotions)
         }
 

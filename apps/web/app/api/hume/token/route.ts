@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
+
 export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const apiKey = process.env.HUME_API_KEY
   const secretKey = process.env.HUME_SECRET_KEY
+
   if (!apiKey || !secretKey) {
-    return NextResponse.json({ error: 'keys missing' }, { status: 500 })
+    return NextResponse.json({ error: 'hume_not_configured' }, { status: 500 })
   }
+
   try {
     const credentials = Buffer.from(apiKey + ':' + secretKey).toString('base64')
     const res = await fetch('https://api.hume.ai/oauth2-cc/token', {
@@ -14,16 +18,25 @@ export async function GET() {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': 'Basic ' + credentials
       },
-      body: 'grant_type=client_credentials'
+      body: 'grant_type=client_credentials',
+      cache: 'no-store'
     })
-    const raw = await res.text()
+
     if (!res.ok) {
-      return NextResponse.json({ error: 'hume_rejected', status: res.status, body: raw.slice(0, 500) }, { status: res.status })
+      return NextResponse.json({ error: 'hume_auth_failed', status: res.status }, { status: res.status })
     }
-    const data = JSON.parse(raw)
-    const tokenLength = (data.access_token || '').length
-    return NextResponse.json({ token: data.access_token, api_key: apiKey })
+
+    const data = await res.json()
+
+    if (!data.access_token) {
+      return NextResponse.json({ error: 'no_access_token' }, { status: 500 })
+    }
+
+    return NextResponse.json(
+      { access_token: data.access_token, expires_in: data.expires_in },
+      { headers: { 'Cache-Control': 'no-store' } }
+    )
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'token_fetch_failed' }, { status: 500 })
   }
 }
