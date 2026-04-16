@@ -14,8 +14,6 @@ interface Props {
   onAssistantMessage?: (text: string) => void
 }
 
-// CHANGED: Norwegian error messages mapped from server error codes.
-// Keeps UI calm, in Munkens stemme, never exposes technical state to the user.
 function norwegianErrorFor(code: string | undefined): string {
   switch (code) {
     case 'quota_exhausted':
@@ -46,14 +44,30 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
   const playbackContextRef = useRef<AudioContext | null>(null)
   const audioQueueRef = useRef<Array<ArrayBuffer>>([])
   const isPlayingRef = useRef<boolean>(false)
+  // NEW: track active audio source so we can stop it on user interruption
+  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null)
+
+  // NEW: stop any audio currently playing AND clear queued chunks
+  function stopAudioPlayback() {
+    audioQueueRef.current = []
+    if (activeSourceRef.current) {
+      try {
+        activeSourceRef.current.onended = null
+        activeSourceRef.current.stop()
+      } catch (e) {
+        // already stopped or never started
+      }
+      activeSourceRef.current = null
+    }
+    isPlayingRef.current = false
+  }
 
   async function startSession() {
     setState('connecting')
-    setError(null) // CHANGED: reset previous error on retry
+    setError(null)
     try {
       const res = await fetch('/api/hume/token')
 
-      // CHANGED: Read server error code and map to Norwegian before continuing.
       if (!res.ok) {
         let code: string | undefined
         try {
@@ -67,22 +81,23 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
 
       const { access_token } = await res.json()
 
-      // CHANGED: Guard against missing token even on 200 response.
       if (!access_token) {
         setState('error')
         setError(norwegianErrorFor('no_access_token'))
         return
       }
 
+      // CHANGED: added &verbose_transcription=true so Hume sends interim user_messages
+      // as soon as the user starts speaking (Fix C). This is required for fast interruption.
       const ws = new WebSocket(
-        `wss://api.hume.ai/v0/evi/chat?access_token=${access_token}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
+        `wss://api.hume.ai/v0/evi/chat?access_token=${access_token}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206&verbose_transcription=true`
       )
       wsRef.current = ws
 
       ws.onopen = () => {
         setState('listening')
         console.log('[Hume] WebSocket connected')
-        console.log('[Hume] connected, using access_token + config_id from URL')
+        console.log('[Hume] connected, using access_token + config_id + verbose_transcription')
         startMicrophone()
       }
 
@@ -93,8 +108,24 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
         if (data.type === 'chat_metadata') {
         }
 
+        // NEW: explicit interruption handling (Fix B core)
+        // When Hume detects the user is speaking while Aria is talking,
+        // it sends user_interruption. We must stop playback immediately.
+        if (data.type === 'user_interruption') {
+          console.log('[Hume] user interrupted — stopping playback')
+          stopAudioPlayback()
+        }
+
         if (data.type === 'user_message') {
-          onTranscript(data.message?.content ?? '')
+          // CHANGED: ignore interim transcripts upstream; only forward final ones to parent.
+          // Interim messages are still useful internally — they trigger early playback stop.
+          const isInterim = data.message?.interim === true || data.interim === true
+          if (isInterim) {
+            // Interim arriving = user is speaking now. Stop Aria immediately.
+            stopAudioPlayback()
+          } else {
+            onTranscript(data.message?.content ?? '')
+          }
         }
 
         if (data.type === 'assistant_message') {
@@ -132,7 +163,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
       ws.onerror = (e) => {
         console.error('[Hume] WebSocket error:', e)
         setState('error')
-        setError(norwegianErrorFor('connection_failed')) // CHANGED: Norwegian
+        setError(norwegianErrorFor('connection_failed'))
       }
 
       ws.onclose = (e) => {
@@ -143,7 +174,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     } catch (err) {
       console.error('[Hume] session start failed:', err)
       setState('error')
-      setError(norwegianErrorFor('connection_failed')) // CHANGED: Norwegian
+      setError(norwegianErrorFor('connection_failed'))
     }
   }
 
@@ -191,10 +222,11 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     } catch (err) {
       console.error('[Hume] microphone error:', err)
       setState('error')
-      setError(norwegianErrorFor('mic_denied')) // CHANGED: Norwegian
+      setError(norwegianErrorFor('mic_denied'))
     }
   }
 
+  // CHANGED: track activeSourceRef so stopAudioPlayback can interrupt mid-buffer
   async function playNextAudio() {
     if (isPlayingRef.current || audioQueueRef.current.length === 0) return
     isPlayingRef.current = true
@@ -211,10 +243,12 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
         const source = ctx.createBufferSource()
         source.buffer = audioBuffer
         source.connect(ctx.destination)
+        activeSourceRef.current = source // NEW
         await new Promise<void>((resolve) => {
           source.onended = () => resolve()
           source.start()
         })
+        activeSourceRef.current = null // NEW
       }
     } catch (e) {
       console.error('[Hume] audio playback error')
@@ -227,15 +261,13 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     mediaRecorderRef.current?.stop()
     streamRef.current?.getTracks().forEach(t => t.stop())
     wsRef.current?.close()
+    stopAudioPlayback() // NEW: ensure no orphaned audio after stop
     playbackContextRef.current?.close()
     playbackContextRef.current = null
-    audioQueueRef.current = []
-    isPlayingRef.current = false
     setState('idle')
     console.log('[Hume] session stopped')
   }
 
-  // CHANGED: Norwegian state labels
   const stateLabel = {
     idle: 'Trykk for å snakke med Aria',
     connecting: 'Kobler til…',
