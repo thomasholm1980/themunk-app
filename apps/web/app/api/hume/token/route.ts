@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
+function classifyHumeStatus(status: number): string {
+  if (status === 401 || status === 403) return 'auth_failed'
+  if (status === 402) return 'quota_exhausted'
+  if (status === 429) return 'rate_limited'
+  if (status >= 500) return 'hume_unavailable'
+  return 'hume_auth_failed'
+}
+
 export async function GET() {
   const apiKey = process.env.HUME_API_KEY
   const secretKey = process.env.HUME_SECRET_KEY
@@ -23,7 +31,8 @@ export async function GET() {
     })
 
     if (!res.ok) {
-      return NextResponse.json({ error: 'hume_auth_failed', status: res.status }, { status: res.status })
+      const code = classifyHumeStatus(res.status)
+      return NextResponse.json({ error: code, status: res.status }, { status: res.status })
     }
 
     const data = await res.json()
