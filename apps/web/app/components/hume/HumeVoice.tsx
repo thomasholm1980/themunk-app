@@ -115,7 +115,19 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
       })
       streamRef.current = stream
 
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      // Choose best mimeType: webm for desktop, mp4 for mobile Safari/iOS
+      let mimeType = 'audio/webm'
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus'
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm'
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4'
+        }
+      }
+      console.log('[Hume] using mimeType:', mimeType)
+      const recorder = new MediaRecorder(stream, { mimeType })
       mediaRecorderRef.current = recorder
 
       recorder.ondataavailable = (e) => {
