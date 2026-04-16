@@ -116,8 +116,11 @@ export default function MunkPage() {
             <h1 style={{ fontSize: '28px', color: 'rgba(255,255,255,0.95)', fontWeight: 400, margin: 0 }}>
               Tell me how you are.
             </h1>
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.7 }}>
-              Speak freely. The Munk listens to both your words and your body.
+            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', margin: 0, lineHeight: 1.7, maxWidth: '360px' }}>
+              <span style={{ color: '#D4AF37', fontStyle: 'italic' }}>Aria</span> er Munkens stemme. Hun lytter til deg — både det du sier og hvordan du sier det.
+            </p>
+            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.40)', margin: 0, lineHeight: 1.7 }}>
+              Pust rolig. Ta din tid.
             </p>
             {!ouraContext && (
               <p style={{ fontSize: '12px', color: 'rgba(212,175,55,0.50)', margin: 0 }}>
