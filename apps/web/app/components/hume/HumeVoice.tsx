@@ -14,6 +14,29 @@ interface Props {
   onAssistantMessage?: (text: string) => void
 }
 
+// CHANGED: Norwegian error messages mapped from server error codes.
+// Keeps UI calm, in Munkens stemme, never exposes technical state to the user.
+function norwegianErrorFor(code: string | undefined): string {
+  switch (code) {
+    case 'quota_exhausted':
+      return 'Aria hviler litt nå. Prøv igjen senere.'
+    case 'rate_limited':
+      return 'Aria trenger et øyeblikk. Prøv igjen om et minutt.'
+    case 'auth_failed':
+    case 'hume_unavailable':
+    case 'hume_not_configured':
+    case 'hume_auth_failed':
+    case 'no_access_token':
+    case 'token_fetch_failed':
+      return 'Aria er utilgjengelig akkurat nå.'
+    case 'mic_denied':
+      return 'Aria trenger tilgang til mikrofonen for å lytte.'
+    case 'connection_failed':
+    default:
+      return 'Aria er utilgjengelig akkurat nå.'
+  }
+}
+
 export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistantMessage }: Props) {
   const [state, setState] = useState<HumeState>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -26,9 +49,30 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
 
   async function startSession() {
     setState('connecting')
+    setError(null) // CHANGED: reset previous error on retry
     try {
       const res = await fetch('/api/hume/token')
+
+      // CHANGED: Read server error code and map to Norwegian before continuing.
+      if (!res.ok) {
+        let code: string | undefined
+        try {
+          const body = await res.json()
+          code = body?.error
+        } catch { /* ignore parse failure */ }
+        setState('error')
+        setError(norwegianErrorFor(code))
+        return
+      }
+
       const { access_token } = await res.json()
+
+      // CHANGED: Guard against missing token even on 200 response.
+      if (!access_token) {
+        setState('error')
+        setError(norwegianErrorFor('no_access_token'))
+        return
+      }
 
       const ws = new WebSocket(
         `wss://api.hume.ai/v0/evi/chat?access_token=${access_token}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206`
@@ -67,7 +111,6 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
         }
 
         if (data.type === 'audio_output' && data.data) {
-          // Queue audio for playback
           try {
             const binaryString = atob(data.data)
             const bytes = new Uint8Array(binaryString.length)
@@ -89,7 +132,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
       ws.onerror = (e) => {
         console.error('[Hume] WebSocket error:', e)
         setState('error')
-        setError('Connection failed')
+        setError(norwegianErrorFor('connection_failed')) // CHANGED: Norwegian
       }
 
       ws.onclose = (e) => {
@@ -100,7 +143,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     } catch (err) {
       console.error('[Hume] session start failed:', err)
       setState('error')
-      setError('Could not start session')
+      setError(norwegianErrorFor('connection_failed')) // CHANGED: Norwegian
     }
   }
 
@@ -115,7 +158,6 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
       })
       streamRef.current = stream
 
-      // Choose best mimeType: webm for desktop, mp4 for mobile Safari/iOS
       let mimeType = 'audio/webm'
       if (typeof MediaRecorder !== 'undefined') {
         if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
@@ -149,7 +191,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     } catch (err) {
       console.error('[Hume] microphone error:', err)
       setState('error')
-      setError('Microphone access failed')
+      setError(norwegianErrorFor('mic_denied')) // CHANGED: Norwegian
     }
   }
 
@@ -193,12 +235,13 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     console.log('[Hume] session stopped')
   }
 
+  // CHANGED: Norwegian state labels
   const stateLabel = {
-    idle: 'Start voice session',
-    connecting: 'Connecting...',
-    listening: 'Listening \u2014 tap to stop',
-    processing: 'Processing...',
-    error: error ?? 'Error'
+    idle: 'Trykk for å snakke med Aria',
+    connecting: 'Kobler til…',
+    listening: 'Aria lytter — trykk for å stoppe',
+    processing: 'Aria tenker…',
+    error: error ?? 'Aria er utilgjengelig akkurat nå.'
   }
 
   return (
@@ -222,7 +265,14 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
       >
         {state === 'listening' ? '\u23F9' : '\uD83C\uDF99'}
       </button>
-      <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.50)', letterSpacing: '0.1em' }}>
+      <p style={{
+        fontSize: '12px',
+        color: state === 'error' ? 'rgba(212,55,55,0.85)' : 'rgba(255,255,255,0.50)',
+        letterSpacing: '0.05em',
+        textAlign: 'center',
+        maxWidth: '280px',
+        lineHeight: '1.4'
+      }}>
         {stateLabel[state]}
       </p>
     </div>
