@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 export async function GET(request: Request) {
   try {
@@ -12,7 +14,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ consented: false, error: 'supabase_not_configured' }, { status: 500 })
     }
 
-    const supabase = createClient(supabaseUrl, serviceKey)
+    const supabase = createClient(supabaseUrl, serviceKey, { global: { fetch: (url: any, opts: any) => fetch(url, { ...opts, cache: 'no-store' }) } })
     const userIdHeader = request.headers.get('x-user-id') || '00000000-0000-0000-0000-000000000000'
 
     const { data, error } = await supabase
