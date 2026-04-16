@@ -12,6 +12,7 @@ export default function MunkPage() {
   const [result, setResult] = useState<DissonanceResult | null>(null)
   const [transcript, setTranscript] = useState<string>('')
   const [ouraContext, setOuraContext] = useState<OuraContext | null>(null)
+  const [biometricContext, setBiometricContext] = useState<{state:string;hrv:number|null;rhr:number|null;final_score:number|null;sleep_score?:number|null;readiness_score?:number|null} | null>(null)
   const [mounted, setMounted] = useState(false)
   const [consentChecked, setConsentChecked] = useState(false)
   const [hasConsent, setHasConsent] = useState(false)
@@ -24,12 +25,24 @@ export default function MunkPage() {
     fetch('/api/state/today')
       .then(r => r.json())
       .then(data => {
-        if (data.hrv && data.rhr) {
+        const hrv = data.hrv_rmssd ?? data.hrv ?? null
+        const rhr = data.resting_hr ?? data.rhr ?? null
+        if (hrv && rhr) {
           setOuraContext({
-            hrv: data.hrv,
-            hrv_7day_avg: data.hrv * 1.15, // fallback estimate
-            rhr: data.rhr,
-            rhr_baseline: data.rhr * 0.95
+            hrv,
+            hrv_7day_avg: hrv * 1.15,
+            rhr,
+            rhr_baseline: rhr * 0.95
+          })
+        }
+        if (data.state) {
+          setBiometricContext({
+            state: data.state,
+            hrv,
+            rhr,
+            final_score: data.final_score ?? null,
+            sleep_score: data.sleep_score ?? null,
+            readiness_score: data.readiness_score ?? null,
           })
         }
       })
@@ -133,6 +146,7 @@ export default function MunkPage() {
                   onEmotionDetected={handleEmotionDetected}
                   onTranscript={t => { setTranscript(t); setPageState('listening') }}
                   onAssistantMessage={msg => setAssistantMessages(prev => [...prev, msg])}
+                  biometricContext={biometricContext}
                 />
               ) : (
                 <button
@@ -202,6 +216,7 @@ export default function MunkPage() {
               onEmotionDetected={handleEmotionDetected}
               onTranscript={t => setTranscript(t)}
               onAssistantMessage={msg => setAssistantMessages(prev => [...prev, msg])}
+              biometricContext={biometricContext}
             />
           </div>
         )}

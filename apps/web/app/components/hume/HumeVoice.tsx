@@ -8,10 +8,20 @@ type EmotionScore = {
 
 type HumeState = 'idle' | 'connecting' | 'listening' | 'processing' | 'error'
 
+interface BiometricContext {
+  state: string
+  hrv: number | null
+  rhr: number | null
+  final_score: number | null
+  sleep_score?: number | null
+  readiness_score?: number | null
+}
+
 interface Props {
   onEmotionDetected: (emotions: EmotionScore[]) => void
   onTranscript: (text: string) => void
   onAssistantMessage?: (text: string) => void
+  biometricContext?: BiometricContext | null
 }
 
 function norwegianErrorFor(code: string | undefined): string {
@@ -35,7 +45,7 @@ function norwegianErrorFor(code: string | undefined): string {
   }
 }
 
-export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistantMessage }: Props) {
+export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistantMessage, biometricContext }: Props) {
   const [state, setState] = useState<HumeState>('idle')
   const [error, setError] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
@@ -98,6 +108,23 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
         setState('listening')
         console.log('[Hume] WebSocket connected')
         console.log('[Hume] connected, using access_token + config_id + verbose_transcription')
+        if (biometricContext) {
+          const parts: string[] = []
+          parts.push(`Current state: ${biometricContext.state}`)
+          if (biometricContext.final_score != null) parts.push(`Stress score: ${biometricContext.final_score}/100`)
+          if (biometricContext.hrv != null) parts.push(`HRV: ${biometricContext.hrv} ms`)
+          if (biometricContext.rhr != null) parts.push(`Resting heart rate: ${biometricContext.rhr} bpm`)
+          if (biometricContext.sleep_score != null) parts.push(`Sleep score: ${biometricContext.sleep_score}`)
+          if (biometricContext.readiness_score != null) parts.push(`Readiness score: ${biometricContext.readiness_score}`)
+          const contextText = `User biometric snapshot from Oura today. ${parts.join('. ')}. Reference these exact numbers when the user asks about how they are doing.`
+          ws.send(JSON.stringify({
+            type: 'session_settings',
+            context: { text: contextText, type: 'persistent' }
+          }))
+          console.log('[Hume] sent biometric context:', contextText)
+        } else {
+          console.log('[Hume] no biometric context available')
+        }
         startMicrophone()
       }
 
