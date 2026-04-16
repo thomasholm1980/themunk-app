@@ -16,6 +16,7 @@ export default function MunkPage() {
   const [consentChecked, setConsentChecked] = useState(false)
   const [hasConsent, setHasConsent] = useState(false)
   const [showConsentModal, setShowConsentModal] = useState(false)
+  const [assistantMessages, setAssistantMessages] = useState<string[]>([])
 
   useEffect(() => {
     setMounted(true)
@@ -62,6 +63,7 @@ export default function MunkPage() {
     stopBinaural()
     setResult(null)
     setTranscript('')
+    setAssistantMessages([])
     setPageState('idle')
   }
 
@@ -127,6 +129,7 @@ export default function MunkPage() {
                 <HumeVoice
                   onEmotionDetected={handleEmotionDetected}
                   onTranscript={t => { setTranscript(t); setPageState('listening') }}
+                  onAssistantMessage={msg => setAssistantMessages(prev => [...prev, msg])}
                 />
               ) : (
                 <button
@@ -169,9 +172,33 @@ export default function MunkPage() {
                 "{transcript}"
               </p>
             )}
+            {assistantMessages.length > 0 && (
+              <div style={{
+                maxWidth: '400px',
+                width: '100%',
+                background: 'rgba(212,175,55,0.08)',
+                border: '1px solid rgba(212,175,55,0.20)',
+                borderRadius: '16px',
+                padding: '20px',
+                marginTop: '8px'
+              }}>
+                {assistantMessages.slice(-3).map((msg, i) => (
+                  <p key={i} style={{
+                    fontSize: '16px',
+                    color: 'rgba(255,255,255,0.92)',
+                    lineHeight: 1.7,
+                    margin: i > 0 ? '12px 0 0 0' : 0,
+                    fontStyle: 'italic'
+                  }}>
+                    — {msg}
+                  </p>
+                ))}
+              </div>
+            )}
             <HumeVoice
               onEmotionDetected={handleEmotionDetected}
               onTranscript={t => setTranscript(t)}
+              onAssistantMessage={msg => setAssistantMessages(prev => [...prev, msg])}
             />
           </div>
         )}

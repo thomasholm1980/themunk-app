@@ -11,14 +11,18 @@ type HumeState = 'idle' | 'connecting' | 'listening' | 'processing' | 'error'
 interface Props {
   onEmotionDetected: (emotions: EmotionScore[]) => void
   onTranscript: (text: string) => void
+  onAssistantMessage?: (text: string) => void
 }
 
-export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
+export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistantMessage }: Props) {
   const [state, setState] = useState<HumeState>('idle')
   const [error, setError] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const playbackContextRef = useRef<AudioContext | null>(null)
+  const audioQueueRef = useRef<Array<ArrayBuffer>>([])
+  const isPlayingRef = useRef<boolean>(false)
 
   async function startSession() {
     setState('connecting')
@@ -57,10 +61,24 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
                 .slice(0, 3)
             : []
           if (emotions.length > 0) onEmotionDetected(emotions)
+          if (onAssistantMessage && data.message?.content) {
+            onAssistantMessage(data.message.content)
+          }
         }
 
-        if (data.type === 'audio_output') {
-          // Audio playback - ignore for now, focus on emotions
+        if (data.type === 'audio_output' && data.data) {
+          // Queue audio for playback
+          try {
+            const binaryString = atob(data.data)
+            const bytes = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i)
+            }
+            audioQueueRef.current.push(bytes.buffer)
+            playNextAudio()
+          } catch (e) {
+            console.error('[Hume] audio decode failed')
+          }
         }
 
         if (data.type === 'error') {
@@ -123,10 +141,42 @@ export default function HumeVoice({ onEmotionDetected, onTranscript }: Props) {
     }
   }
 
+  async function playNextAudio() {
+    if (isPlayingRef.current || audioQueueRef.current.length === 0) return
+    isPlayingRef.current = true
+
+    try {
+      if (!playbackContextRef.current) {
+        playbackContextRef.current = new AudioContext()
+      }
+      const ctx = playbackContextRef.current
+
+      while (audioQueueRef.current.length > 0) {
+        const buffer = audioQueueRef.current.shift()!
+        const audioBuffer = await ctx.decodeAudioData(buffer.slice(0))
+        const source = ctx.createBufferSource()
+        source.buffer = audioBuffer
+        source.connect(ctx.destination)
+        await new Promise<void>((resolve) => {
+          source.onended = () => resolve()
+          source.start()
+        })
+      }
+    } catch (e) {
+      console.error('[Hume] audio playback error')
+    } finally {
+      isPlayingRef.current = false
+    }
+  }
+
   function stopSession() {
     mediaRecorderRef.current?.stop()
     streamRef.current?.getTracks().forEach(t => t.stop())
     wsRef.current?.close()
+    playbackContextRef.current?.close()
+    playbackContextRef.current = null
+    audioQueueRef.current = []
+    isPlayingRef.current = false
     setState('idle')
     console.log('[Hume] session stopped')
   }
