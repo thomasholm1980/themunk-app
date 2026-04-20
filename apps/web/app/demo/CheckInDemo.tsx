@@ -118,7 +118,7 @@ export default function CheckInDemo() {
         }} />
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(10,28,22,0.55) 0%, rgba(8,18,16,0.65) 100%)"
+          background: "linear-gradient(180deg, rgba(10,28,22,0.75) 0%, rgba(8,18,16,0.82) 100%)"
         }} />
       </div>
 
