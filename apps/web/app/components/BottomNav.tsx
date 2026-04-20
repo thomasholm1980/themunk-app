@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 
 // Routes where the bottom nav should be HIDDEN.
 // /munk is intentionally hidden so Aria sessions feel uninterrupted.
-const HIDDEN_ON = ['/munk']
+const HIDDEN_ON = ['/munk', '/demo']
 
 export default function BottomNav() {
   const pathname = usePathname()
