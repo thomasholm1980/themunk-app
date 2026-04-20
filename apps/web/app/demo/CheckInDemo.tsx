@@ -167,7 +167,7 @@ export default function CheckInDemo() {
           {mode === "idle" ? (
             <>
               <h1 style={{
-                fontSize: "34px", color: "#ffffff", fontWeight: 600, textShadow: "0 2px 30px rgba(0,0,0,0.8), 0 0 60px rgba(0,0,0,0.4)",
+                fontSize: "34px", color: "#ffffff", textShadow: "0 2px 30px rgba(0,0,0,0.8), 0 0 60px rgba(0,0,0,0.4)",
                 fontWeight: 400, margin: "16px 0 8px"
               }}>
                 The Munk is ready
