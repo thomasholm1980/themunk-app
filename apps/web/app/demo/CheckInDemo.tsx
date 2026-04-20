@@ -167,18 +167,18 @@ export default function CheckInDemo() {
           {mode === "idle" ? (
             <>
               <div style={{
-                backgroundColor: "rgba(255,255,255,0.45)",
-                backdropFilter: "blur(25px) saturate(180%)",
-                WebkitBackdropFilter: "blur(25px) saturate(180%)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                borderRadius: "24px",
+                backgroundColor: "rgba(255,253,245,0.5)",
+                backdropFilter: "blur(20px) saturate(140%)",
+                WebkitBackdropFilter: "blur(20px) saturate(140%)",
+                border: "1px solid rgba(212,175,55,0.3)",
+                borderRadius: "32px",
                 boxShadow: "0 8px 32px 0 rgba(0,0,0,0.15)",
                 padding: "32px 36px",
                 marginTop: "8px",
                 width: "100%"
               }}>
                 <h1 style={{
-                  fontSize: "34px", color: "#1a1a1a", fontWeight: 800,
+                  fontSize: "34px", color: "#996515", fontWeight: 800,
                   margin: "0 0 12px"
                 }}>
                   The Munk is ready
