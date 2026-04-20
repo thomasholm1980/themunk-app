@@ -167,12 +167,12 @@ export default function CheckInDemo() {
           {mode === "idle" ? (
             <>
               <h1 style={{
-                fontSize: "32px", color: "#ffffff", textShadow: "0 2px 20px rgba(0,0,0,0.6)",
+                fontSize: "34px", color: "#ffffff", fontWeight: 600, textShadow: "0 2px 30px rgba(0,0,0,0.8), 0 0 60px rgba(0,0,0,0.4)",
                 fontWeight: 400, margin: "16px 0 8px"
               }}>
                 The Munk is ready
               </h1>
-              <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.80)", margin: "0 0 24px", textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
+              <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.90)", margin: "0 0 24px", fontWeight: 500, textShadow: "0 2px 20px rgba(0,0,0,0.7), 0 0 40px rgba(0,0,0,0.3)" }}>
                 Tap to see your stress level.
               </p>
               <button onClick={() => setMode("ready")} style={{
