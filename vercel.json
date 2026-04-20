@@ -1,12 +1,5 @@
 {
-  "crons": [
-    {
-      "path": "/api/wearables/oura/sync",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/daily-greeting",
-      "schedule": "0 12 * * *"
-    }
-  ]
+  "buildCommand": "cd apps/web && npm run build",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
 }
