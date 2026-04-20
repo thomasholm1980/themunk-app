@@ -14,7 +14,7 @@ The Munk leveres av Holms Holding AS, org.nr 989705121, Homansvei 2a, 1365 Blomm
 
 ## 2. Hva tjenesten er
 
-The Munk er en stress-tolkningsapp som leser data fra wearables (Oura Ring, Apple Health, m.fl.) og hjelper deg å forstå kroppens signaler gjennom innsikt og samtaler med Aria, vår stemmebaserte assistent.
+The Munk er en stress-tolkningsapp som leser data fra wearables (Oura Ring, Apple Health, Garmin, Whoop, Samsung Health, Google Health Connect) og hjelper deg å forstå kroppens signaler gjennom innsikt og samtaler med Aria, vår stemmebaserte assistent.
 
 **The Munk er en wellness-app, ikke medisinsk utstyr.** Vi gir ikke medisinske diagnoser, behandlingsråd eller terapi. Innholdet i appen er kun informativt og skal ikke erstatte profesjonell medisinsk hjelp. Ved alvorlige helseproblemer, kontakt lege eller helsepersonell umiddelbart.
 
@@ -46,13 +46,13 @@ Du forplikter deg til å bruke The Munk kun til personlig, ikke-kommersielt form
 
 ## 6. Wearables og tredjepartsdata
 
-Når du kobler en wearable (Oura, Apple Health), gir du samtykke til at vi henter relevante helsedata fra leverandøren. Du er ansvarlig for vilkårene mellom deg og wearable-leverandøren.
+Når du kobler en wearable (Oura, Apple Health, Garmin, Whoop, Samsung Health, Google Health Connect), gir du samtykke til at vi henter relevante helsedata fra leverandøren. Du er ansvarlig for vilkårene mellom deg og wearable-leverandøren.
 
 ---
 
-## 7. Aria og AI-funksjoner
+## 7. Aria, AI-transparens og AI-funksjoner
 
-Aria er en stemmebasert assistent levert av Hume AI. Spør Munken bruker Anthropic Claude. Disse er KI-systemer og kan gi feilaktige eller upresise svar. Bruk svarene som inspirasjon, ikke som fasit.
+Aria er en stemmebasert assistent levert av Hume AI. Spør Munken bruker Anthropic Claude. I tråd med EU AI Act Artikkel 50 informerer vi deg eksplisitt om at du kommuniserer med et AI-system når du bruker disse funksjonene. Disse KI-systemene kan gi feilaktige eller upresise svar. Bruk svarene som inspirasjon, ikke som fasit. AI-genererte refleksjoner er ikke psykologiske diagnoser eller medisinske vurderinger.
 
 ---
 

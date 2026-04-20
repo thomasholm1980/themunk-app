@@ -14,7 +14,7 @@ The Munk is operated by Holms Holding AS, org. no. 989705121, Homansvei 2a, 1365
 
 ## 2. What the Service Is
 
-The Munk is a stress-interpretation app that reads data from wearables (Oura Ring, Apple Health, etc.) and helps you understand your body's signals through insights and conversations with Aria, our voice-based assistant.
+The Munk is a stress-interpretation app that reads data from wearables (Oura Ring, Apple Health, Garmin, Whoop, Samsung Health, Google Health Connect) and helps you understand your body's signals through insights and conversations with Aria, our voice-based assistant.
 
 **The Munk is a wellness app, not medical equipment.** We do not provide medical diagnoses, treatment advice, or therapy. The content in the app is for informational purposes only and is not a substitute for professional medical help. For serious health concerns, contact a doctor or healthcare professional immediately.
 
@@ -46,13 +46,13 @@ You agree to use The Munk only for personal, non-commercial purposes, and not to
 
 ## 6. Wearables and Third-Party Data
 
-When you connect a wearable (Oura, Apple Health), you consent to us retrieving relevant health data from the provider. You are responsible for the terms between you and the wearable provider.
+When you connect a wearable (Oura, Apple Health, Garmin, Whoop, Samsung Health, Google Health Connect), you consent to us retrieving relevant health data from the provider. You are responsible for the terms between you and the wearable provider.
 
 ---
 
-## 7. Aria and AI Features
+## 7. Aria, AI Transparency and AI Features
 
-Aria is a voice-based assistant powered by Hume AI. Ask the Munk uses Anthropic Claude. These are AI systems and may produce inaccurate or imprecise responses. Treat the output as inspiration, not as definitive answers.
+Aria is a voice-based assistant powered by Hume AI. Ask the Munk uses Anthropic Claude. In line with EU AI Act Article 50, we explicitly inform you that you are communicating with an AI system when using these features. These AI systems may produce inaccurate or imprecise responses. Treat the output as inspiration, not as definitive answers. AI-generated reflections are not psychological diagnoses or medical assessments.
 
 ---
 

@@ -16,9 +16,9 @@ Kontakt for personvernspørsmål: thomas@themunk.ai
 
 ## 2. Hvilke data vi samler inn
 
-**Helsedata fra wearables:** Når du kobler Oura Ring eller Apple Health, henter vi hjertefrekvensvariabilitet (HRV), hvilepuls, søvndata, aktivitet og stress-score. Disse dataene er sensitive personopplysninger under GDPR Artikkel 9.
+**Helsedata fra wearables:** Når du kobler en støttet wearable (Oura Ring, Apple Health, Garmin, Whoop, Samsung Health, Google Health Connect), henter vi hjertefrekvensvariabilitet (HRV), hvilepuls, søvndata, aktivitet og stress-score. Disse dataene er sensitive personopplysninger under GDPR Artikkel 9.
 
-**Stemmedata:** Når du snakker med Aria (vår stemmebaserte funksjon levert av Hume AI), behandles lyden i sanntid for å gi deg respons. Stemmeopptak lagres ikke permanent hos oss. Hume AI kan lagre korte sesjons-data i henhold til deres egen personvernerklæring.
+**Stemmedata:** Når du snakker med Aria (vår stemmebaserte funksjon levert av Hume AI), behandles lyden i sanntid for å gi deg respons. Stemmeopptak lagres ikke permanent verken hos The Munk eller Hume AI.
 
 **Refleksjoner og notater:** Tekst du skriver inn i appen.
 
@@ -42,7 +42,7 @@ Kontakt for personvernspørsmål: thomas@themunk.ai
 
 **Database (Supabase):** Lagres i EU (Irland, eu-west-1). Dataene forlater ikke EU.
 
-**Stemme-prosessering (Hume AI):** USA-basert. Data overføres til USA under EU-godkjente Standard Contractual Clauses (SCCs).
+**Stemme-prosessering (Hume AI):** USA-basert. Data overføres til USA under EU-godkjente Standard Contractual Clauses (SCCs). Hume AI behandler stemmedata utelukkende for å levere sanntidsanalyse og bruker ikke dine data til modelltrening.
 
 **AI-tolkning (Anthropic Claude):** USA-basert. Brukes for tekstbasert dialog (Spør Munken). Data overføres under SCCs. Anthropic bruker ikke dine data til modelltrening.
 
@@ -55,6 +55,8 @@ Kontakt for personvernspørsmål: thomas@themunk.ai
 Vi **selger ikke** dine personopplysninger eller helsedata til noen. Vi deler aldri stemmedata, refleksjoner eller biometriske målinger med annonsører eller datameglere.
 
 Data deles kun med tjenesteleverandører som er nødvendige for å drive appen (Supabase, Hume AI, Anthropic, Vercel, Apple, Google). Disse opptrer som databehandlere på våre vegne under GDPR-godkjente avtaler.
+
+**Apple HealthKit-spesifikt:** Data hentet via Apple HealthKit brukes ikke til reklame, markedsføring, salg, eller deling med datameglere, i samsvar med Apples HealthKit-lisensvilkår.
 
 ---
 
@@ -75,6 +77,8 @@ For å utøve disse rettighetene, kontakt thomas@themunk.ai. Vi svarer innen 30 
 ---
 
 ## 7. Sletting av konto og data
+
+Helsedata fra wearables slettes automatisk **12 måneder** etter siste registrering, med mindre du aktivt fornyer behandlingen ved å fortsette å bruke tjenesten.
 
 Du kan slette kontoen din når som helst direkte i appen. Når du sletter kontoen, slettes alle personopplysninger og helsedata permanent innen **30 dager**. Sikkerhetskopier overskrives i samme periode.
 
@@ -98,13 +102,19 @@ The Munk gir innsikt om kroppens signaler basert på data fra wearables. Vi gir 
 
 ---
 
-## 11. Endringer i denne erklæringen
+## 11. AI-transparens
+
+The Munk benytter AI-systemer (Anthropic Claude og Hume AI) for å generere innhold basert på dine biometriske data og stemmeinput. I tråd med EU AI Act Artikkel 50 informerer vi deg eksplisitt: når du interagerer med Aria eller mottar refleksjoner fra Spør Munken, kommuniserer du med et AI-system. AI-genererte estimater og refleksjoner er ikke psykologiske diagnoser eller medisinske vurderinger.
+
+---
+
+## 12. Endringer i denne erklæringen
 
 Ved vesentlige endringer varsler vi deg via e-post og i appen minst 30 dager før endringen trer i kraft.
 
 ---
 
-## 12. Kontakt
+## 13. Kontakt
 
 Spørsmål om personvern? Kontakt oss på thomas@themunk.ai.
 
