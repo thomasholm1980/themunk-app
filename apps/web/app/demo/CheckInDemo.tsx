@@ -166,25 +166,36 @@ export default function CheckInDemo() {
 
           {mode === "idle" ? (
             <>
-              <h1 style={{
-                fontSize: "34px", color: "#ffffff", textShadow: "0 2px 16px rgba(0,0,0,1), 0 0 40px rgba(0,0,0,0.9), 0 4px 60px rgba(0,0,0,0.8)",
-                fontWeight: 400, margin: "16px 0 8px"
+              <div style={{
+                backgroundColor: "rgba(0,0,0,0.75)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "20px",
+                padding: "32px 36px",
+                marginTop: "8px",
+                width: "100%"
               }}>
-                The Munk is ready
-              </h1>
-              <p style={{ fontSize: "17px", color: "#ffffff", margin: "0 0 24px", fontWeight: 500, textShadow: "0 2px 16px rgba(0,0,0,1), 0 0 40px rgba(0,0,0,0.9)" }}>
-                Tap to see your stress level.
-              </p>
-              <button onClick={() => setMode("ready")} style={{
-                background: "rgba(6,20,10,0.95)", border: "2px solid #D4AF37",
-                borderRadius: "16px", color: "#D4AF37",
-                fontSize: "14px", letterSpacing: "0.15em", textTransform: "uppercase",
-                padding: "18px 48px", cursor: "pointer", fontWeight: 700,
-                display: "block", margin: "0 auto",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(212,175,55,0.15)"
-              }}>
-                MEET THE MUNK
-              </button>
+                <h1 style={{
+                  fontSize: "34px", color: "#FFFFFF", fontWeight: 800,
+                  textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                  margin: "0 0 12px"
+                }}>
+                  The Munk is ready
+                </h1>
+                <p style={{ fontSize: "17px", color: "rgba(255,255,255,1)", margin: "0 0 28px", fontWeight: 400 }}>
+                  Tap to see your stress level.
+                </p>
+                <button onClick={() => setMode("ready")} style={{
+                  background: "rgba(6,20,10,0.95)", border: "2px solid #D4AF37",
+                  borderRadius: "16px", color: "#D4AF37",
+                  fontSize: "14px", letterSpacing: "0.15em", textTransform: "uppercase",
+                  padding: "18px 48px", cursor: "pointer", fontWeight: 700,
+                  display: "block", margin: "0 auto",
+                  boxShadow: "0 8px 40px rgba(0,0,0,0.8)"
+                }}>
+                  MEET THE MUNK
+                </button>
+              </div>
             </>
           ) : (
             <>
