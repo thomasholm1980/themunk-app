@@ -167,7 +167,7 @@ export default function CheckInDemo() {
           {mode === "idle" ? (
             <>
               <div style={{
-                backgroundColor: "rgba(255,253,245,0.5)",
+                backgroundColor: "rgba(255,253,240,0.92)",
                 backdropFilter: "blur(20px) saturate(140%)",
                 WebkitBackdropFilter: "blur(20px) saturate(140%)",
                 border: "1px solid rgba(212,175,55,0.3)",
