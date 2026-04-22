@@ -161,3 +161,6 @@ export async function POST() {
     latency_ms: Date.now() - start,
   }, { headers: { 'Cache-Control': 'no-store' } })
 }
+
+
+export async function GET() { return POST() }
