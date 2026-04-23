@@ -1,5 +1,11 @@
 {
   "buildCommand": "cd apps/web && npm run build",
   "outputDirectory": "apps/web/.next",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/wearables/oura/sync",
+      "schedule": "0 7 * * *"
+    }
+  ]
 }

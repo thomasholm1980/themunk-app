@@ -39,6 +39,11 @@ const STATE_LABEL: Record<SystemState, string> = {
   YELLOW: "Moderat stress",
   RED:    "Høyt stress",
 };
+const BRIEF_CONTENT: Record<SystemState, { title: string; body: string }> = {
+  GREEN:  { title: "Systemet er i balanse",     body: "Du har høy kapasitet i dag." },
+  YELLOW: { title: "Resiliensen er redusert",   body: "Vær bevisst på ressursbruken din." },
+  RED:    { title: "Stresset har ikke sluppet", body: "Kroppen prioriterer restitusjon. Juster forventningene." },
+};
 
 type TimeBucket = "morning" | "day" | "evening";
 
@@ -428,7 +433,8 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
               Kroppens signaler
             </div>
-            <div className="text-[16px] text-white leading-snug mb-4">Stresset har ikke sluppet. Gi kroppen tid.</div>
+            <div className="text-[14px] font-semibold text-white leading-snug mb-1">{BRIEF_CONTENT[contract.state].title}</div>
+            <div className="text-[16px] text-white leading-snug mb-4">{BRIEF_CONTENT[contract.state].body}</div>
 
             {/* Ask the Munk CTA — over Gjør nå */}
             <button
