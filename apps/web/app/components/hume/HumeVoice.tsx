@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 type EmotionScore = {
   name: string
@@ -57,6 +57,24 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
   const isPlayingRef = useRef<boolean>(false)
   // NEW: track active audio source so we can stop it on user interruption
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null)
+  const guardianTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Auto-kill mic after 10 min for The Guardian
+  useEffect(() => {
+    if (state === 'listening' && configId === 'b63df75e-edbc-4fe0-bd40-951eb0c02d11') {
+      guardianTimerRef.current = setTimeout(() => {
+        stopSession()
+      }, 10 * 60 * 1000)
+    } else {
+      if (guardianTimerRef.current) {
+        clearTimeout(guardianTimerRef.current)
+        guardianTimerRef.current = null
+      }
+    }
+    return () => {
+      if (guardianTimerRef.current) clearTimeout(guardianTimerRef.current)
+    }
+  }, [state, configId])
 
   // NEW: stop any audio currently playing AND clear queued chunks
   function stopAudioPlayback() {
@@ -296,8 +314,15 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
     console.log('[Hume] session stopped')
   }
 
+  const MODE_IDLE_LABEL: Record<string, string> = {
+    ARIA:         'Trykk for å snakke med Aria',
+    THE_PACER:    'Trykk for å finne rytmen',
+    ZEN_MASTER:   'Trykk for å finne roen',
+    THE_OBSERVER: 'Trykk for å forankre deg i nuet',
+    THE_GUARDIAN: 'Trykk for å bli vugget i søvn',
+  }
   const stateLabel = {
-    idle: 'Trykk for å snakke med Aria',
+    idle: MODE_IDLE_LABEL[configId ?? 'ARIA'] ?? 'Trykk for å snakke med Aria',
     connecting: 'Kobler til…',
     listening: 'Aria lytter — trykk for å stoppe',
     processing: 'Aria tenker…',
