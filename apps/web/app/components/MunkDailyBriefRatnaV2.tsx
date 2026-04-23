@@ -39,10 +39,10 @@ const STATE_LABEL: Record<SystemState, string> = {
   YELLOW: "Moderat stress",
   RED:    "Høyt stress",
 };
-const BRIEF_CONTENT: Record<SystemState, { title: string; body: string }> = {
-  GREEN:  { title: "Systemet er i balanse",     body: "Du har høy kapasitet i dag." },
-  YELLOW: { title: "Resiliensen er redusert",   body: "Vær bevisst på ressursbruken din." },
-  RED:    { title: "Stresset har ikke sluppet", body: "Kroppen prioriterer restitusjon. Juster forventningene." },
+const BRIEF_CONTENT: Record<SystemState, { title: string; body: string; action: string }> = {
+  GREEN:  { title: "Systemet er i balanse",     body: "Du har høy kapasitet i dag.",                                action: "Bruk energien — i dag har du margin." },
+  YELLOW: { title: "Resiliensen er redusert",   body: "Vær bevisst på ressursbruken din.",                         action: "Ta en pause før du trenger det." },
+  RED:    { title: "Stresset har ikke sluppet", body: "Kroppen prioriterer restitusjon. Juster forventningene.",   action: "Utsett det som kan vente. Start rolig." },
 };
 
 type TimeBucket = "morning" | "day" | "evening";
@@ -449,7 +449,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
               Gjør nå
             </div>
-            <div className="text-[16px] font-semibold text-white leading-snug">Ta deg en pause</div>
+            <div className="text-[16px] font-semibold text-white leading-snug">{BRIEF_CONTENT[contract.state].action}</div>
           </div>
 
           {/* Ask the Munk — flyttet til meny (Steg 4) */}
