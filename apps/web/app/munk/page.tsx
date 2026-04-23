@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import HumeVoice from '../components/hume/HumeVoice'
+import { HUME_CONFIGS, HUME_MODE_LABELS, HumeModeKey } from '../../lib/humeConfigs'
 import HumeConsentModal from '../components/hume/HumeConsentModal'
 import { analyzeDissonance, DissonanceResult, HumeEmotions, OuraContext } from '../../lib/dissonanceEngine'
 import { startBinaural, stopBinaural } from '../../lib/binauralEngine'
@@ -9,6 +10,7 @@ type PageState = 'idle' | 'listening' | 'result'
 
 export default function MunkPage() {
   const [pageState, setPageState] = useState<PageState>('idle')
+  const [activeMode, setActiveMode] = useState<HumeModeKey>('ARIA')
   const [result, setResult] = useState<DissonanceResult | null>(null)
   const [transcript, setTranscript] = useState<string>('')
   const [ouraContext, setOuraContext] = useState<OuraContext | null>(null)
@@ -140,6 +142,25 @@ export default function MunkPage() {
                 No biometric data — connect Oura for full analysis
               </p>
             )}
+            {/* Mode switcher */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '16px', marginBottom: '8px' }}>
+              {(Object.keys(HUME_CONFIGS) as HumeModeKey[]).map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => setActiveMode(mode)}
+                  style={{
+                    fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase',
+                    padding: '6px 14px', borderRadius: '20px', cursor: 'pointer',
+                    border: activeMode === mode ? '1px solid #D4AF37' : '1px solid rgba(255,255,255,0.15)',
+                    background: activeMode === mode ? 'rgba(212,175,55,0.15)' : 'transparent',
+                    color: activeMode === mode ? '#D4AF37' : 'rgba(255,255,255,0.40)',
+                    fontWeight: activeMode === mode ? 600 : 400,
+                  }}
+                >
+                  {HUME_MODE_LABELS[mode]}
+                </button>
+              ))}
+            </div>
             <div style={{ marginTop: '8px' }}>
               {hasConsent ? (
                 <HumeVoice
@@ -147,6 +168,7 @@ export default function MunkPage() {
                   onTranscript={t => { setTranscript(t); setPageState('listening') }}
                   onAssistantMessage={msg => setAssistantMessages(prev => [...prev, msg])}
                   biometricContext={biometricContext}
+                  configId={HUME_CONFIGS[activeMode]}
                 />
               ) : (
                 <button

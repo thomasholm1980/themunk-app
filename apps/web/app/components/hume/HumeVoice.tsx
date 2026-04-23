@@ -22,6 +22,7 @@ interface Props {
   onTranscript: (text: string) => void
   onAssistantMessage?: (text: string) => void
   biometricContext?: BiometricContext | null
+  configId?: string
 }
 
 function norwegianErrorFor(code: string | undefined): string {
@@ -45,7 +46,7 @@ function norwegianErrorFor(code: string | undefined): string {
   }
 }
 
-export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistantMessage, biometricContext }: Props) {
+export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistantMessage, biometricContext, configId }: Props) {
   const [state, setState] = useState<HumeState>('idle')
   const [error, setError] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
@@ -100,7 +101,7 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
       // CHANGED: added &verbose_transcription=true so Hume sends interim user_messages
       // as soon as the user starts speaking (Fix C). This is required for fast interruption.
       const ws = new WebSocket(
-        `wss://api.hume.ai/v0/evi/chat?access_token=${access_token}&config_id=ffbf28a8-1554-4344-add7-1090ce18b206&verbose_transcription=true`
+        `wss://api.hume.ai/v0/evi/chat?access_token=${access_token}&config_id=${configId ?? "ffbf28a8-1554-4344-add7-1090ce18b206"}&verbose_transcription=true`
       )
       wsRef.current = ws
 
