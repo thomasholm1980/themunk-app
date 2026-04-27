@@ -18,19 +18,19 @@ type PatternsResponse = {
 };
 
 const PATTERN_LABEL: Record<string, string> = {
-  repeated_elevated_stress:       "Vedvarende høyt stress",
-  subjective_load_above_baseline: "Opplevd belastning over normalt",
-  recovery_deficit:               "Underskudd på restitusjon",
-  green_streak:                   "Stabil restitusjonsperiode",
-  hrv_suppressed:                 "Lavt restitusjonsnivå over tid",
+  repeated_elevated_stress:       "Persistent high stress",
+  subjective_load_above_baseline: "Perceived load above baseline",
+  recovery_deficit:               "Recovery deficit",
+  green_streak:                   "Stable recovery period",
+  hrv_suppressed:                 "Low recovery level over time",
 };
 
 const PATTERN_MEANING: Record<string, string> = {
-  repeated_elevated_stress:       "Når dette gjentar seg over flere dager, blir det ofte vanskeligere å hente seg inn igjen — selv når dagene ikke føles spesielt krevende.",
-  subjective_load_above_baseline: "Dette kan være en del av grunnen til at kroppen kjennes mer anspent enn vanlig. Signalene stemmer med det du selv merker.",
+  repeated_elevated_stress:       "When this repeats over several days, it becomes harder to recover — even when the days don't feel particularly demanding.",
+  subjective_load_above_baseline: "This may explain why the body feels more tense than usual. The signals match what you are noticing yourself.",
   recovery_deficit:               "Dette mønsteret gjør at selv vanlige dager kan føles tyngre enn de egentlig er. Kroppen jobber hardere enn den burde for å holde seg stabil.",
-  green_streak:                   "Dette gir kroppen rom til å bygge seg opp. En god periode nå betyr bedre motstandskraft fremover.",
-  hrv_suppressed:                 "Lavere restitusjon over tid gjør at kroppen tåler mindre variasjon. Det som normalt ikke merkes, kan begynne å sette spor.",
+  green_streak:                   "This gives the body room to rebuild. A good period now means better resilience ahead.",
+  hrv_suppressed:                 "Lower recovery over time means the body tolerates less variation. What normally goes unnoticed may start to leave a mark.",
 };
 
 // Beregn de siste 7 dagene bakover fra i dag
@@ -128,13 +128,13 @@ export default function MonsterPage() {
 
   const dayLabels = getLast7DayLabels();
   const dayNarrative: Record<number, string> = {
-    0: `${dayLabels[0]}: Slik startet uken for kroppen din.`,
-    1: `${dayLabels[1]}: Stresset begynte å stige stille.`,
-    2: `${dayLabels[2]}: Kroppen var under press.`,
-    3: `${dayLabels[3]}: Belastningen nådde sitt høyeste punkt.`,
-    4: `${dayLabels[4]}: En liten lettelse — kroppen puster litt ut.`,
-    5: `${dayLabels[5]}: Restitusjonen er i gang, men ikke ferdig.`,
-    6: `${dayLabels[6]}: I dag — kroppen jobber fortsatt med å hente seg inn.`,
+    0: `${dayLabels[0]}: This is how the week started for your body.`,
+    1: `${dayLabels[1]}: Stress began to rise quietly.`,
+    2: `${dayLabels[2]}: The body was under pressure.`,
+    3: `${dayLabels[3]}: The load reached its peak.`,
+    4: `${dayLabels[4]}: A small relief — the body gets a moment to breathe.`,
+    5: `${dayLabels[5]}: Recovery is underway, but not complete.`,
+    6: `${dayLabels[6]}: Today — the body is still working to recover.`,
   };
 
   return (
@@ -176,7 +176,7 @@ export default function MonsterPage() {
             onClick={() => window.location.href = "/check-in"}
             style={{ fontSize: "13px", color: "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}
           >
-            ← Tilbake
+            ← Back
           </button>
         </div>
 
@@ -186,7 +186,7 @@ export default function MonsterPage() {
             Mønster
           </div>
           <h1 style={{ fontSize: "26px", fontWeight: 600, color: "white", lineHeight: 1.2 }}>
-            Slik har kroppen<br />hatt det denne uken
+            How your body<br />has been this week
           </h1>
         </div>
 
@@ -219,7 +219,7 @@ export default function MonsterPage() {
             <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <div>
               <div style={{ fontSize:"10px", letterSpacing:"0.25em", textTransform:"uppercase" as const, color:"rgba(212,175,55,0.60)", marginBottom:"3px" }}>Verktøy</div>
-              <div style={{ fontSize:"15px", fontWeight:600, color:"rgba(255,255,255,0.90)" }}>Pusteøvelse for å roe ned</div>
+              <div style={{ fontSize:"15px", fontWeight:600, color:"rgba(255,255,255,0.90)" }}>Breathing exercise to calm down</div>
             </div>
             <div style={{ fontSize:"18px", color:"rgba(212,175,55,0.60)" }}>→</div>
           </div>
@@ -330,7 +330,7 @@ export default function MonsterPage() {
 
         {/* Drag-hint */}
         <div style={{ textAlign:"center", fontSize:"11px", color:"rgba(255,255,255,0.20)", letterSpacing:"0.15em", marginTop:"8px", marginBottom:"4px" }}>
-          ← Dra for å utforske uken →
+          ← Drag to explore the week →
         </div>
 
         {/* Pattern cards */}
@@ -364,7 +364,7 @@ export default function MonsterPage() {
 
         {data && data.sufficient_data && (
           <div className="mt-4 text-center" style={{ fontSize: "12px", color: "rgba(255,255,255,0.20)" }}>
-            Basert på de siste {data.window_days} dagene
+            Based on the last {data.window_days} days
           </div>
         )}
 
