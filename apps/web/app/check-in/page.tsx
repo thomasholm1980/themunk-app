@@ -220,7 +220,7 @@ export default function CheckInPage() {
       window.history.replaceState({}, '', '/check-in');
     }
     const isAwake = awakeParam || sessionStorage.getItem("munk_awake") === "true";
-    if (isAwake) { setMode("loading"); runFetch(); }
+    if (isAwake) { setMode("loading"); setTimeout(() => runFetch(), 3000); }
   }, []);
 
   async function runFetch() {
