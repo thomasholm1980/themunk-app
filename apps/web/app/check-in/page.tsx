@@ -39,7 +39,7 @@ function getOsloDateLabel(): string {
 }
 
 const LOADING_MESSAGES = [
-  "Munken lytter til hjertet ditt...",
+  "The Munk is listening to your heart...",
   "Gathering today's signals...",
   "Finn roen et øyeblikk...",
 ];
@@ -141,7 +141,7 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
               {LOADING_MESSAGES[msgIndex]}
             </p>
             <p style={{ fontSize:"11px",letterSpacing:"0.22em",textTransform:"uppercase",color:"rgba(212,175,55,0.55)" }}>
-              Synkroniserer med Oura
+              Syncing with Oura
             </p>
           </div>
         )}

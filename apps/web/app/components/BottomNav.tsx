@@ -2,9 +2,9 @@
 import { usePathname, useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
-  { id: 'idag',      label: 'I dag',     href: '/check-in' },
-  { id: 'monster',   label: 'Mønster',   href: '/monster'  },
-  { id: 'bibliotek', label: 'Bibliotek', href: '/library'  },
+  { id: 'idag',      label: 'Today',     href: '/check-in' },
+  { id: 'monster',   label: 'Pattern',   href: '/monster'  },
+  { id: 'bibliotek', label: 'Library',   href: '/library'  },
   { id: 'aria',      label: 'Aria',      href: '/munk'     },
 ]
 
