@@ -204,7 +204,7 @@ export default function AskPage() {
           lineHeight: 1.45, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           marginTop: '4px', marginBottom: '0',
         }}>
-          Today's signals are ready. Ask what they mean.
+          Today's signals from your Oura Health Ring wearable are ready. Ask what they mean.
         </div>
 
         {/* Input */}
@@ -252,7 +252,7 @@ export default function AskPage() {
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.92)', fontWeight: 500,
               marginBottom: '12px',
             }}>
-              Eller velg et spørsmål
+              Or choose a question
             </div>
             {STARTER_PROMPTS.map((p, i) => (
               <button
