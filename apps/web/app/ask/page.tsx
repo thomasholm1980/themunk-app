@@ -5,11 +5,11 @@ import { logMorningEvent } from '../../lib/telemetry'
 import { useAtmosphere } from '../../hooks/useAtmosphere'
 
 const STARTER_PROMPTS = [
-  'Hva betyr dette stresset?',
-  'Hva er HRV egentlig?',
-  'Hvorfor blir dagen tyngre utover?',
-  'Hva gjør stress med søvnen?',
-  'Hva trenger kroppen min nå?',
+  'What does this stress mean?',
+  'What is HRV, really?',
+  'Why does the day get harder as it goes on?',
+  'What does stress do to sleep?',
+  'What does my body need right now?',
 ]
 
 interface Answer {
@@ -69,7 +69,7 @@ export default function AskPage() {
         }, settle)
       }
     } catch {
-      setError('Munken svarer ikke akkurat nå. Prøv igjen.')
+      setError('The Munk is unavailable right now. Please try again.')
       logMorningEvent('ask_munk_answer_failed' as any)
       setLoading(false)
     }
@@ -127,7 +127,7 @@ export default function AskPage() {
 
       <div className="w-full max-w-sm flex flex-col">
 
-        {/* ← Tilbake */}
+        {/* ← Back */}
         <button
           onClick={() => { window.location.href = '/check-in?awake=true'; }}
           style={{
@@ -137,7 +137,7 @@ export default function AskPage() {
             letterSpacing: '0.02em', cursor: 'pointer',
           }}
         >
-          ← Tilbake
+          ← Back
         </button>
 
         {/* HERO — larger glow, same shared center */}
@@ -188,7 +188,7 @@ export default function AskPage() {
           letterSpacing: '0.30em', textTransform: 'uppercase',
           color: '#ffffff', marginBottom: '8px', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.5)',
         }}>
-          Spør Munken
+          Ask The Munk
         </div>
 
         {/* Headline */}
@@ -197,14 +197,14 @@ export default function AskPage() {
           lineHeight: 1.25, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           letterSpacing: '-0.01em', marginBottom: '10px',
         }}>
-          Få en rolig forklaring på stresset ditt
+          Get a calm interpretation of your stress
         </div>
         <div style={{
           textAlign: 'center', fontSize: '14px', fontWeight: 400,
           lineHeight: 1.45, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           marginTop: '4px', marginBottom: '0',
         }}>
-          Dagens signaler er klare. Nå kan du spørre hva de betyr.
+          Today's signals are ready. Ask what they mean.
         </div>
 
         {/* Input */}
@@ -212,7 +212,7 @@ export default function AskPage() {
           value={question}
           onChange={e => setQuestion(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
-          placeholder="Hva lurer du på?"
+          placeholder="What are you wondering about?"
           rows={1}
           style={{
             width: '100%', background: 'transparent',
@@ -240,7 +240,7 @@ export default function AskPage() {
             cursor: question.trim() && !isWaiting ? 'pointer' : 'default',
           }}
         >
-          {isWaiting ? 'Munken lytter til hjertet ditt...' : 'Spør'}
+          {isWaiting ? 'The Munk is listening...' : 'Ask'}
         </button>
         </div>
 
