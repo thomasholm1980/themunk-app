@@ -401,7 +401,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           {/* Stress level */}
           <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
             <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.40)" }}>
-              Stressnivå
+              Stress level
             </div>
             <div className="text-[34px] leading-[1.15] font-medium tracking-tight" style={{ color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>
               {STATE_LABEL[state]}
@@ -413,13 +413,13 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className={`b-why ease-spring flex justify-center gap-12 mt-3 mb-1${mounted ? " in" : ""}`} style={{ opacity: 0.85 }}>
               {hrv && (
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>HRV (Oura)</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>HRV (Oura Ring)</span>
                   <span className="text-[20px] font-medium italic" style={{ color: "rgba(255,255,255,0.90)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>{hrv} ms</span>
                 </div>
               )}
               {rhr && (
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>Hvilepuls (Oura)</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>Resting HR (Oura Ring)</span>
                   <span className="text-[20px] font-medium italic" style={{ color: "rgba(255,255,255,0.90)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>{rhr} bpm</span>
                 </div>
               )}
