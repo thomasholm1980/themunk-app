@@ -35,14 +35,14 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
 };
 
 const STATE_LABEL: Record<SystemState, string> = {
-  GREEN:  "Godt restituert",
-  YELLOW: "Moderat stress",
-  RED:    "Høyt stress",
+  GREEN:  "Well recovered",
+  YELLOW: "Moderate stress",
+  RED:    "High stress",
 };
 const BRIEF_CONTENT: Record<SystemState, { title: string; body: string; action: string }> = {
-  GREEN:  { title: "Systemet er i balanse",     body: "Du har høy kapasitet i dag.",                                action: "Bruk energien — i dag har du margin." },
-  YELLOW: { title: "Resiliensen er redusert",   body: "Vær bevisst på ressursbruken din.",                         action: "Ta en pause før du trenger det." },
-  RED:    { title: "Stresset har ikke sluppet", body: "Kroppen prioriterer restitusjon. Juster forventningene.",   action: "Utsett det som kan vente. Start rolig." },
+  GREEN:  { title: "System in balance",          body: "You have high capacity today.",                              action: "Use your energy — today you have margin." },
+  YELLOW: { title: "Resilience reduced",         body: "Be mindful of your energy expenditure.",                    action: "Take a break before you need one." },
+  RED:    { title: "Persistent stress detected", body: "The body is prioritising recovery. Adjust expectations.",   action: "Postpone what can wait. Start slow." },
 };
 
 type TimeBucket = "morning" | "day" | "evening";
@@ -70,37 +70,37 @@ function getBgClass(bucket: TimeBucket): string {
 
 const NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
   GREEN: {
-    morning: "Du starter dagen i god balanse.",
-    day:     "Kroppen holder seg stabil utover dagen.",
-    evening: "Du har brukt lite av reservene i dag.",
+    morning: "You start the day in good balance.",
+    day:     "Your body remains stable through the day.",
+    evening: "You have used little of your reserves today.",
   },
   YELLOW: {
-    morning: "Hjertet ditt slår litt stivere i dag. Nervesystemet fant ikke full ro i natt — du starter med et stress-etterslep.",
-    day:     "Stresset sitter fortsatt i kroppen. Du har jobbet siden tidlig — nå trenger nervesystemet en pause.",
-    evening: "Dagen har kostet mer enn kroppen rakk å hente inn. Stresset fra i dag trenger natt for å løse seg.",
+    morning: "Your heart beats a little stiffer today. The nervous system did not fully recover overnight — you start with a stress carryover.",
+    day:     "Stress is still present in the body. You have been working since early — now the nervous system needs a break.",
+    evening: "The day has cost more than the body managed to recover. Tonight's sleep will resolve the remaining stress.",
   },
   RED: {
-    morning: "Kroppen er allerede belastet før dagen begynner.",
-    day:     "Stressnivået er høyt — kroppen er under press nå.",
-    evening: "Dagens belastning sitter fortsatt i kroppen.",
+    morning: "The body is already under load before the day begins.",
+    day:     "Stress level is high — the body is under pressure right now.",
+    evening: "Today's load is still present in the body.",
   },
 };
 
 const ACTION_NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
   GREEN: {
-    morning: "Bruk energien — i dag tåler du mer.",
-    day:     "Hold tempoet. Du har margin.",
-    evening: "God kveld for tidlig søvn — bygg videre på overskuddet.",
+    morning: "Use your energy — today you can handle more.",
+    day:     "Keep the pace. You have margin.",
+    evening: "Good evening for early sleep — build on the surplus.",
   },
   YELLOW: {
-    morning: "Litt bevegelse, mye ro. La kroppen varme opp før du belaster den.",
-    day:     "Ta en pause før du trenger det. Stresset løser seg ikke ved å jobbe hardere.",
-    evening: "Ingen skjerm, ingen krevende samtaler. Kroppen trenger ro for å hente inn stresset fra i dag.",
+    morning: "Light movement, plenty of rest. Let the body warm up before loading it.",
+    day:     "Take a break before you need one. Stress does not resolve by working harder.",
+    evening: "No screens, no demanding conversations. The body needs calm to recover from today.",
   },
   RED: {
-    morning: "Utsett det som kan vente. Start rolig.",
+    morning: "Postpone what can wait. Start slowly.",
     day:     "Senk intensiteten. Kroppen klarer ikke mer akkurat nå.",
-    evening: "Ingen skjerm, ingen krevende samtaler. Bare ro.",
+    evening: "No screens, no demanding conversations. Only rest.",
   },
 };
 
@@ -426,28 +426,28 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             </div>
           )}
 
-          {/* NOW + Gjør nå */}
+          {/* NOW + Do now */}
           <div className={`b-now ease-spring mt-5 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.06)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.10)", borderRadius:"28px", padding:"22px 24px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
             {/* Edge-light */}
             <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
-              Kroppens signaler
+              Body signals
             </div>
             <div className="text-[14px] font-semibold text-white leading-snug mb-1">{BRIEF_CONTENT[contract.state].title}</div>
             <div className="text-[16px] text-white leading-snug mb-4">{BRIEF_CONTENT[contract.state].body}</div>
 
-            {/* Ask the Munk CTA — over Gjør nå */}
+            {/* Ask the Munk CTA — over Do now */}
             <button
               onClick={() => window.location.href = "/ask"}
               className="w-full mb-6 rounded-2xl text-[11px] uppercase tracking-[0.3em] font-semibold transition-opacity hover:opacity-90 active:opacity-80"
               style={{ padding:"14px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
             >
-              Spør Munken om signalene →
+              Ask The Munk about your signals →
             </button>
 
             <div className="w-full h-px mb-3" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
-              Gjør nå
+              Do now
             </div>
             <div className="text-[16px] font-semibold text-white leading-snug">{BRIEF_CONTENT[contract.state].action}</div>
           </div>
