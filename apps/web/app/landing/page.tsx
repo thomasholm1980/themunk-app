@@ -148,7 +148,7 @@ export default function LandingPage() {
           </div>
           <div style={{ display:'flex',alignItems:'center',gap:'12px' }}>
             <div style={{ width:'32px',height:'32px',borderRadius:'50%',background:'rgba(212,175,55,0.20)',border:'1px solid rgba(212,175,55,0.30)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px' }}>T</div>
-            <div style={{ fontSize:'13px',color:'rgba(255,255,255,0.55)',letterSpacing:'0.05em' }}>— Thomas, Founder av The Munk</div>
+            <div style={{ fontSize:'13px',color:'rgba(255,255,255,0.55)',letterSpacing:'0.05em' }}>— Thomas, AI Architect & Builder</div>
           </div>
         </div>
 

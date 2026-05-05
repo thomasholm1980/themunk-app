@@ -64,7 +64,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
               <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Målet er enkelt:</p>
               <p style="margin:0 0 24px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Å gjøre stress tydeligere, roligere og mer håndterbart.</p>
               <p style="margin:0 0 32px;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">Vi sier ifra så snart vi åpner.</p>
-              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">– Thomas, Founder of The Munk</p>
+              <p style="margin:0;font-family:Georgia,serif;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.8;">– Thomas, AI Architect & Builder</p>
             </td>
           </tr>
 
@@ -108,7 +108,7 @@ Målet er enkelt:
 
 Vi sier ifra så snart vi åpner.
 
-– Thomas, Founder of The Munk`,
+– Thomas, AI Architect & Builder`,
     MessageStream: 'outbound',
   })
 }
