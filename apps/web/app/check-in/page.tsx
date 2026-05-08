@@ -221,7 +221,7 @@ export default function CheckInPage() {
     }
     const skipParam = search.includes('skip=true');
     const isAwake = awakeParam || skipParam || sessionStorage.getItem("munk_awake") === "true";
-    if (isAwake) { setMode("loading"); setTimeout(() => runFetch(), 7000); }
+    if (isAwake) { setMode("loading"); if (skipParam) { runFetch(); } else { setTimeout(() => runFetch(), 7000); } }
   }, []);
 
   async function runFetch() {
