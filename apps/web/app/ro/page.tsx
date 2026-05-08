@@ -13,9 +13,9 @@ const MUNKENS_TIPS = [
 ];
 
 const ARTIKLER = [
-  { title: "What happens in the body when you breathe slowly?", tid: "3 min", url: "https://www.themunk.ai/library?tab=ro" },
-  { title: "The Vagus Nerve: your body's calm switch", tid: "5 min", url: "https://www.themunk.ai/library?tab=ro" },
-  { title: "Meditation for men under pressure", tid: "4 min", url: "https://www.themunk.ai/library?tab=ro" },
+  { title: "What happens in the body when you breathe slowly?", tid: "3 min", url: "/library?tab=ro" },
+  { title: "The Vagus Nerve: your body's calm switch", tid: "5 min", url: "/library?tab=ro" },
+  { title: "Meditation for men under pressure", tid: "4 min", url: "/library?tab=ro" },
 ];
 
 export default function RoPage() {
