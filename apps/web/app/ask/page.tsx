@@ -289,17 +289,17 @@ export default function AskPage() {
           <div ref={answerRef} className="fade-up w-full flex flex-col" style={{ marginBottom: '40px', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: '24px', padding: '24px' }}>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', marginBottom: '24px' }} />
             <div className="a-s" style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Kort svar</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Short answer</div>
               <div style={{ fontSize: '17px', lineHeight: 1.55, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.01em' }}>{answer.short_answer}</div>
             </div>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
             <div className="a-s" style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Hvorfor det betyr noe</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Why it matters</div>
               <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>{answer.why_it_matters}</div>
             </div>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
             <div className="a-s">
-              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Hva du gjør nå</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>What to do now</div>
               <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>{answer.what_to_do}</div>
             </div>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', margin: '24px 0 16px' }} />
@@ -335,9 +335,9 @@ export default function AskPage() {
         }}
       >
         {[
-          { label: "I dag",   href: "/check-in?awake=true" },
-          { label: "Mønster", href: "/monster" },
-          { label: "Ro",      href: "/ro" },
+          { label: "Today",   href: "/check-in?awake=true" },
+          { label: "Pattern", href: "/monster" },
+          { label: "Calm",    href: "/ro" },
         ].map(tab => (
           <button
             key={tab.label}
