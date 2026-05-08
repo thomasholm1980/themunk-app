@@ -33,7 +33,7 @@ export default function SettingsPage() {
   }, [])
 
   async function handleDeactivate() {
-    if (!confirm('Er du sikker på at du vil deaktivere emosjonsanalyse? Mikrofonen vil bli sperret, og du må gi nytt samtykke for å bruke funksjonen igjen.')) {
+    if (!confirm('Are you sure you want to deactivate emotion analysis? The microphone will be blocked until you consent again.')) {
       return
     }
     setUpdating(true)
@@ -45,10 +45,10 @@ export default function SettingsPage() {
         body: JSON.stringify({ consented: false, language: 'no' })
       })
       if (!res.ok) throw new Error('deactivation_failed')
-      setMessage('Emosjonsanalyse er deaktivert og dine preferanser er oppdatert.')
+      setMessage('Emotion analysis has been deactivated and your preferences updated.')
       await loadStatus()
     } catch (err) {
-      setMessage('Kunne ikke deaktivere. Prøv igjen.')
+      setMessage('Could not deactivate. Please try again.')
     } finally {
       setUpdating(false)
     }
@@ -65,16 +65,16 @@ export default function SettingsPage() {
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <img src="/assets/munk-transparent.png" alt="The Munk" style={{ width: '72px', marginBottom: '12px' }} />
-          <p style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase' }}>INNSTILLINGER</p>
+          <p style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase' }}>SETTINGS</p>
         </div>
 
-        <h1 style={{ fontSize: '22px', fontWeight: 400, marginBottom: '8px' }}>Dine samtykker</h1>
+        <h1 style={{ fontSize: '22px', fontWeight: 400, marginBottom: '8px' }}>Your consents</h1>
         <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', marginBottom: '32px', lineHeight: 1.6 }}>
-          Her kan du administrere hvilke data The Munk har tilgang til. Du kan trekke tilbake samtykke når som helst.
+          Here you can manage what data The Munk has access to. You can withdraw consent at any time.
         </p>
 
         {loading ? (
-          <p style={{ color: 'rgba(255,255,255,0.50)', fontSize: '14px' }}>Laster...</p>
+          <p style={{ color: 'rgba(255,255,255,0.50)', fontSize: '14px' }}>Loading...</p>
         ) : (
           <div style={{
             background: 'rgba(255,255,255,0.04)',
@@ -87,10 +87,10 @@ export default function SettingsPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
               <div>
                 <p style={{ fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>
-                  Emosjonsanalyse via stemme
+                  Emotion analysis via voice
                 </p>
                 <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.50)' }}>
-                  Hume AI · GDPR Artikkel 9
+                  Hume AI · GDPR Article 9
                 </p>
               </div>
               <div style={{
@@ -102,13 +102,13 @@ export default function SettingsPage() {
                 background: consent?.biometric_emotion_v1 ? 'rgba(100,180,140,0.20)' : 'rgba(255,255,255,0.08)',
                 color: consent?.biometric_emotion_v1 ? 'rgba(120,200,160,0.95)' : 'rgba(255,255,255,0.50)'
               }}>
-                {consent?.biometric_emotion_v1 ? 'Aktiv' : 'Inaktiv'}
+                {consent?.biometric_emotion_v1 ? 'Active' : 'Inactive'}
               </div>
             </div>
 
             {consent?.biometric_emotion_v1 && consent.consent_timestamp && (
               <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.40)', marginBottom: '16px' }}>
-                Samtykke gitt: {new Date(consent.consent_timestamp).toLocaleString('no-NO')}
+                Consent given: {new Date(consent.consent_timestamp).toLocaleString('en-GB')}
               </p>
             )}
 
@@ -129,11 +129,11 @@ export default function SettingsPage() {
                   opacity: updating ? 0.6 : 1
                 }}
               >
-                {updating ? 'Deaktiverer...' : 'Deaktiver'}
+                {updating ? 'Deactivating...' : 'Deactivate'}
               </button>
             ) : (
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>
-                Gå til <a href="/munk" style={{ color: '#D4AF37' }}>/munk</a> for å aktivere.
+                Go to <a href="/check-in?skip=true" style={{ color: '#D4AF37' }}>/munk</a> to activate.
               </p>
             )}
           </div>
@@ -154,14 +154,14 @@ export default function SettingsPage() {
         )}
 
         <div style={{ marginTop: '40px', textAlign: 'center' }}>
-          <a href="/munk" style={{
+          <a href="/check-in?skip=true" style={{
             color: 'rgba(255,255,255,0.50)',
             fontSize: '12px',
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
             textDecoration: 'none'
           }}>
-            &#8592; Tilbake til The Munk
+            &#8592; Back
           </a>
         </div>
       </div>

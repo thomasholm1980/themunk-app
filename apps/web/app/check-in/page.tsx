@@ -25,7 +25,7 @@ interface StateResponse {
 type Mode = "idle" | "loading" | "no_data" | "ready";
 
 function getTimeBucket(): "morning" | "day" | "evening" {
-  const parts = new Intl.DateTimeFormat("no-NO", { timeZone: "Europe/Oslo", hour: "numeric", hour12: false }).formatToParts(new Date());
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Oslo", hour: "numeric", hour12: false }).formatToParts(new Date());
   const h = parseInt(parts.find(p => p.type === "hour")?.value ?? "0", 10);
   if (h >= 4 && h < 11) return "morning";
   if (h >= 11 && h < 17) return "day";
@@ -33,7 +33,7 @@ function getTimeBucket(): "morning" | "day" | "evening" {
 }
 
 function getOsloDateLabel(): string {
-  return new Intl.DateTimeFormat("no-NO", {
+  return new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Oslo", weekday: "long", day: "numeric", month: "long",
   }).format(new Date());
 }
@@ -41,7 +41,7 @@ function getOsloDateLabel(): string {
 const LOADING_MESSAGES = [
   "The Munk is listening to your heart...",
   "Gathering today's signals...",
-  "Finn roen et øyeblikk...",
+  "Take a moment to breathe...",
 ];
 
 function AtmosphereOrbs() {

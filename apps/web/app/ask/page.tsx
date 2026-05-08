@@ -129,7 +129,7 @@ export default function AskPage() {
 
         {/* ← Back */}
         <button
-          onClick={() => { window.location.href = '/check-in?awake=true'; }}
+          onClick={() => { window.location.href = '/check-in?skip=true'; }}
           style={{
             alignSelf: 'flex-start', fontSize: '13px',
             color: 'rgba(255,255,255,0.80)', background: 'none',
