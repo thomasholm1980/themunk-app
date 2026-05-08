@@ -173,7 +173,7 @@ export default function MonsterPage() {
         {/* Back */}
         <div className={`ease-in d1 w-full px-6 pt-12 mb-2${mounted ? " v" : ""}`}>
           <button
-            onClick={() => window.location.href = "/check-in"}
+            onClick={() => window.location.href = "/check-in?skip=true"}
             style={{ fontSize: "13px", color: "rgba(255,255,255,0.28)", letterSpacing: "0.06em" }}
           >
             ← Back

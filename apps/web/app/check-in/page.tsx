@@ -219,8 +219,9 @@ export default function CheckInPage() {
       // Fjern parameter fra URL uten reload
       window.history.replaceState({}, '', '/check-in');
     }
-    const isAwake = awakeParam || sessionStorage.getItem("munk_awake") === "true";
-    if (isAwake) { setMode("loading"); setTimeout(() => runFetch(), 3000); }
+    const skipParam = search.includes('skip=true');
+    const isAwake = awakeParam || skipParam || sessionStorage.getItem("munk_awake") === "true";
+    if (isAwake) { setMode("loading"); if (skipParam) { runFetch(); } else { setTimeout(() => runFetch(), 3000); } }
   }, []);
 
   async function runFetch() {

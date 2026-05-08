@@ -233,7 +233,7 @@ export default function LibraryPage() {
 
       <div style={{ maxWidth: '384px', margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 10 }}>
         <div style={{ paddingTop: '20px', paddingBottom: '8px' }}>
-          <button onClick={() => window.location.href = '/check-in'} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.40)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 16px 0', display: 'block' }}>← Back</button>
+          <button onClick={() => window.location.href = '/check-in?skip=true'} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.40)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 16px 0', display: 'block' }}>← Back</button>
           <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '4px' }}>Bibliotek</div>
           <div style={{ fontSize: '26px', fontWeight: 600, fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', marginBottom: '20px' }}>Your library</div>
         </div>

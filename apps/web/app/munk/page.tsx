@@ -117,6 +117,9 @@ export default function MunkPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '480px', textAlign: 'center' }}>
+        <div style={{ textAlign: 'left', marginBottom: '16px' }}>
+          <button onClick={() => window.location.href = '/check-in?skip=true'} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.06em', background: 'none', border: 'none', cursor: 'pointer' }}>← Back</button>
+        </div>
 
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
