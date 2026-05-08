@@ -5,17 +5,17 @@ import { useAtmosphere } from "../../hooks/useAtmosphere";
 type BreathPhase = "idle" | "inn" | "hold" | "ut";
 
 const MUNKENS_TIPS = [
-  "Slipp kjeven.",
-  "Senk skuldrene.",
-  "Se på horisonten.",
-  "La hendene hvile tungt.",
-  "Pust ut litt lenger enn du puster inn.",
+  "Drop your jaw.",
+  "Lower your shoulders.",
+  "Fix your gaze on the horizon.",
+  "Let your hands rest heavy.",
+  "Exhale a little longer than you inhale.",
 ];
 
 const ARTIKLER = [
-  { title: "Hva skjer i kroppen når du puster rolig?", tid: "3 min", url: "https://www.themunk.ai/library?tab=ro" },
-  { title: "Vagusnerven: kroppens robryter", tid: "5 min", url: "https://www.themunk.ai/library?tab=ro" },
-  { title: "Meditasjon for menn under press", tid: "4 min", url: "https://www.themunk.ai/library?tab=ro" },
+  { title: "What happens in the body when you breathe slowly?", tid: "3 min", url: "https://www.themunk.ai/library?tab=ro" },
+  { title: "The Vagus Nerve: your body's calm switch", tid: "5 min", url: "https://www.themunk.ai/library?tab=ro" },
+  { title: "Meditation for men under pressure", tid: "4 min", url: "https://www.themunk.ai/library?tab=ro" },
 ];
 
 export default function RoPage() {
@@ -52,10 +52,10 @@ export default function RoPage() {
   function wait(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
   const phaseLabel: Record<BreathPhase, string> = {
-    idle: "Trykk for å starte",
-    inn: "Pust inn ...",
+    idle: "Tap to start",
+    inn: "Breathe in ...",
     hold: "Hold ...",
-    ut: "Pust ut ...",
+    ut: "Breathe out ...",
   };
 
   return (
@@ -86,7 +86,7 @@ export default function RoPage() {
           <div className="text-[11px] tracking-[0.28em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.40)" }}>
             Verktøy
           </div>
-          <div className="text-[28px] font-semibold text-white">Ro</div>
+          <div className="text-[28px] font-semibold text-white">Calm</div>
         </div>
 
         {/* Quick Breath Hero */}
@@ -96,7 +96,7 @@ export default function RoPage() {
           onClick={() => setBreathActive(b => !b)}
         >
           <div className="text-[11px] tracking-[0.28em] uppercase" style={{ display: "none" }}>
-            Pusteøvelse
+            Breathing Exercise
           </div>
 
           {/* SVG Breath Circle */}
@@ -116,7 +116,7 @@ export default function RoPage() {
           </div>
 
           <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(255,255,255,0.40)", marginBottom: "4px" }}>Pusteøvelse</div>
+              <div style={{ fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(255,255,255,0.40)", marginBottom: "4px" }}>Breathing Exercise</div>
               <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.90)" }}>{phaseLabel[phase]}</div>
               {breathActive && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.30)", marginTop: "4px" }}>Trykk for å stoppe</div>}
             </div>
@@ -161,11 +161,11 @@ export default function RoPage() {
                 }}
               >
                 <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
-                <div style={{ fontSize:"10px", letterSpacing:"0.2em", textTransform:"uppercase", color:"rgba(255,255,255,0.30)", marginBottom:"8px" }}>Bibliotek →</div>
+                <div style={{ fontSize:"10px", letterSpacing:"0.2em", textTransform:"uppercase", color:"rgba(255,255,255,0.30)", marginBottom:"8px" }}>Library →</div>
                 <div style={{ fontSize:"14px", fontWeight:600, color:"rgba(255,255,255,0.90)", lineHeight:1.4, marginBottom:"8px" }}>
                   {art.title}
                 </div>
-                <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)" }}>{art.tid} lesetid</div>
+                <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.35)" }}>{art.tid} read</div>
               </div>
             ))}
           </div>
@@ -185,9 +185,9 @@ export default function RoPage() {
         }}
       >
         {[
-          { label: "I dag",   href: "/check-in" },
-          { label: "Mønster", href: "/monster"  },
-          { label: "Bibliotek", href: "/library", active: false },
+          { label: "Today",   href: "/check-in" },
+          { label: "Pattern", href: "/monster"  },
+          { label: "Library", href: "/library", active: false },
         ].map(tab => (
           <button
             key={tab.label}

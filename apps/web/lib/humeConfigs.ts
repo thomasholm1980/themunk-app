@@ -10,8 +10,8 @@ export type HumeModeKey = keyof typeof HUME_CONFIGS
 
 export const HUME_MODE_LABELS: Record<HumeModeKey, string> = {
   ARIA:         "Aria",
-  THE_PACER:    "Pust",
-  ZEN_MASTER:   "Meditasjon",
+  THE_PACER:    "Breathe",
+  ZEN_MASTER:   "Meditation",
   THE_OBSERVER: "Mindfulness",
-  THE_GUARDIAN: "Innsovning",
+  THE_GUARDIAN: "Sleep",
 }
