@@ -315,14 +315,14 @@ export default function HumeVoice({ onEmotionDetected, onTranscript, onAssistant
   }
 
   const MODE_IDLE_LABEL: Record<string, string> = {
-    ARIA:         'Trykk for å snakke med Aria',
-    THE_PACER:    'Trykk for å finne rytmen',
-    ZEN_MASTER:   'Trykk for å finne roen',
-    THE_OBSERVER: 'Trykk for å forankre deg i nuet',
-    THE_GUARDIAN: 'Trykk for å bli vugget i søvn',
+    ARIA:         'Push to talk to Aria',
+    THE_PACER:    'Push to find your rhythm',
+    ZEN_MASTER:   'Push to find your calm',
+    THE_OBSERVER: 'Push to anchor in the moment',
+    THE_GUARDIAN: 'Push to be guided to sleep',
   }
   const stateLabel = {
-    idle: MODE_IDLE_LABEL[configId ?? 'ARIA'] ?? 'Trykk for å snakke med Aria',
+    idle: MODE_IDLE_LABEL[configId ?? 'ARIA'] ?? 'Push to talk to Aria',
     connecting: 'Kobler til…',
     listening: 'Aria lytter — trykk for å stoppe',
     processing: 'Aria tenker…',
