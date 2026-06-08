@@ -5,11 +5,11 @@ import { logMorningEvent } from '../../lib/telemetry'
 import { useAtmosphere } from '../../hooks/useAtmosphere'
 
 const STARTER_PROMPTS = [
-  'Hva betyr dette stresset?',
-  'Hva er HRV egentlig?',
-  'Hvorfor blir dagen tyngre utover?',
-  'Hva gjør stress med søvnen?',
-  'Hva trenger kroppen min nå?',
+  'What does this stress mean?',
+  'What is HRV, really?',
+  'Why does the day get harder as it goes on?',
+  'What does stress do to sleep?',
+  'What does my body need right now?',
 ]
 
 interface Answer {
@@ -69,7 +69,7 @@ export default function AskPage() {
         }, settle)
       }
     } catch {
-      setError('Munken svarer ikke akkurat nå. Prøv igjen.')
+      setError('The Munk is unavailable right now. Please try again.')
       logMorningEvent('ask_munk_answer_failed' as any)
       setLoading(false)
     }
@@ -127,9 +127,9 @@ export default function AskPage() {
 
       <div className="w-full max-w-sm flex flex-col">
 
-        {/* ← Tilbake */}
+        {/* ← Back */}
         <button
-          onClick={() => { window.location.href = '/check-in?awake=true'; }}
+          onClick={() => { window.location.href = '/check-in?skip=true'; }}
           style={{
             alignSelf: 'flex-start', fontSize: '13px',
             color: 'rgba(255,255,255,0.80)', background: 'none',
@@ -137,7 +137,7 @@ export default function AskPage() {
             letterSpacing: '0.02em', cursor: 'pointer',
           }}
         >
-          ← Tilbake
+          ← Back
         </button>
 
         {/* HERO — larger glow, same shared center */}
@@ -188,7 +188,7 @@ export default function AskPage() {
           letterSpacing: '0.30em', textTransform: 'uppercase',
           color: '#ffffff', marginBottom: '8px', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.5)',
         }}>
-          Spør Munken
+          Ask The Munk
         </div>
 
         {/* Headline */}
@@ -197,14 +197,14 @@ export default function AskPage() {
           lineHeight: 1.25, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           letterSpacing: '-0.01em', marginBottom: '10px',
         }}>
-          Få en rolig forklaring på stresset ditt
+          Get a calm interpretation of your stress
         </div>
         <div style={{
           textAlign: 'center', fontSize: '14px', fontWeight: 400,
           lineHeight: 1.45, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.5)',
           marginTop: '4px', marginBottom: '0',
         }}>
-          Dagens signaler er klare. Nå kan du spørre hva de betyr.
+          Today's signals from your Oura Health Ring wearable are ready. Ask what they mean.
         </div>
 
         {/* Input */}
@@ -212,7 +212,7 @@ export default function AskPage() {
           value={question}
           onChange={e => setQuestion(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
-          placeholder="Hva lurer du på?"
+          placeholder="What are you wondering about?"
           rows={1}
           style={{
             width: '100%', background: 'transparent',
@@ -240,7 +240,7 @@ export default function AskPage() {
             cursor: question.trim() && !isWaiting ? 'pointer' : 'default',
           }}
         >
-          {isWaiting ? 'Munken lytter til hjertet ditt...' : 'Spør'}
+          {isWaiting ? 'The Munk is listening...' : 'Ask'}
         </button>
         </div>
 
@@ -252,7 +252,7 @@ export default function AskPage() {
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.92)', fontWeight: 500,
               marginBottom: '12px',
             }}>
-              Eller velg et spørsmål
+              Or choose a question
             </div>
             {STARTER_PROMPTS.map((p, i) => (
               <button
@@ -289,17 +289,17 @@ export default function AskPage() {
           <div ref={answerRef} className="fade-up w-full flex flex-col" style={{ marginBottom: '40px', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: '24px', padding: '24px' }}>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', marginBottom: '24px' }} />
             <div className="a-s" style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Kort svar</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Short answer</div>
               <div style={{ fontSize: '17px', lineHeight: 1.55, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.01em' }}>{answer.short_answer}</div>
             </div>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
             <div className="a-s" style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Hvorfor det betyr noe</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Why it matters</div>
               <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>{answer.why_it_matters}</div>
             </div>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.09)', marginBottom: '20px' }} />
             <div className="a-s">
-              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>Hva du gjør nå</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)', marginBottom: '8px' }}>What to do now</div>
               <div style={{ fontSize: '14px', lineHeight: 1.60, color: 'rgba(255,255,255,0.70)' }}>{answer.what_to_do}</div>
             </div>
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.14)', margin: '24px 0 16px' }} />
@@ -335,9 +335,9 @@ export default function AskPage() {
         }}
       >
         {[
-          { label: "I dag",   href: "/check-in?awake=true" },
-          { label: "Mønster", href: "/monster" },
-          { label: "Ro",      href: "/ro" },
+          { label: "Today",   href: "/check-in?awake=true" },
+          { label: "Pattern", href: "/monster" },
+          { label: "Calm",    href: "/ro" },
         ].map(tab => (
           <button
             key={tab.label}

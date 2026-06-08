@@ -25,7 +25,7 @@ interface StateResponse {
 type Mode = "idle" | "loading" | "no_data" | "ready";
 
 function getTimeBucket(): "morning" | "day" | "evening" {
-  const parts = new Intl.DateTimeFormat("no-NO", { timeZone: "Europe/Oslo", hour: "numeric", hour12: false }).formatToParts(new Date());
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Oslo", hour: "numeric", hour12: false }).formatToParts(new Date());
   const h = parseInt(parts.find(p => p.type === "hour")?.value ?? "0", 10);
   if (h >= 4 && h < 11) return "morning";
   if (h >= 11 && h < 17) return "day";
@@ -33,15 +33,15 @@ function getTimeBucket(): "morning" | "day" | "evening" {
 }
 
 function getOsloDateLabel(): string {
-  return new Intl.DateTimeFormat("no-NO", {
+  return new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Oslo", weekday: "long", day: "numeric", month: "long",
   }).format(new Date());
 }
 
 const LOADING_MESSAGES = [
-  "Munken lytter til hjertet ditt...",
-  "Samler dagens signaler...",
-  "Finn roen et øyeblikk...",
+  "The Munk is listening to your heart...",
+  "Gathering today's signals...",
+  "Take a moment to breathe...",
 ];
 
 function AtmosphereOrbs() {
@@ -141,28 +141,28 @@ function WaitingState({ onWake, mode }: { onWake: () => void; mode: Mode }) {
               {LOADING_MESSAGES[msgIndex]}
             </p>
             <p style={{ fontSize:"11px",letterSpacing:"0.22em",textTransform:"uppercase",color:"rgba(212,175,55,0.55)" }}>
-              Synkroniserer med Oura
+              Syncing with Oura
             </p>
           </div>
         )}
         {mode === "idle" && (
           <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay:"200ms" }}>
             <p className="munk-heading" style={{ fontSize:"30px",lineHeight:1.2 }}>
-              {IS_DEMO ? "The Munk is ready" : (timeBucket==="morning"?"God morgen":timeBucket==="day"?"Munken er våken":"Munken roer ned")}
+              {IS_DEMO ? "The Munk is ready" : (timeBucket==="morning"?"Good morning":timeBucket==="day"?"The Munk is awake":"The Munk is resting")}
             </p>
-            <p style={{ fontSize:"16px",color:"rgba(255,255,255,0.45)" }}>{IS_DEMO ? "Tap to see your stress level." : "Trykk for å se dagens stressnivå."}</p>
+            <p style={{ fontSize:"16px",color:"rgba(255,255,255,0.45)" }}>"Tap to see your stress level."</p>
             <button onClick={onWake} style={ghostButton}>
-              {IS_DEMO ? "Meet the Munk" : (timeBucket==="morning"?"Vekk munken":"Møt munken")}
+              "Meet The Munk"
             </button>
           </div>
         )}
         {mode === "no_data" && (
           <div className="fade-in flex flex-col items-center gap-4" style={{ animationDelay:"0ms" }}>
             <p style={{ fontSize:"22px",color:"rgba(255,255,255,0.90)",lineHeight:1.35,maxWidth:"280px" }}>
-              {IS_DEMO ? "The Munk awaits your body's signals" : "Munken venter på kroppens signaler"}
+              "The Munk awaits your body's signals"
             </p>
             <p style={{ fontSize:"15px",color:"rgba(255,255,255,0.50)",maxWidth:"260px",lineHeight:1.65 }}>
-              {IS_DEMO ? "Open the Oura app to confirm your ring has synced today's data." : "Åpne Oura-appen for å bekrefte at ringen din har synkronisert dagens data."}
+              "Open the Oura app to confirm your ring has synced today's data."
             </p>
             <button onClick={openOura} style={{ ...ghostButton,marginTop:"8px",color:"#D4AF37",borderColor:"rgba(212,175,55,0.30)" }}>
               {IS_DEMO ? "Open Oura" : "Åpne Oura"}
@@ -219,8 +219,9 @@ export default function CheckInPage() {
       // Fjern parameter fra URL uten reload
       window.history.replaceState({}, '', '/check-in');
     }
-    const isAwake = awakeParam || sessionStorage.getItem("munk_awake") === "true";
-    if (isAwake) { setMode("loading"); runFetch(); }
+    const skipParam = search.includes('skip=true');
+    const isAwake = awakeParam || skipParam || sessionStorage.getItem("munk_awake") === "true";
+    if (isAwake) { setMode("loading"); if (skipParam) { runFetch(); } else { setTimeout(() => runFetch(), 7000); } }
   }, []);
 
   async function runFetch() {
@@ -321,8 +322,8 @@ export default function CheckInPage() {
     };
     if (osloHour >= 20 && osloHour < 23) return {
       label: "EVENING REFLECTION",
-      title: "Kvelden tilhører restitusjonen",
-      text: "Kroppen din har gjort jobben. HRV på 52ms tilsier at du er klar for dyp restitusjon. Slipp dagens agenda. Det som ikke ble gjort i dag, var ikke ment for i dag."
+      title: "The evening belongs to recovery",
+      text: "Your body has done its work. An HRV of 52ms signals readiness for deep recovery. Release today's agenda. What was not done today was not meant for today."
     };
     return null;
   })() : null;

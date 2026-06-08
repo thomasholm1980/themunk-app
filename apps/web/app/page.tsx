@@ -1,4 +1,4 @@
-import LandingPage from "./landing/page";
+import CheckInPage from "./check-in/page";
 export default function Home() {
-  return <LandingPage />;
+  return <CheckInPage />;
 }

@@ -63,10 +63,10 @@ export async function GET(req: NextRequest) {
   console.log('[callback] token stored successfully for user=thomas');
 
   // Fire-and-forget backfill — do not block redirect
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.themunk.ai'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin
   fetch(`${baseUrl}/api/wearables/oura/backfill`, { method: 'POST' }).catch((err) => {
     console.error('[callback] backfill trigger failed', err)
   })
 
-  return NextResponse.redirect('https://www.themunk.ai/?oura=connected');
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin}/?oura=connected`);
 }

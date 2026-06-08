@@ -118,7 +118,7 @@ export default function CheckInDemo() {
         }} />
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(10,28,22,0.55) 0%, rgba(8,18,16,0.65) 100%)"
+          background: "linear-gradient(180deg, rgba(10,28,22,0.75) 0%, rgba(8,18,16,0.82) 100%)"
         }} />
       </div>
 
@@ -166,23 +166,37 @@ export default function CheckInDemo() {
 
           {mode === "idle" ? (
             <>
-              <h1 style={{
-                fontSize: "26px", color: "rgba(255,255,255,0.95)",
-                fontWeight: 400, margin: "16px 0 8px"
+              <div style={{
+                backgroundColor: "rgba(255,253,240,0.92)",
+                backdropFilter: "blur(20px) saturate(140%)",
+                WebkitBackdropFilter: "blur(20px) saturate(140%)",
+                border: "1px solid rgba(212,175,55,0.3)",
+                borderRadius: "32px",
+                boxShadow: "0 8px 32px 0 rgba(0,0,0,0.15)",
+                padding: "32px 36px",
+                marginTop: "8px",
+                width: "100%"
               }}>
-                The Munk is ready
-              </h1>
-              <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)", margin: "0 0 24px" }}>
-                Tap to see your stress level.
-              </p>
-              <button onClick={() => setMode("ready")} style={{
-                background: "#D4AF37", border: "none",
-                borderRadius: "24px", color: "#0d1a15",
-                fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase",
-                padding: "14px 32px", cursor: "pointer", fontWeight: 600
-              }}>
-                Meet the Munk
-              </button>
+                <h1 style={{
+                  fontSize: "34px", color: "#996515", fontWeight: 800,
+                  margin: "0 0 12px"
+                }}>
+                  The Munk is ready
+                </h1>
+                <p style={{ fontSize: "17px", color: "#1a1a1a", margin: "0 0 28px", fontWeight: 400 }}>
+                  Tap to see your stress level.
+                </p>
+                <button onClick={() => setMode("ready")} style={{
+                  background: "rgba(6,20,10,0.95)", border: "2px solid #D4AF37",
+                  borderRadius: "16px", color: "#D4AF37",
+                  fontSize: "14px", letterSpacing: "0.15em", textTransform: "uppercase",
+                  padding: "18px 48px", cursor: "pointer", fontWeight: 700,
+                  display: "block", margin: "0 auto",
+                  boxShadow: "0 8px 40px rgba(0,0,0,0.8)"
+                }}>
+                  MEET THE MUNK
+                </button>
+              </div>
             </>
           ) : (
             <>

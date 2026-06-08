@@ -4,7 +4,14 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) throw new Error('Missing Supabase env vars');
+  return createClient(url, key);
+}
 import { computeAdherence } from '@themunk/core';
 
 export async function POST(request: NextRequest) {
@@ -30,7 +37,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Fetch protocol target for this day
-  const { data: protocol } = await supabase
+  const { data: protocol } = await getSupabase()
     .from('daily_protocol')
     .select('deep_work_minutes')
     .eq('user_id', userId)
@@ -46,7 +53,7 @@ export async function POST(request: NextRequest) {
     protocol_deep_work_minutes,
   })
 
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('protocol_adherence')
     .upsert({
       user_id: userId,

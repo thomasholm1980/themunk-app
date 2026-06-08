@@ -35,9 +35,14 @@ const STATE_EXPRESSION: Record<SystemState, StateExpression> = {
 };
 
 const STATE_LABEL: Record<SystemState, string> = {
-  GREEN:  "Godt restituert",
-  YELLOW: "Moderat stress",
-  RED:    "Høyt stress",
+  GREEN:  "Well recovered",
+  YELLOW: "Moderate stress",
+  RED:    "High stress",
+};
+const BRIEF_CONTENT: Record<SystemState, { title: string; body: string; action: string }> = {
+  GREEN:  { title: "System in balance",          body: "You have high capacity today.",                              action: "Use your energy — today you have margin." },
+  YELLOW: { title: "Resilience reduced",         body: "Be mindful of your energy expenditure.",                    action: "Take a break before you need one." },
+  RED:    { title: "Persistent stress detected", body: "The body is prioritising recovery. Adjust expectations.",   action: "Postpone what can wait. Start slow." },
 };
 
 type TimeBucket = "morning" | "day" | "evening";
@@ -65,37 +70,37 @@ function getBgClass(bucket: TimeBucket): string {
 
 const NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
   GREEN: {
-    morning: "Du starter dagen i god balanse.",
-    day:     "Kroppen holder seg stabil utover dagen.",
-    evening: "Du har brukt lite av reservene i dag.",
+    morning: "You start the day in good balance.",
+    day:     "Your body remains stable through the day.",
+    evening: "You have used little of your reserves today.",
   },
   YELLOW: {
-    morning: "Hjertet ditt slår litt stivere i dag. Nervesystemet fant ikke full ro i natt — du starter med et stress-etterslep.",
-    day:     "Stresset sitter fortsatt i kroppen. Du har jobbet siden tidlig — nå trenger nervesystemet en pause.",
-    evening: "Dagen har kostet mer enn kroppen rakk å hente inn. Stresset fra i dag trenger natt for å løse seg.",
+    morning: "Your heart beats a little stiffer today. The nervous system did not fully recover overnight — you start with a stress carryover.",
+    day:     "Stress is still present in the body. You have been working since early — now the nervous system needs a break.",
+    evening: "The day has cost more than the body managed to recover. Tonight's sleep will resolve the remaining stress.",
   },
   RED: {
-    morning: "Kroppen er allerede belastet før dagen begynner.",
-    day:     "Stressnivået er høyt — kroppen er under press nå.",
-    evening: "Dagens belastning sitter fortsatt i kroppen.",
+    morning: "The body is already under load before the day begins.",
+    day:     "Stress level is high — the body is under pressure right now.",
+    evening: "Today's load is still present in the body.",
   },
 };
 
 const ACTION_NOW_TEXT: Record<SystemState, Record<TimeBucket, string>> = {
   GREEN: {
-    morning: "Bruk energien — i dag tåler du mer.",
-    day:     "Hold tempoet. Du har margin.",
-    evening: "God kveld for tidlig søvn — bygg videre på overskuddet.",
+    morning: "Use your energy — today you can handle more.",
+    day:     "Keep the pace. You have margin.",
+    evening: "Good evening for early sleep — build on the surplus.",
   },
   YELLOW: {
-    morning: "Litt bevegelse, mye ro. La kroppen varme opp før du belaster den.",
-    day:     "Ta en pause før du trenger det. Stresset løser seg ikke ved å jobbe hardere.",
-    evening: "Ingen skjerm, ingen krevende samtaler. Kroppen trenger ro for å hente inn stresset fra i dag.",
+    morning: "Light movement, plenty of rest. Let the body warm up before loading it.",
+    day:     "Take a break before you need one. Stress does not resolve by working harder.",
+    evening: "No screens, no demanding conversations. The body needs calm to recover from today.",
   },
   RED: {
-    morning: "Utsett det som kan vente. Start rolig.",
+    morning: "Postpone what can wait. Start slowly.",
     day:     "Senk intensiteten. Kroppen klarer ikke mer akkurat nå.",
-    evening: "Ingen skjerm, ingen krevende samtaler. Bare ro.",
+    evening: "No screens, no demanding conversations. Only rest.",
   },
 };
 
@@ -396,7 +401,7 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
           {/* Stress level */}
           <div className={`b-state ease-spring${mounted ? " in" : ""}`}>
             <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.40)" }}>
-              Stressnivå
+              Stress level
             </div>
             <div className="text-[34px] leading-[1.15] font-medium tracking-tight" style={{ color: "rgba(255,255,255,0.95)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>
               {STATE_LABEL[state]}
@@ -408,42 +413,43 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
             <div className={`b-why ease-spring flex justify-center gap-12 mt-3 mb-1${mounted ? " in" : ""}`} style={{ opacity: 0.85 }}>
               {hrv && (
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>HRV (Oura)</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>HRV (Oura Ring)</span>
                   <span className="text-[20px] font-medium italic" style={{ color: "rgba(255,255,255,0.90)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>{hrv} ms</span>
                 </div>
               )}
               {rhr && (
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>Hvilepuls (Oura)</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(212,175,55,0.55)" }}>Resting HR (Oura Ring)</span>
                   <span className="text-[20px] font-medium italic" style={{ color: "rgba(255,255,255,0.90)", fontFamily: "var(--font-crimson), ui-serif, Georgia, serif" }}>{rhr} bpm</span>
                 </div>
               )}
             </div>
           )}
 
-          {/* NOW + Gjør nå */}
+          {/* NOW + Do now */}
           <div className={`b-now ease-spring mt-5 w-full${mounted ? " in" : ""}`} style={{ background:"rgba(255,255,255,0.06)", backdropFilter:"blur(30px)", WebkitBackdropFilter:"blur(30px)", border:"1px solid rgba(255,255,255,0.10)", borderRadius:"28px", padding:"22px 24px", boxShadow:"0 24px 60px -15px rgba(0,0,0,0.7)", position:"relative", overflow:"hidden" }}>
             {/* Edge-light */}
             <div style={{ position:"absolute", inset:"0 0 auto 0", height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3 font-semibold" style={{ color: "rgba(255,255,255,0.40)" }}>
-              Kroppens signaler
+              Body signals
             </div>
-            <div className="text-[16px] text-white leading-snug mb-4">Stresset har ikke sluppet. Gi kroppen tid.</div>
+            <div className="text-[14px] font-semibold text-white leading-snug mb-1">{BRIEF_CONTENT[contract.state].title}</div>
+            <div className="text-[16px] text-white leading-snug mb-4">{BRIEF_CONTENT[contract.state].body}</div>
 
-            {/* Ask the Munk CTA — over Gjør nå */}
+            {/* Ask the Munk CTA — over Do now */}
             <button
               onClick={() => window.location.href = "/ask"}
               className="w-full mb-6 rounded-2xl text-[11px] uppercase tracking-[0.3em] font-semibold transition-opacity hover:opacity-90 active:opacity-80"
               style={{ padding:"14px", background:"rgba(212,175,55,0.90)", color:"#0d1a15", cursor:"pointer", border:"none" }}
             >
-              Spør Munken om signalene →
+              Ask The Munk about your signals →
             </button>
 
             <div className="w-full h-px mb-3" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <div className="text-[10px] tracking-[0.3em] uppercase mb-2 font-semibold" style={{ color: "rgba(212,175,55,0.50)" }}>
-              Gjør nå
+              Do now
             </div>
-            <div className="text-[16px] font-semibold text-white leading-snug">Ta deg en pause</div>
+            <div className="text-[16px] font-semibold text-white leading-snug">{BRIEF_CONTENT[contract.state].action}</div>
           </div>
 
           {/* Ask the Munk — flyttet til meny (Steg 4) */}
@@ -457,46 +463,6 @@ export default function MunkDailyBriefRatnaV2({ contract, dateLabel = "I dag", o
         </div>
       </div>
 
-      {/* Fixed Bottom Navigation */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 flex justify-around items-center px-8"
-        style={{
-          height: "72px",
-          background: "rgba(8,18,16,0.85)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        {[
-          { id: "idag",    label: "I dag",    href: "/check-in" },
-          { id: "monster", label: "Mønster",  href: "/monster"  },
-          { id: "ro",      label: "Bibliotek", href: "/library"  },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id as typeof activeTab);
-              window.location.href = tab.href;
-            }}
-            className="flex flex-col items-center gap-1"
-          >
-            {activeTab === tab.id && (
-              <div style={{ width:"4px", height:"4px", background:"#D4AF37", borderRadius:"50%", marginBottom:"2px" }} />
-            )}
-            {activeTab !== tab.id && <div style={{ width:"4px", height:"4px", marginBottom:"2px" }} />}
-            <span
-              className="text-[11px] tracking-[0.18em] uppercase"
-              style={{
-                color: activeTab === tab.id ? "#D4AF37" : "rgba(255,255,255,0.30)",
-                fontWeight: activeTab === tab.id ? 500 : 400,
-              }}
-            >
-              {tab.label}
-            </span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   );

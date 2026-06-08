@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import BottomNav from '../components/BottomNav'
 import { useAtmosphere } from '../../hooks/useAtmosphere'
 
 type CardType = 'hero' | 'podcast' | 'tips' | 'video' | 'instagram' | 'article' | 'poll'
@@ -154,7 +155,7 @@ function AddUrlSection({ onAdded }: { onAdded: () => void }) {
   return (
     <div style={{ background: 'rgba(212,175,55,0.04)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.15), transparent)' }} />
-      <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase' as const, color: 'rgba(212,175,55,0.60)', marginBottom: '14px' }}>✦ LEGG TIL LENKE</div>
+      <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase' as const, color: 'rgba(212,175,55,0.60)', marginBottom: '14px' }}>✦ ADD LINK</div>
       <input
         type="url"
         value={url}
@@ -232,19 +233,19 @@ export default function LibraryPage() {
 
       <div style={{ maxWidth: '384px', margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 10 }}>
         <div style={{ paddingTop: '20px', paddingBottom: '8px' }}>
-          <button onClick={() => window.location.href = '/check-in?awake=true'} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.40)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 16px 0', display: 'block' }}>← Tilbake</button>
+          <button onClick={() => window.location.href = '/check-in?skip=true'} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.40)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 16px 0', display: 'block' }}>← Back</button>
           <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '4px' }}>Bibliotek</div>
-          <div style={{ fontSize: '26px', fontWeight: 600, fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', marginBottom: '20px' }}>Ditt bibliotek</div>
+          <div style={{ fontSize: '26px', fontWeight: 600, fontFamily: 'var(--font-crimson), ui-serif, Georgia, serif', marginBottom: '20px' }}>Your library</div>
         </div>
 
         {/* Dagens innsikt */}
-        <div style={{ borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(212,175,55,0.18)' }}>
+        <div style={{ borderRadius: '24px', padding: '24px', marginBottom: '16px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(212,175,55,0.18)', background: 'rgba(8,18,16,0.85)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/munk-bg-leaf-bright.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.22, zIndex: 0 }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, rgba(10,28,22,0.82) 0%, rgba(8,18,16,0.90) 100%)', zIndex: 1 }} />
           <div style={{ position: 'absolute', inset: '0 0 auto 0', height: '1px', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.20), transparent)', zIndex: 2 }} />
           <div style={{ position: 'relative', zIndex: 3 }}>
-          <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.60)', marginBottom: '10px' }}>✦ DAGENS INNSIKT</div>
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.80)', lineHeight: 1.6 }}>{heroText ?? 'Laster dagens signaler...'}</p>
+          <div style={{ fontSize: '10px', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.60)', marginBottom: '10px' }}>✦ TODAY'S INSIGHT</div>
+          <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.95)', lineHeight: 1.6, fontWeight: 400 }}>{heroText ?? 'Laster dagens signaler...'}</p>
           </div>
         </div>
 
@@ -293,14 +294,7 @@ export default function LibraryPage() {
         </div>
       </div>
 
-      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '72px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', background: 'rgba(8,18,16,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 32px', zIndex: 50 }}>
-        {[{ label: 'I dag', href: '/check-in?awake=true' }, { label: 'Mønster', href: '/monster' }, { label: 'Bibliotek', href: '/library' }].map(tab => (
-          <button key={tab.label} onClick={() => window.location.href = tab.href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'transparent', marginBottom: '2px' }} />
-            <span style={{ fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.30)', fontWeight: 400 }}>{tab.label}</span>
-          </button>
-        ))}
-      </nav>
+      <BottomNav />
     </div>
   )
 }
