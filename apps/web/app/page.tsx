@@ -1,4 +1,4 @@
-import CheckInPage from "./check-in/page";
+import { redirect } from 'next/navigation';
 export default function Home() {
-  return <CheckInPage />;
+  redirect('/landing');
 }
